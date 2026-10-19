@@ -1,0 +1,440 @@
+/* ==========================================================
+   Prepare to Shine / Prepare to Die - estilos base
+   MOBILE FIRST: lo de afuera de las media queries es para
+   celular; los @media (min-width) agregan para pantallas grandes.
+
+   Temas: la clase del <body> elige la paleta.
+     .tema-shine -> fase inicial, retro y colorida
+     .tema-souls -> giro oscuro (se completa más adelante)
+   Todo color o fuente se usa a través de las variables,
+   así cambiar de tema es solo cambiar la clase.
+   ========================================================== */
+
+:root,
+.tema-shine {
+    --cielo: #5c94fc;
+    --cielo-bajo: #9cc4ff;
+    --suelo: #c84c0c;
+    --suelo-junta: #7a2e08;
+    --pasto: #3cb043;
+    --pasto-oscuro: #1e7a2a;
+    --moneda: #fcbc3c;
+    --rojo: #e52521;
+    --verde: #2e9e3e;
+    --tinta: #1a1a2e;
+    --papel: #fffbea;
+    --texto: #1a1a2e;
+    --texto-suave: #4a4a68;
+    --texto-sobre-color: #ffffff;
+    --color-palabra: var(--moneda);
+
+    --fuente-titulo: 'Press Start 2P', 'Courier New', monospace;
+    --fuente-texto: 'Nunito', system-ui, sans-serif;
+
+    --borde: 4px solid var(--tinta);
+    --sombra-bloque: 0 6px 0 var(--tinta);
+    --radio: 0;
+}
+
+.tema-souls {
+    --cielo: #0e0d0b;
+    --cielo-bajo: #1f1b17;
+    --suelo: #2a2723;
+    --suelo-junta: #141210;
+    --pasto: #3a352e;
+    --pasto-oscuro: #22201c;
+    --moneda: #e8833a;
+    --rojo: #7a1e1e;
+    --verde: #4a4238;
+    --tinta: #000000;
+    --papel: #1c1a17;
+    --texto: #d9cbb0;
+    --texto-suave: #8c8273;
+    --texto-sobre-color: #f2e6cf;
+    --color-palabra: #a3161a; /* "Die" en rojo oscuro */
+
+    --fuente-titulo: 'Cinzel', Georgia, serif;
+    --fuente-texto: 'EB Garamond', Georgia, serif;
+
+    --borde: 1px solid #5a5045;
+    --sombra-bloque: 0 0 24px rgba(232, 131, 58, 0.25);
+    --radio: 2px;
+}
+
+/* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(var(--cielo) 60%, var(--cielo-bajo));
+    color: var(--texto);
+    font-family: var(--fuente-texto);
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: background 0.6s, color 0.6s;
+}
+
+img {
+    image-rendering: pixelated;
+}
+
+a {
+    color: inherit;
+}
+
+/* ---------- Barra superior (HUD) ---------- */
+
+.hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--tinta);
+    color: var(--texto-sobre-color);
+    font-family: var(--fuente-titulo);
+    font-size: 0.6rem;
+}
+
+.hud-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--texto-sobre-color);
+}
+
+.hud-logo img {
+    width: 20px;
+    height: 20px;
+}
+
+.hud-nav {
+    display: flex;
+    gap: 1rem;
+}
+
+.hud-nav a {
+    text-decoration: none;
+}
+
+.hud-nav a:hover,
+.hud-nav a:focus-visible {
+    color: var(--moneda);
+}
+
+/* ---------- Escenario (contenido principal) ---------- */
+
+.escenario {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    padding: 2rem 1rem 3rem;
+}
+
+.nube {
+    position: absolute;
+    width: 96px;
+    pointer-events: none;
+    animation: flotar 40s linear infinite;
+}
+
+.nube-1 { top: 1rem;  left: -10%; }
+.nube-2 { top: 9rem;  left: 60%; width: 64px; animation-duration: 55s; }
+.nube-3 { top: 18rem; left: 20%; width: 80px; animation-duration: 70s; }
+
+@keyframes flotar {
+    from { transform: translateX(0); }
+    to   { transform: translateX(110vw); }
+}
+
+.contenido {
+    position: relative;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+/* ---------- Portada (home) ---------- */
+
+.portada {
+    text-align: center;
+}
+
+.bloques {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 1.5rem;
+}
+
+.bloques img {
+    width: 48px;
+    height: 48px;
+}
+
+.bloques img:nth-child(2) {
+    animation: rebote 1.2s ease-in-out infinite;
+}
+
+@keyframes rebote {
+    0%, 70%, 100% { transform: translateY(0); }
+    80%           { transform: translateY(-12px); }
+}
+
+.titulo-juego {
+    margin: 0 0 1rem;
+    font-family: var(--fuente-titulo);
+    font-size: 1.4rem;
+    line-height: 1.6;
+    color: var(--texto-sobre-color);
+    text-shadow: 3px 3px 0 var(--tinta);
+}
+
+.titulo-juego .palabra-fase {
+    display: block;
+    font-size: 2.2rem;
+}
+
+/* La palabra que cambia entre fases: "Shine" o "Die". */
+.palabra-fase {
+    color: var(--color-palabra);
+}
+
+.lema {
+    margin: 0 auto 2rem;
+    max-width: 28ch;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--texto-sobre-color);
+    text-shadow: 2px 2px 0 var(--tinta);
+}
+
+.saludo {
+    font-weight: 700;
+    color: var(--texto-sobre-color);
+}
+
+/* ---------- Secreto: 5 clicks en "Shine" ---------- */
+
+.palabra-secreta {
+    cursor: pointer;
+    user-select: none;
+}
+
+.palabra-secreta:hover,
+.palabra-secreta:focus-visible {
+    outline: none;
+    filter: brightness(1.15);
+}
+
+/* Capa negra para el fundido entre temas (la crea secreto.js). */
+.telon {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---------- Botones tipo bloque ---------- */
+
+.acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 320px;
+    margin: 0 auto 2.5rem;
+}
+
+.btn {
+    display: block;
+    padding: 1rem 1.25rem;
+    border: var(--borde);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra-bloque);
+    font-family: var(--fuente-titulo);
+    font-size: 0.8rem;
+    text-decoration: none;
+    text-align: center;
+    color: var(--texto-sobre-color);
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s;
+}
+
+.btn:hover,
+.btn:focus-visible {
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 var(--tinta);
+}
+
+.btn-primario   { background: var(--rojo); }
+.btn-secundario { background: var(--verde); }
+
+/* ---------- Tarjeta (panel de contenido) ---------- */
+
+.tarjeta {
+    background: var(--papel);
+    border: var(--borde);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra-bloque);
+    padding: 1.5rem 1.25rem;
+    text-align: left;
+}
+
+.tarjeta h2 {
+    margin: 0 0 1rem;
+    font-family: var(--fuente-titulo);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.pasos {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+}
+
+.pasos li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.pasos img {
+    flex: none;
+    width: 24px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.pasos p {
+    margin: 0;
+}
+
+
+/* ---------- Suelo (footer) ---------- */
+
+.suelo {
+    border-top: 8px solid var(--pasto);
+    box-shadow: inset 0 4px 0 var(--pasto-oscuro);
+    background-color: var(--suelo);
+    background-image:
+        linear-gradient(var(--suelo-junta) 2px, transparent 2px),
+        linear-gradient(90deg, var(--suelo-junta) 2px, transparent 2px);
+    background-size: 32px 16px;
+    color: var(--texto-sobre-color);
+    text-align: center;
+    padding: 1.25rem 1rem;
+}
+
+.suelo p {
+    display: inline-block;
+    margin: 0;
+    padding: 0.4rem 0.6rem;
+    background: var(--tinta);
+    font-family: var(--fuente-titulo);
+    font-size: 0.5rem;
+    line-height: 1.8;
+}
+
+/* ---------- Contenido que cambia según el tema ---------- */
+
+.tema-shine .solo-souls,
+.tema-souls .solo-shine {
+    display: none;
+}
+
+/* ---------- Tema Souls: ajustes que no son solo de color ---------- */
+
+.tema-souls .nube,
+.tema-souls .bloques {
+    display: none;
+}
+
+.tema-souls .titulo-juego .palabra-fase {
+    text-shadow: 0 0 18px rgba(163, 22, 26, 0.8);
+}
+
+.tema-souls .titulo-juego,
+.tema-souls .lema,
+.tema-souls .saludo {
+    text-shadow: 0 0 12px rgba(232, 131, 58, 0.5);
+}
+
+.tema-souls .suelo {
+    background-image: none;
+}
+
+/* ---------- Pantallas más grandes ---------- */
+
+@media (min-width: 600px) {
+    .hud {
+        font-size: 0.7rem;
+        padding: 1rem 1.5rem;
+    }
+
+    .titulo-juego {
+        font-size: 2rem;
+    }
+
+    .titulo-juego .palabra-fase {
+        font-size: 3.2rem;
+    }
+
+    .acciones {
+        flex-direction: row;
+        justify-content: center;
+        max-width: none;
+    }
+
+    .bloques img {
+        width: 64px;
+        height: 64px;
+    }
+
+    .nube {
+        width: 128px;
+    }
+}
+
+@media (min-width: 900px) {
+    .escenario {
+        padding: 3rem 2rem 4rem;
+    }
+
+    .tarjeta {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .pasos {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .pasos li {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nube,
+    .bloques img {
+        animation: none;
+    }
+}

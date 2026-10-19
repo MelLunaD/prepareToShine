@@ -1,12 +1,50 @@
-<div class="w3-content" style="max-width:900px">
-    <div class="w3-panel card-contenido w3-padding-24 w3-margin-top w3-card">
+<section class="portada">
 
-        <h2>{{titulo}}</h2>
-        <p>El juego de preguntas que empieza fácil... y después no tanto.</p>
-
-        {{#usuario}}
-            <p class="w3-large">Hola, <b>{{usuario}}</b> 👋</p>
-        {{/usuario}}
-
+    <div class="bloques" aria-hidden="true">
+        <img src="/public/img/bloque.svg" alt="">
+        <img src="/public/img/bloque.svg" alt="">
+        <img src="/public/img/bloque.svg" alt="">
     </div>
-</div>
+
+    <h1 class="titulo-juego">Prepare to <span class="palabra-fase">{{palabraFase}}</span></h1>
+    <p class="lema">El souls de los juegos de preguntas.</p>
+
+    {{#usuario}}
+        <p class="saludo">¡Hola, {{usuario}}!</p>
+    {{/usuario}}
+
+    <div class="acciones">
+        <a href="#" class="btn btn-primario">Jugar</a>
+        <a href="#" class="btn btn-secundario">Ranking</a>
+    </div>
+
+    <!-- Cada paso tiene su versión Shine y su versión Souls: el CSS muestra
+         la que corresponde según la clase del body (.solo-shine / .solo-souls). -->
+    <div class="tarjeta">
+        <h2>
+            <span class="solo-shine">¿Cómo se juega?</span>
+            <span class="solo-souls">Lo que te espera</span>
+        </h2>
+        <ul class="pasos">
+            <li>
+                <img class="solo-shine" src="/public/img/bloque.svg" alt="">
+                <img class="solo-souls" src="/public/img/calavera.svg" alt="">
+                <p class="solo-shine">Respondé preguntas de videojuegos antes de que se acabe el tiempo.</p>
+                <p class="solo-souls">Vas a responder preguntas de videojuegos. Y vas a morir. Muchas veces.</p>
+            </li>
+            <li>
+                <img class="solo-shine" src="/public/img/moneda.svg" alt="">
+                <img class="solo-souls" src="/public/img/hoguera.svg" alt="">
+                <p class="solo-shine">Cada respuesta correcta suma puntos. Una incorrecta termina la partida.</p>
+                <p class="solo-souls">Una respuesta incorrecta y volvés a la hoguera. Los puntos que tenías quedan donde caíste.</p>
+            </li>
+            <li>
+                <img class="solo-shine" src="/public/img/estrella.svg" alt="">
+                <img class="solo-souls" src="/public/img/lapida.svg" alt="">
+                <p class="solo-shine">Llegá lo más lejos posible y subí al ranking.</p>
+                <p class="solo-souls">El ranking está lleno de lápidas de los que lo intentaron antes. La tuya va a ser la próxima.</p>
+            </li>
+        </ul>
+    </div>
+
+</section>

@@ -18,8 +18,12 @@ class MustacheRender
 
     public function renderiza($view, $data = [])
     {
-        require_once($this->viewPath . "/header.php");
+        // Datos que necesita el layout (header y footer) si el controller no los manda:
+        // por defecto, el tema colorido "shine".
+        $data += ["tema" => "shine", "palabraFase" => "Shine"];
+
+        echo $this->mustache->render("header", $data);
         echo $this->mustache->render($view . "View", $data);
-        require_once($this->viewPath . "/footer.php");
+        echo $this->mustache->render("footer", $data);
     }
 }

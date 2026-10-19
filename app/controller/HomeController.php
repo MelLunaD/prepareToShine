@@ -13,7 +13,10 @@ class HomeController
 
     public function show()
     {
-        $data["titulo"] = "Prepare to Shine";
+        // Fase visual: "shine" (colorida) o "souls" (oscura). La home arranca en shine;
+        // el paso a souls lo dispara el secreto de public/js/secreto.js.
+        $data["tema"] = "shine";
+        $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
         $data["usuario"] = $_SESSION['usuario'] ?? null;
 
         $this->render->renderiza("home", $data);
