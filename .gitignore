@@ -11,3 +11,7 @@ __MACOSX/
 Thumbs.db
 .idea/
 .vscode/
+
+# Fotos de perfil que suben los jugadores
+public/img/perfiles/*
+!public/img/perfiles/.gitkeep

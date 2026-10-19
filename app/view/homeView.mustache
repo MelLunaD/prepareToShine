@@ -7,11 +7,14 @@
     </div>
 
     <h1 class="titulo-juego">Prepare to <span class="palabra-fase">{{palabraFase}}</span></h1>
-    <p class="lema">El souls de los juegos de preguntas.</p>
+    <p class="lema">
+        <span class="solo-shine">¿Cuánto sabés de videojuegos? ¡Ponete a prueba!</span>
+        <span class="solo-souls">El souls de los juegos de preguntas.</span>
+    </p>
 
-    {{#usuario}}
+    {{#sesion}}
         <p class="saludo">¡Hola, {{usuario}}!</p>
-    {{/usuario}}
+    {{/sesion}}
 
     <div class="acciones">
         <a href="#" class="btn btn-primario">Jugar</a>

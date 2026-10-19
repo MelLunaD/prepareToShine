@@ -1,0 +1,31 @@
+<section class="acceso">
+
+    <h1 class="titulo-juego">Prepare to <span class="palabra-fase">{{palabraFase}}</span></h1>
+
+    <div class="tarjeta">
+        <h2>Validá tu cuenta</h2>
+
+        {{#aviso}}
+            <p class="alerta alerta-ok">{{aviso}}</p>
+        {{/aviso}}
+        {{#error}}
+            <p class="alerta alerta-error">{{error}}</p>
+        {{/error}}
+
+        <p>Ingresá el código de 6 números que mandamos a <b>{{email}}</b>. Vale por {{minutos}} minutos.</p>
+
+        <form class="formulario" method="post" action="/registro/confirmar">
+            <label for="codigo">Código</label>
+            <input id="codigo" class="campo-codigo" type="text" name="codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus>
+
+            <button type="submit" class="btn btn-primario">Validar</button>
+        </form>
+
+        <form class="formulario" method="post" action="/registro/reenviar">
+            <button type="submit" class="btn btn-secundario">Reenviar código</button>
+        </form>
+
+        <p class="pie-formulario">¿No te llegó? Revisá la carpeta de spam. <a href="/login/logout">Volver al inicio de sesión</a></p>
+    </div>
+
+</section>

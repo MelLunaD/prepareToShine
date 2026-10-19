@@ -26,4 +26,10 @@ class MustacheRender
         echo $this->mustache->render($view . "View", $data);
         echo $this->mustache->render("footer", $data);
     }
+
+    // Devuelve una vista sola, sin header ni footer, como texto (por ejemplo, el cuerpo de un mail).
+    public function generar($view, $data = [])
+    {
+        return $this->mustache->render($view, $data);
+    }
 }

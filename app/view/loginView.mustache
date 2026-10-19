@@ -1,23 +1,28 @@
-<div class="w3-content" style="max-width:600px">
-    <div class="w3-panel card-contenido w3-padding-24 w3-margin-top w3-card">
+<section class="acceso">
 
-        <h3>Ingresar</h3>
+    <h1 class="titulo-juego">Prepare to <span class="palabra-fase">{{palabraFase}}</span></h1>
 
+    <div class="tarjeta">
+        <h2>Iniciar sesión</h2>
+
+        {{#aviso}}
+            <p class="alerta alerta-ok">{{aviso}}</p>
+        {{/aviso}}
         {{#error}}
-            <div class="w3-panel w3-pale-red w3-border">
-                <p>{{error}}</p>
-            </div>
+            <p class="alerta alerta-error">{{error}}</p>
         {{/error}}
 
-        <form method="post" action="/login/login">
-            <label><b>Usuario</b></label>
-            <input class="w3-input w3-border w3-margin-bottom" type="text" name="usuario" required>
+        <form class="formulario" method="post" action="/login/login">
+            <label for="usuario">Usuario</label>
+            <input id="usuario" type="text" name="usuario" value="{{usuario}}" autocomplete="username" required autofocus>
 
-            <label><b>Contraseña</b></label>
-            <input class="w3-input w3-border" type="password" name="password" required>
+            <label for="password">Contraseña</label>
+            <input id="password" type="password" name="password" autocomplete="current-password" required>
 
-            <button type="submit" class="w3-button btn-principal w3-round w3-margin-top w3-padding-16">Ingresar</button>
+            <button type="submit" class="btn btn-primario">Entrar</button>
         </form>
 
+        <p class="pie-formulario">¿Primera vez? <a href="/registro">Creá tu cuenta</a></p>
     </div>
-</div>
+
+</section>

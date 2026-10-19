@@ -2,6 +2,8 @@
 
 namespace app\controller;
 
+use Sesion;
+
 class HomeController
 {
     private $render;
@@ -17,7 +19,7 @@ class HomeController
         // el paso a souls lo dispara el secreto de public/js/secreto.js.
         $data["tema"] = "shine";
         $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
-        $data["usuario"] = $_SESSION['usuario'] ?? null;
+        $data["sesion"] = Sesion::usuario();
 
         $this->render->renderiza("home", $data);
     }

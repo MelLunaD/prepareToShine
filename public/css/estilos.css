@@ -117,17 +117,39 @@ a {
     height: 20px;
 }
 
-.hud-nav {
+/* Jugador logueado, arriba a la derecha: nombre - foto ---- cerrar sesión */
+.hud-jugador {
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
 }
 
-.hud-nav a {
+.hud-nombre {
+    overflow: hidden;
+    max-width: 9ch;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.hud-foto {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border: 2px solid var(--texto-sobre-color);
+    border-radius: var(--radio);
+}
+
+.hud-salir {
+    display: flex;
+    margin-left: 0.75rem;
+    padding: 0.25rem;
     text-decoration: none;
 }
 
-.hud-nav a:hover,
-.hud-nav a:focus-visible {
+.hud-salir:hover,
+.hud-salir:focus-visible {
     color: var(--moneda);
 }
 
@@ -158,6 +180,7 @@ a {
 
 .contenido {
     position: relative;
+    z-index: 1; /* por encima de las nubes */
     max-width: 960px;
     margin: 0 auto;
 }
@@ -327,6 +350,117 @@ a {
 }
 
 
+/* ---------- Login, registro y validación ---------- */
+
+.acceso {
+    max-width: 480px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.acceso .titulo-juego .palabra-fase {
+    display: inline;
+    font-size: inherit;
+}
+
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+}
+
+.formulario label,
+.formulario legend {
+    margin-top: 0.6rem;
+    font-weight: 800;
+}
+
+.formulario input,
+.formulario select {
+    width: 100%;
+    padding: 0.7rem 0.75rem;
+    border: 3px solid var(--tinta);
+    border-radius: var(--radio);
+    background: #ffffff;
+    color: var(--tinta);
+    font: inherit;
+}
+
+.formulario input:focus,
+.formulario select:focus {
+    outline: 3px solid var(--moneda);
+    outline-offset: 1px;
+}
+
+.formulario input[type="file"] {
+    padding: 0.5rem;
+    background: transparent;
+    border-style: dashed;
+}
+
+.formulario fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.formulario .opcion {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+    font-weight: 400;
+}
+
+.formulario .opcion input {
+    width: auto;
+}
+
+.formulario small,
+.opcional {
+    color: var(--texto-suave);
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+.formulario .btn {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.campo-codigo {
+    font-family: var(--fuente-titulo);
+    font-size: 1.3rem;
+    letter-spacing: 0.4em;
+    text-align: center;
+}
+
+.alerta {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    border: 3px solid var(--tinta);
+    font-weight: 700;
+}
+
+.alerta ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.alerta-ok    { background: #c8f7c5; }
+.alerta-error { background: #ffd1d1; }
+
+.pie-formulario {
+    margin: 0.5rem 0 0;
+    text-align: center;
+}
+
+.pie-formulario a {
+    font-weight: 800;
+    color: var(--rojo);
+}
+
 /* ---------- Suelo (footer) ---------- */
 
 .suelo {
@@ -394,6 +528,10 @@ a {
 
     .titulo-juego .palabra-fase {
         font-size: 3.2rem;
+    }
+
+    .hud-nombre {
+        max-width: 16ch;
     }
 
     .acciones {

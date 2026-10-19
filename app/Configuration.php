@@ -3,8 +3,13 @@
 namespace app;
 
 use app\controller\HomeController;
-// use app\controller\LoginController;
-// use app\model\LoginModel;
+use app\controller\LoginController;
+use app\controller\RegistroController;
+use app\model\FotoPerfilModel;
+use app\model\PaisModel;
+use app\model\UsuarioModel;
+use app\model\ValidacionModel;
+use Mailer;
 use MustacheRender;
 use MyDatabase;
 use Router;
@@ -15,9 +20,15 @@ require_once("helper/Autoloader.php");
 // y sumar acá un get{Nombre}Controller() público que los arme.
 class Configuration
 {
+    // Controllers que se pueden usar sin haber iniciado sesión. Todo lo demás pide login.
+    const CONTROLLERS_PUBLICOS = ["login", "registro"];
+
+    private $config;
+    private $database;
 
     public function __construct()
     {
+        $this->config = parse_ini_file("config/config.ini");
     }
 
     public function getHomeController()
@@ -27,35 +38,56 @@ class Configuration
         );
     }
 
-    // Login base: desconectado hasta que definamos la base de datos.
-    // Para habilitarlo, descomentar este método, los "use" de arriba y getLoginModel().
-    //
-    // public function getLoginController()
-    // {
-    //     return new LoginController(
-    //         $this->getLoginModel(),
-    //         $this->getRender()
-    //     );
-    // }
+    public function getLoginController()
+    {
+        return new LoginController(
+            $this->getUsuarioModel(),
+            $this->getValidacionModel(),
+            $this->getRender()
+        );
+    }
+
+    public function getRegistroController()
+    {
+        return new RegistroController(
+            $this->getUsuarioModel(),
+            new PaisModel($this->getDatabase()),
+            new FotoPerfilModel(),
+            $this->getValidacionModel(),
+            $this->getRender()
+        );
+    }
 
     // Los privados
 
-    // private function getLoginModel()
-    // {
-    //     return new LoginModel(
-    //         $this->getDatabase()
-    //     );
-    // }
+    private function getUsuarioModel()
+    {
+        return new UsuarioModel(
+            $this->getDatabase()
+        );
+    }
 
+    private function getValidacionModel()
+    {
+        return new ValidacionModel(
+            $this->getDatabase(),
+            new Mailer($this->config),
+            $this->getRender()
+        );
+    }
+
+    // Una sola conexión por pedido, aunque varios models la usen.
     private function getDatabase()
     {
-        $config = parse_ini_file("config/config.ini");
+        if ($this->database === null) {
+            $this->database = new MyDatabase($this->config["db_host"],
+                $this->config["db_user"],
+                $this->config["db_pass"],
+                $this->config["db_name"]
+            );
+        }
 
-        return new MyDatabase($config["db_host"],
-            $config["db_user"],
-            $config["db_pass"],
-            $config["db_name"]
-        );
+        return $this->database;
     }
 
     private function getRender()
@@ -65,6 +97,6 @@ class Configuration
 
     public function getRouter()
     {
-        return new Router($this, "home", "show");
+        return new Router($this, "home", "show", self::CONTROLLERS_PUBLICOS);
     }
 }

@@ -1,0 +1,65 @@
+<section class="acceso">
+
+    <h1 class="titulo-juego">Prepare to <span class="palabra-fase">{{palabraFase}}</span></h1>
+
+    <div class="tarjeta">
+        <h2>Crear cuenta</h2>
+
+        {{#errores.0}}
+            <div class="alerta alerta-error">
+                <ul>
+                    {{#errores}}
+                        <li>{{.}}</li>
+                    {{/errores}}
+                </ul>
+            </div>
+        {{/errores.0}}
+
+        <form class="formulario" method="post" action="/registro/crear" enctype="multipart/form-data">
+            <label for="nombre_completo">Nombre completo</label>
+            <input id="nombre_completo" type="text" name="nombre_completo" value="{{nombre_completo}}" maxlength="100" autocomplete="name" required>
+
+            <label for="anio_nacimiento">Año de nacimiento</label>
+            <input id="anio_nacimiento" type="number" name="anio_nacimiento" value="{{anio_nacimiento}}" min="{{anio_minimo}}" max="{{anio_maximo}}" inputmode="numeric" required>
+
+            <fieldset>
+                <legend>Sexo</legend>
+                {{#sexos}}
+                    <label class="opcion">
+                        <input type="radio" name="sexo" value="{{valor}}" {{#elegido}}checked{{/elegido}} required>
+                        {{texto}}
+                    </label>
+                {{/sexos}}
+            </fieldset>
+
+            <label for="pais_id">País</label>
+            <select id="pais_id" name="pais_id" required>
+                {{#paises}}
+                    <option value="{{id}}" {{#elegido}}selected{{/elegido}}>{{nombre}}</option>
+                {{/paises}}
+            </select>
+
+            <label for="email">Mail</label>
+            <input id="email" type="email" name="email" value="{{email}}" maxlength="120" autocomplete="email" required>
+
+            <label for="usuario">Nombre de usuario</label>
+            <input id="usuario" type="text" name="usuario" value="{{usuario}}" minlength="3" maxlength="30" pattern="[A-Za-z0-9_.]{3,30}" autocomplete="username" required>
+            <small>De 3 a 30 caracteres: letras, números, punto o guion bajo.</small>
+
+            <label for="password">Contraseña</label>
+            <input id="password" type="password" name="password" minlength="8" autocomplete="new-password" required>
+
+            <label for="password2">Repetir contraseña</label>
+            <input id="password2" type="password" name="password2" minlength="8" autocomplete="new-password" required>
+
+            <label for="foto">Foto de perfil <span class="opcional">(opcional)</span></label>
+            <input id="foto" type="file" name="foto" accept="image/jpeg,image/png,image/webp">
+            <small>JPG, PNG o WEBP de hasta 2 MB.</small>
+
+            <button type="submit" class="btn btn-primario">Crear cuenta</button>
+        </form>
+
+        <p class="pie-formulario">¿Ya tenés cuenta? <a href="/login">Iniciá sesión</a></p>
+    </div>
+
+</section>

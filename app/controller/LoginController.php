@@ -4,41 +4,61 @@ namespace app\controller;
 
 use Redirect;
 use Request;
+use Sesion;
 
-// Login base del proyecto de ejemplo, desconectado por ahora (ver Configuration.php).
 class LoginController
 {
-    private $model;
+    private $usuarioModel;
+    private $validacionModel;
     private $render;
 
-    public function __construct($model, $render)
+    public function __construct($usuarioModel, $validacionModel, $render)
     {
-        $this->model = $model;
+        $this->usuarioModel = $usuarioModel;
+        $this->validacionModel = $validacionModel;
         $this->render = $render;
     }
 
     public function show()
     {
-        $data["error"] = Request::get('login_error') !== null ? "Usuario o contraseña incorrectos." : "";
+        if (Sesion::estaLogueada()) {
+            Redirect::toIndex();
+        }
+
+        $data["aviso"] = Sesion::tomarFlash("aviso");
         $this->render->renderiza("login", $data);
     }
 
     public function login()
     {
-        $usuario = $this->model->autenticar(Request::post('usuario'), Request::post('password'));
+        $nombreUsuario = trim((string)Request::post("usuario", ""));
+        $usuario = $this->usuarioModel->autenticar($nombreUsuario, (string)Request::post("password", ""));
 
         if ($usuario === null) {
-            Redirect::to('/login?login_error=1');
+            $data["error"] = "Usuario o contraseña incorrectos.";
+            $data["usuario"] = $nombreUsuario;
+            $this->render->renderiza("login", $data);
+            return;
         }
 
-        $_SESSION['usuario_id'] = $usuario['id'];
-        $_SESSION['usuario'] = $usuario['usuario'];
+        // Cuenta creada pero sin validar: se manda un código nuevo (el anterior deja de
+        // servir) y tiene que ingresarlo antes de poder entrar.
+        if (!$usuario["validado"]) {
+            Sesion::esperarValidacion($usuario["id"]);
+            $enviado = $this->validacionModel->enviarCodigoNuevo($usuario);
+            Sesion::flash("aviso", $enviado
+                ? "Tu cuenta todavía no está validada. Te mandamos un código nuevo a tu mail."
+                : "Tu cuenta todavía no está validada y no pudimos mandarte el código. Probá con \"Reenviar código\".");
+            Redirect::to("/registro/validar");
+        }
+
+        Sesion::iniciar($usuario);
         Redirect::toIndex();
     }
 
     public function logout()
     {
-        session_destroy();
-        Redirect::toIndex();
+        Sesion::cerrar();
+        Redirect::to("/login");
     }
 }
