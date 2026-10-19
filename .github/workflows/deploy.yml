@@ -20,19 +20,26 @@ jobs:
       - name: Bajar el código
         uses: actions/checkout@v5
 
-      # config.ini no está en el repo: se arma acá con los secrets de la BD de InfinityFree.
+      # config.ini no está en el repo: se arma acá con los secrets de la BD de InfinityFree
+      # y los del mail del juego (Gmail con contraseña de aplicación).
       - name: Generar config/config.ini
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
           DB_NAME: ${{ secrets.DB_NAME }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
         run: |
           cat > config/config.ini <<INI
           db_host = "${DB_HOST}"
           db_user = "${DB_USER}"
           db_pass = "${DB_PASS}"
           db_name = "${DB_NAME}"
+          mail_host = "smtp.gmail.com"
+          mail_port = 587
+          mail_user = "${MAIL_USER}"
+          mail_pass = "${MAIL_PASS}"
           INI
 
       - name: Subir archivos por FTP
@@ -49,3 +56,4 @@ jobs:
             README.md
             config/config.example.ini
             log/**
+            app/sql/**
