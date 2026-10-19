@@ -1,0 +1,13 @@
+# Configuración local (credenciales de la BD)
+config/config.ini
+
+# Logs generados por helper/Log.php
+log/*
+!log/.gitkeep
+
+# Sistema operativo / IDEs
+.DS_Store
+__MACOSX/
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,23 @@
+<div class="w3-content" style="max-width:600px">
+    <div class="w3-panel card-contenido w3-padding-24 w3-margin-top w3-card">
+
+        <h3>Ingresar</h3>
+
+        {{#error}}
+            <div class="w3-panel w3-pale-red w3-border">
+                <p>{{error}}</p>
+            </div>
+        {{/error}}
+
+        <form method="post" action="/login/login">
+            <label><b>Usuario</b></label>
+            <input class="w3-input w3-border w3-margin-bottom" type="text" name="usuario" required>
+
+            <label><b>Contraseña</b></label>
+            <input class="w3-input w3-border" type="password" name="password" required>
+
+            <button type="submit" class="w3-button btn-principal w3-round w3-margin-top w3-padding-16">Ingresar</button>
+        </form>
+
+    </div>
+</div>

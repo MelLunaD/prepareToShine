@@ -1,0 +1,51 @@
+# Sube main a InfinityFree por FTP en cada push (o a mano desde la pestaña Actions).
+name: Deploy a InfinityFree
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Si llegan dos pushes seguidos, no corren dos deploys pisándose.
+concurrency:
+  group: deploy-infinityfree
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy por FTP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bajar el código
+        uses: actions/checkout@v5
+
+      # config.ini no está en el repo: se arma acá con los secrets de la BD de InfinityFree.
+      - name: Generar config/config.ini
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        run: |
+          cat > config/config.ini <<INI
+          db_host = "${DB_HOST}"
+          db_user = "${DB_USER}"
+          db_pass = "${DB_PASS}"
+          db_name = "${DB_NAME}"
+          INI
+
+      - name: Subir archivos por FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /htdocs/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            README.md
+            config/config.example.ini
+            log/**
