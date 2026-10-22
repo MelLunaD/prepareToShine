@@ -73,4 +73,11 @@ class Sesion
         unset($_SESSION["flash"][$clave]);
         return $mensaje;
     }
+
+    public static function actualizarFoto($foto)
+    {
+        if (isset($_SESSION["usuario"])) {
+            $_SESSION["usuario"]["foto"] = $foto ?: "/public/img/avatar.svg";
+        }
+    }
 }

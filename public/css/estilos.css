@@ -514,6 +514,208 @@ a {
     background-image: none;
 }
 
+/* --- Perfil de usuario --- */
+.acceso.acceso-perfil {
+    max-width: 620px;
+    width: 100%;
+}
+
+.tarjeta-perfil {
+    padding: 2rem;
+}
+
+.perfil-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 3px solid #1a1c2c;
+}
+
+.perfil-avatar {
+    width: 88px;
+    height: 88px;
+    min-width: 88px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 3px solid #1a1c2c;
+    box-shadow: 0 4px 0 #1a1c2c;
+    background-color: #fff;
+}
+
+.perfil-identidad {
+    text-align: left;
+}
+
+.perfil-nombre {
+    margin: 0 0 0.35rem 0;
+    font-size: 1.25rem;
+}
+
+.perfil-usuario {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    opacity: 0.75;
+}
+
+/* Cajas destacadas para Puntaje y Partidas */
+.perfil-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.stat-caja {
+    background-color: #1a1c2c;
+    color: #fff;
+    border: 3px solid #1a1c2c;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+}
+
+.stat-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #f4b41b;
+}
+
+.stat-valor {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+/* Lista de datos más grande y legible */
+.perfil-datos {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.08rem;
+}
+
+.perfil-datos li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0.25rem;
+    border-bottom: 2px dashed rgba(26, 28, 44, 0.2);
+    gap: 1rem;
+}
+
+.perfil-datos li:last-child {
+    border-bottom: none;
+}
+
+.dato-label {
+    opacity: 0.8;
+    font-weight: 700;
+}
+
+.dato-valor {
+    font-weight: 800;
+    text-align: right;
+}
+
+.perfil-bandera {
+    vertical-align: middle;
+    margin-right: 0.35rem;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 520px) {
+    .perfil-cabecera {
+        flex-direction: column;
+        text-align: center;
+    }
+    .perfil-identidad {
+        text-align: center;
+    }
+    .perfil-stats {
+        grid-template-columns: 1fr;
+    }
+    .perfil-datos li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+
+.perfil-divisor {
+    border: none;
+    border-top: 3px solid #1a1c2c;
+    margin: 1.75rem 0 1.25rem 0;
+}
+
+.formulario input:disabled {
+    background-color: rgba(26, 28, 44, 0.08);
+    color: rgba(26, 28, 44, 0.6);
+    cursor: not-allowed;
+}
+
+.perfil-qr-caja {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba(26, 28, 44, 0.05);
+    border: 3px dashed #1a1c2c;
+}
+
+.perfil-qr-img {
+    width: 130px;
+    height: 130px;
+    min-width: 130px;
+    border: 3px solid #1a1c2c;
+    background-color: #ffffff;
+    box-shadow: 0 4px 0 #1a1c2c;
+}
+
+.perfil-qr-info {
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.perfil-qr-info strong {
+    display: block;
+    font-size: 1.05rem;
+    margin-bottom: 0.35rem;
+}
+
+.perfil-qr-info p {
+    margin: 0 0 0.5rem 0;
+    line-height: 1.35;
+}
+
+.perfil-qr-link {
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 520px) {
+    .perfil-qr-caja {
+        flex-direction: column;
+        text-align: center;
+    }
+    .perfil-qr-info {
+        text-align: center;
+    }
+}
+
 /* ---------- Pantallas más grandes ---------- */
 
 @media (min-width: 600px) {

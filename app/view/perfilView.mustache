@@ -1,0 +1,89 @@
+<section class="acceso acceso-perfil">
+
+    {{#es_propio}}
+        <h1 class="titulo-juego">Mi <span class="palabra-fase">Perfil</span></h1>
+    {{/es_propio}}
+    {{^es_propio}}
+        <h1 class="titulo-juego">Perfil de <span class="palabra-fase">Jugador</span></h1>
+    {{/es_propio}}
+
+    {{#perfil}}
+    <div class="tarjeta tarjeta-perfil">
+
+        {{#exito}}
+            <div class="alerta alerta-exito">{{exito}}</div>
+        {{/exito}}
+
+        <div class="perfil-cabecera">
+            <img class="perfil-avatar" src="{{foto}}" alt="Foto de {{usuario}}" width="88" height="88">
+            <div class="perfil-identidad">
+                <h2 class="perfil-nombre">{{nombre_completo}}</h2>
+                <p class="perfil-usuario">@{{usuario}}</p>
+            </div>
+        </div>
+
+        <div class="perfil-stats">
+            <div class="stat-caja stat-puntaje">
+                <span class="stat-etiqueta">
+                    <img src="/public/img/estrella.svg" alt="" width="18" height="18">
+                    Puntaje total
+                </span>
+                <span class="stat-valor">{{puntaje_total}}</span>
+            </div>
+            <div class="stat-caja stat-partidas">
+                <span class="stat-etiqueta">
+                    <img src="/public/img/moneda.svg" alt="" width="18" height="18">
+                    Partidas jugadas
+                </span>
+                <span class="stat-valor">{{cantidad_partidas}}</span>
+            </div>
+        </div>
+
+        <ul class="perfil-datos">
+            <li>
+                <span class="dato-label">País</span>
+                <strong class="dato-valor">
+                    <img class="perfil-bandera" src="https://flagcdn.com/w20/{{pais_codigo_min}}.png" alt="{{pais_codigo}}">
+                    {{pais_nombre}} ({{pais_codigo}})
+                </strong>
+            </li>
+            <li>
+                <span class="dato-label">Año de nacimiento</span>
+                <strong class="dato-valor">{{anio_nacimiento}}</strong>
+            </li>
+            <li>
+                <span class="dato-label">Sexo</span>
+                <strong class="dato-valor">{{sexo_legible}}</strong>
+            </li>
+            {{#es_propio}}
+            <li>
+                <span class="dato-label">Mail</span>
+                <strong class="dato-valor">{{email}}</strong>
+            </li>
+            {{/es_propio}}
+            <li>
+                <span class="dato-label">Miembro desde</span>
+                <strong class="dato-valor">{{fecha_alta_formateada}}</strong>
+            </li>
+        </ul>
+
+        {{#qr_imagen}}
+        <div class="perfil-qr-caja">
+            <img class="perfil-qr-img" src="{{qr_imagen}}" alt="Código QR de @{{usuario}}" width="140" height="140">
+            <div class="perfil-qr-info">
+                <strong>Compartir perfil</strong>
+                <p>Escaneá este código QR para ver la ficha pública de <strong>@{{usuario}}</strong>.</p>
+                <a href="{{url_publica}}" class="perfil-qr-link">Ver enlace público</a>
+            </div>
+        </div>
+        {{/qr_imagen}}
+
+        {{#es_propio}}
+            <a href="/perfil/editar" class="btn btn-primario" style="display: block; text-align: center; text-decoration: none;">Editar perfil</a>
+        {{/es_propio}}
+
+        <p class="pie-formulario"><a href="/">Volver al inicio</a></p>
+    </div>
+    {{/perfil}}
+
+</section>

@@ -5,10 +5,12 @@ namespace app;
 use app\controller\HomeController;
 use app\controller\LoginController;
 use app\controller\RegistroController;
+use app\controller\PerfilController;
 use app\model\FotoPerfilModel;
 use app\model\PaisModel;
 use app\model\UsuarioModel;
 use app\model\ValidacionModel;
+use app\model\PerfilModel;
 use Mailer;
 use MustacheRender;
 use MyDatabase;
@@ -98,5 +100,19 @@ class Configuration
     public function getRouter()
     {
         return new Router($this, "home", "show", self::CONTROLLERS_PUBLICOS);
+    }
+
+    private function getPerfilModel()
+    {
+        return new PerfilModel($this->getDatabase());
+    }
+
+    public function getPerfilController()
+    {
+        return new PerfilController(
+            $this->getPerfilModel(),
+            new FotoPerfilModel(),
+            $this->getRender()
+        );
     }
 }

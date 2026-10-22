@@ -1,0 +1,56 @@
+<section class="acceso acceso-perfil">
+
+    <h1 class="titulo-juego">Editar <span class="palabra-fase">Perfil</span></h1>
+
+    {{#perfil}}
+    <div class="tarjeta tarjeta-perfil">
+
+        {{#errores.0}}
+            <div class="alerta alerta-error">
+                <ul>
+                    {{#errores}}
+                        <li>{{.}}</li>
+                    {{/errores}}
+                </ul>
+            </div>
+        {{/errores.0}}
+
+        <h3>Mis datos</h3>
+        <form class="formulario" method="post" action="/perfil/editarDatos" enctype="multipart/form-data">
+            <label for="usuario_fijo">Nombre de usuario <span class="opcional">(no editable)</span></label>
+            <input id="usuario_fijo" type="text" value="{{usuario}}" disabled>
+
+            <label for="email_fijo">Mail <span class="opcional">(no editable)</span></label>
+            <input id="email_fijo" type="email" value="{{email}}" disabled>
+
+            <label for="nombre_completo">Nombre completo</label>
+            <input id="nombre_completo" type="text" name="nombre_completo" value="{{nombre_completo}}" maxlength="100" required>
+
+            <label for="foto">Cambiar foto de perfil <span class="opcional">(opcional)</span></label>
+            <input id="foto" type="file" name="foto" accept="image/jpeg,image/png,image/webp">
+            <small>JPG, PNG o WEBP de hasta 2 MB.</small>
+
+            <button type="submit" class="btn btn-primario">Guardar cambios</button>
+        </form>
+
+        <hr class="perfil-divisor">
+
+        <h3>Cambiar contraseña</h3>
+        <form class="formulario" method="post" action="/perfil/cambiarPassword">
+            <label for="password_actual">Contraseña actual</label>
+            <input id="password_actual" type="password" name="password_actual" autocomplete="current-password" required>
+
+            <label for="password_nueva">Nueva contraseña</label>
+            <input id="password_nueva" type="password" name="password_nueva" minlength="8" autocomplete="new-password" required>
+
+            <label for="password_nueva2">Repetir nueva contraseña</label>
+            <input id="password_nueva2" type="password" name="password_nueva2" minlength="8" autocomplete="new-password" required>
+
+            <button type="submit" class="btn btn-primario">Actualizar contraseña</button>
+        </form>
+
+        <p class="pie-formulario"><a href="/perfil">Cancelar y volver a mi perfil</a></p>
+    </div>
+    {{/perfil}}
+
+</section>
