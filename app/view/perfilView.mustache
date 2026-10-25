@@ -39,6 +39,7 @@
             </div>
         </div>
 
+        {{#es_propio}}
         <ul class="perfil-datos">
             <li>
                 <span class="dato-label">País</span>
@@ -55,12 +56,10 @@
                 <span class="dato-label">Sexo</span>
                 <strong class="dato-valor">{{sexo_legible}}</strong>
             </li>
-            {{#es_propio}}
             <li>
                 <span class="dato-label">Mail</span>
                 <strong class="dato-valor">{{email}}</strong>
             </li>
-            {{/es_propio}}
             <li>
                 <span class="dato-label">Miembro desde</span>
                 <strong class="dato-valor">{{fecha_alta_formateada}}</strong>
@@ -78,8 +77,7 @@
         </div>
         {{/qr_imagen}}
 
-        {{#es_propio}}
-            <a href="/perfil/editar" class="btn btn-primario" style="display: block; text-align: center; text-decoration: none;">Editar perfil</a>
+        <a href="/perfil/editar" class="btn btn-primario" style="display: block; text-align: center; text-decoration: none;">Editar perfil</a>
         {{/es_propio}}
 
         <p class="pie-formulario"><a href="/">Volver al inicio</a></p>

@@ -104,43 +104,16 @@ class PerfilController
             exit;
         }
 
-        $usuarioSesion = Sesion::usuario();
-        $esPropio = $usuarioSesion && ((int)$usuarioSesion["id"] === (int)$datosPerfil["id"]);
-        $qr = $this->generarUrlQr($datosPerfil["usuario"]);
-
         $data["tema"] = "shine";
         $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
-        $data["sesion"] = $usuarioSesion;
+        $data["sesion"] = Sesion::usuario();
 
         $data["perfil"] = $datosPerfil;
-        $data["es_propio"] = $esPropio;
-        $data["qr_imagen"] = $qr["qr_imagen"];
-        $data["url_publica"] = $qr["url_publica"];
+        $data["es_propio"] = false; // En el enlace público nunca se muestran datos privados ni edición
         $data["puntaje_total"] = 0;
         $data["cantidad_partidas"] = 0;
 
         $this->render->renderiza("perfil", $data);
-    }
-
-    public function editar()
-    {
-        if (!Sesion::estaLogueada()) {
-            header("Location: /login");
-            exit;
-        }
-
-        $usuarioSesion = Sesion::usuario();
-        $idUsuario = $usuarioSesion["id"];
-
-        $datosPerfil = $this->perfilModel->obtenerPorId($idUsuario);
-
-        $data["tema"] = "shine";
-        $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
-        $data["sesion"] = $usuarioSesion;
-        $data["perfil"] = $datosPerfil;
-        $data["errores"] = Sesion::tomarFlash("perfil_errores") ?? [];
-
-        $this->render->renderiza("editarPerfil", $data);
     }
 
     public function editarDatos()
