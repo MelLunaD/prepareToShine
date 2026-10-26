@@ -116,6 +116,29 @@ class PerfilController
         $this->render->renderiza("perfil", $data);
     }
 
+    // Muestra el formulario de edición (GET /perfil/editar).
+    // Los formularios de esta vista mandan a editarDatos y cambiarPassword.
+    public function editar()
+    {
+        if (!Sesion::estaLogueada()) {
+            header("Location: /login");
+            exit;
+        }
+
+        $usuarioSesion = Sesion::usuario();
+
+        $data["tema"] = "shine";
+        $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
+        $data["sesion"] = $usuarioSesion;
+
+        $data["perfil"] = $this->formatearDatosPerfil(
+            $this->perfilModel->obtenerPorId($usuarioSesion["id"])
+        );
+        $data["errores"] = Sesion::tomarFlash("perfil_errores") ?? [];
+
+        $this->render->renderiza("editarPerfil", $data);
+    }
+
     public function editarDatos()
     {
         if (!Sesion::estaLogueada()) {
