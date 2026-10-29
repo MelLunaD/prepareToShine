@@ -6,7 +6,7 @@ namespace app\model;
 // La usan el registro y la edición del perfil.
 class UbicacionModel
 {
-    const CAMPOS = ["latitud", "longitud", "ciudad", "provincia", "pais_codigo", "pais_nombre"];
+    const CAMPOS = ["latitud", "longitud", "ciudad", "provincia", "pais_codigo", "pais_nombre", "osm_lugar"];
 
     private $paisModel;
 
@@ -27,6 +27,9 @@ class UbicacionModel
             $error = "Todavía no tenemos ese país en el juego. Elegí otro punto del mapa.";
         } elseif (mb_strlen($ubicacion["ciudad"]) > 100 || mb_strlen($ubicacion["provincia"]) > 100) {
             $error = "El nombre de la ciudad o la provincia es demasiado largo.";
+        } elseif ($ubicacion["osm_lugar"] !== "" && !preg_match('/^[NWR]\d{1,15}$/', $ubicacion["osm_lugar"])) {
+            // Identificador de OpenStreetMap: N (node), W (way) o R (relation) + número.
+            $error = "No pudimos leer la ubicación del mapa. Volvé a marcarla.";
         } else {
             $error = null;
         }

@@ -32,6 +32,7 @@ CREATE TABLE usuario (
     provincia VARCHAR(100) NULL,
     latitud DECIMAL(9, 6) NULL,
     longitud DECIMAL(9, 6) NULL,
+    osm_lugar VARCHAR(20) NULL,
     email VARCHAR(120) NOT NULL UNIQUE,
     usuario VARCHAR(30) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,

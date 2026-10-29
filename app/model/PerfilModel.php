@@ -14,7 +14,7 @@ class PerfilModel
     public function obtenerPorId($id)
     {
         $sql = "SELECT u.id, u.nombre_completo, u.usuario, u.email, u.anio_nacimiento, u.sexo, u.foto, u.fecha_alta,
-                       u.ciudad, u.provincia, u.latitud, u.longitud,
+                       u.ciudad, u.provincia, u.latitud, u.longitud, u.osm_lugar,
                        p.nombre AS pais_nombre, p.codigo AS pais_codigo 
                 FROM usuario u 
                 INNER JOIN pais p ON u.pais_id = p.id 
@@ -31,13 +31,14 @@ class PerfilModel
 
     public function actualizarUbicacion($id, $paisId, array $ubicacion)
     {
-        $sql = "UPDATE usuario SET pais_id = ?, ciudad = ?, provincia = ?, latitud = ?, longitud = ? WHERE id = ?";
+        $sql = "UPDATE usuario SET pais_id = ?, ciudad = ?, provincia = ?, latitud = ?, longitud = ?, osm_lugar = ? WHERE id = ?";
         $this->database->execute($sql, [
             $paisId,
             $ubicacion["ciudad"],
             $ubicacion["provincia"] !== "" ? $ubicacion["provincia"] : null,
             $ubicacion["latitud"],
             $ubicacion["longitud"],
+            $ubicacion["osm_lugar"] !== "" ? $ubicacion["osm_lugar"] : null,
             $id
         ]);
     }
@@ -58,7 +59,7 @@ class PerfilModel
     public function obtenerPorUsuario($usuario)
     {
         $sql = "SELECT u.id, u.nombre_completo, u.usuario, u.email, u.anio_nacimiento, u.sexo, u.foto, u.fecha_alta,
-                       u.ciudad, u.provincia, u.latitud, u.longitud,
+                       u.ciudad, u.provincia, u.latitud, u.longitud, u.osm_lugar,
                        p.nombre AS pais_nombre, p.codigo AS pais_codigo 
                 FROM usuario u 
                 INNER JOIN pais p ON u.pais_id = p.id 

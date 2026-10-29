@@ -45,7 +45,12 @@
                 <img class="perfil-bandera" src="https://flagcdn.com/w20/{{pais_codigo_min}}.png" alt="{{pais_codigo}}">
                 {{#ubicacion_texto}}{{ubicacion_texto}}, {{/ubicacion_texto}}{{pais_nombre}}
             </p>
+            {{#es_propio}}
             <div id="mapa" class="mapa" data-modo="ver" data-lat="{{latitud}}" data-lng="{{longitud}}"></div>
+            {{/es_propio}}
+            {{^es_propio}}
+            <div id="mapa" class="mapa" data-modo="zona" data-lugar="{{osm_lugar}}" data-busqueda="{{ubicacion_busqueda}}"></div>
+            {{/es_propio}}
         </div>
         {{/tiene_ubicacion}}
         {{^tiene_ubicacion}}

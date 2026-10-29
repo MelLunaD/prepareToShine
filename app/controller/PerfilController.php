@@ -47,6 +47,7 @@ class PerfilController
         // Los usuarios registrados antes del mapa no tienen ubicación: el mapa no se muestra.
         $datosPerfil["tiene_ubicacion"] = $datosPerfil["latitud"] !== null && $datosPerfil["longitud"] !== null;
         $datosPerfil["ubicacion_texto"] = implode(", ", array_filter([$datosPerfil["ciudad"], $datosPerfil["provincia"]]));
+        $datosPerfil["ubicacion_busqueda"] = implode(", ", array_filter([$datosPerfil["ciudad"], $datosPerfil["provincia"], $datosPerfil["pais_nombre"]]));
 
         return $datosPerfil;
     }
@@ -107,6 +108,9 @@ class PerfilController
         if (!$datosPerfil) {
             Redirect::toIndex();
         }
+
+        // A los demás solo se les muestra la localidad: el punto exacto no llega a la vista.
+        unset($datosPerfil["latitud"], $datosPerfil["longitud"]);
 
         $data["tema"] = "shine";
         $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";

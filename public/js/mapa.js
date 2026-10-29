@@ -2,7 +2,10 @@
 // - En el registro (data-modo="elegir"): el jugador toca el mapa o busca su ciudad, y con
 //   Nominatim (el buscador de OpenStreetMap) se completan ciudad, provincia y país en los
 //   campos ocultos del formulario. El servidor valida esos datos al crear la cuenta.
-// - En el perfil (data-modo="ver"): muestra el pin de la ubicación guardada, sin poder moverlo.
+// - En el perfil propio (data-modo="ver"): muestra el pin de la ubicación guardada, sin poder moverlo.
+// - En el perfil de otro jugador (data-modo="zona"): no muestra el punto exacto (ni siquiera llega
+//   a la página), solo el contorno de su localidad, que se le pide a Nominatim. Si la localidad no
+//   tiene contorno, muestra un círculo aproximado alrededor de su centro.
 // Nominatim es gratis y sin API key, pero pide como máximo 1 consulta por segundo:
 // por eso solo se consulta al tocar el mapa o al apretar "Buscar", nunca mientras se escribe.
 (function () {
@@ -10,6 +13,7 @@
     var CENTRO_INICIAL = [-38.4, -63.6]; // Argentina
     var ZOOM_INICIAL = 4;
     var ZOOM_ELEGIDO = 11;
+    var RADIO_APROXIMADO = 5000; // metros, para las localidades sin contorno
 
     var contenedor = document.getElementById("mapa");
     if (!contenedor || typeof window.L === "undefined") {
@@ -20,13 +24,18 @@
     var lng = parseFloat(contenedor.dataset.lng);
     var hayPunto = !isNaN(lat) && !isNaN(lng);
 
-    var mapa = L.map(contenedor, { scrollWheelZoom: false })
+    var mapa = L.map(contenedor)
         .setView(hayPunto ? [lat, lng] : CENTRO_INICIAL, hayPunto ? ZOOM_ELEGIDO : ZOOM_INICIAL);
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 18,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(mapa);
+
+    if (contenedor.dataset.modo === "zona") {
+        mostrarZona();
+        return;
+    }
 
     var pin = hayPunto ? L.marker([lat, lng]).addTo(mapa) : null;
 
@@ -40,7 +49,8 @@
         ciudad: document.getElementById("ciudad"),
         provincia: document.getElementById("provincia"),
         paisCodigo: document.getElementById("pais_codigo"),
-        paisNombre: document.getElementById("pais_nombre")
+        paisNombre: document.getElementById("pais_nombre"),
+        osmLugar: document.getElementById("osm_lugar")
     };
     var textoUbicacion = document.getElementById("mapa-ubicacion");
     var busqueda = document.getElementById("mapa-busqueda");
@@ -94,6 +104,10 @@
                 campos.provincia.value = direccion.state || "";
                 campos.paisCodigo.value = direccion.country_code.toUpperCase();
                 campos.paisNombre.value = direccion.country || "";
+                // Identificador de la localidad en OpenStreetMap (ej: R1234 para una "relation"),
+                // para después dibujar su contorno en el perfil sin mostrar el punto exacto.
+                campos.osmLugar.value = lugar.osm_type && lugar.osm_id
+                    ? lugar.osm_type.charAt(0).toUpperCase() + lugar.osm_id : "";
 
                 mostrar([campos.ciudad.value, campos.provincia.value, campos.paisNombre.value]
                     .filter(Boolean).join(", "));
@@ -139,4 +153,34 @@
             buscar();
         }
     });
+
+    // Perfil de otro jugador: dibuja el contorno de su localidad. Primero la busca por su
+    // identificador de OpenStreetMap y, si no lo tiene (usuarios viejos), por "ciudad, provincia, país".
+    function mostrarZona() {
+        var lugarOsm = contenedor.dataset.lugar;
+        var url = lugarOsm
+            ? NOMINATIM + "/lookup?format=jsonv2&polygon_geojson=1&polygon_threshold=0.001&osm_ids=" + encodeURIComponent(lugarOsm)
+            : NOMINATIM + "/search?format=jsonv2&limit=1&polygon_geojson=1&polygon_threshold=0.001&q="
+                + encodeURIComponent(contenedor.dataset.busqueda || "");
+
+        var estilo = { color: "#e52521", weight: 3, fillOpacity: 0.15 };
+
+        fetch(url)
+            .then(function (respuesta) { return respuesta.json(); })
+            .then(function (resultados) {
+                var lugar = resultados[0];
+                if (!lugar) {
+                    return;
+                }
+                var forma = lugar.geojson && lugar.geojson.type;
+                var capa = forma === "Polygon" || forma === "MultiPolygon"
+                    ? L.geoJSON(lugar.geojson, { style: estilo })
+                    : L.circle([parseFloat(lugar.lat), parseFloat(lugar.lon)], L.extend({ radius: RADIO_APROXIMADO }, estilo));
+                capa.addTo(mapa);
+                mapa.fitBounds(capa.getBounds());
+            })
+            .catch(function () {
+                // Sin respuesta de Nominatim el mapa queda en la vista general.
+            });
+    }
 })();

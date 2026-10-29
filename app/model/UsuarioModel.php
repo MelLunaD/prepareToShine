@@ -50,8 +50,8 @@ class UsuarioModel
     {
         $this->database->execute(
             "INSERT INTO usuario (nombre_completo, anio_nacimiento, sexo, pais_id, ciudad, provincia, latitud, longitud,
-                                  email, usuario, password_hash, foto, validado)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)",
+                                  osm_lugar, email, usuario, password_hash, foto, validado)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)",
             [
                 $datos["nombre_completo"],
                 $datos["anio_nacimiento"],
@@ -61,6 +61,7 @@ class UsuarioModel
                 $datos["provincia"] !== "" ? $datos["provincia"] : null,
                 $datos["latitud"],
                 $datos["longitud"],
+                $datos["osm_lugar"] !== "" ? $datos["osm_lugar"] : null,
                 $datos["email"],
                 $datos["usuario"],
                 password_hash($datos["password"], PASSWORD_DEFAULT),
