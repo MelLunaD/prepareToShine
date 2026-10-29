@@ -29,6 +29,16 @@ Options -Indexes
     # Si el proyecto no está en la raíz de htdocs, cambiar a /nombre-carpeta/
     RewriteBase /
 
+    # ── HTTPS: todo pedido por http se redirige a https ──
+    # InfinityFree ya tiene SSL. En local (localhost) no se redirige,
+    # porque XAMPP no tiene certificado.
+    # X-Forwarded-Proto: si el hosting atiende el https en un proxy
+    # delante de Apache, así no entra en un bucle de redirecciones.
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
     # ── SEGURIDAD: código interno inaccesible por URL directa ──
     # app/, helper/ y vendor/ son PHP interno (controllers, models,
     # la librería de Mustache); config/ y sql/ tienen credenciales y

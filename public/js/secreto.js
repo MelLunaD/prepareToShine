@@ -30,8 +30,15 @@
         document.body.classList.add("tema-souls");
         document.title = "Prepare to Die";
 
-        document.querySelectorAll(".palabra-fase").forEach(function (el) {
-            el.textContent = "Die";
+        var favicon = document.querySelector('link[rel="icon"]');
+        if (favicon) {
+            favicon.href = "/public/img/favicon-souls.ico";
+        }
+
+        // Cada título puede traer su versión Souls en data-die ("Mi Perfil" → "Mi Alma");
+        // la palabra de color que no la trae pasa a "Die" ("Prepare to Shine" → "Prepare to Die").
+        document.querySelectorAll(".palabra-fase, [data-die]").forEach(function (el) {
+            el.textContent = el.dataset.die || "Die";
         });
 
         palabra.classList.remove("palabra-secreta");

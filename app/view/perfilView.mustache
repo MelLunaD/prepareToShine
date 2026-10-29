@@ -1,10 +1,10 @@
 <section class="acceso acceso-perfil">
 
     {{#es_propio}}
-        <h1 class="titulo-juego">Mi <span class="palabra-fase">Perfil</span></h1>
+        <h1 class="titulo-juego">Mi <span class="palabra-fase" data-die="Alma">Perfil</span></h1>
     {{/es_propio}}
     {{^es_propio}}
-        <h1 class="titulo-juego">Perfil de <span class="palabra-fase">Jugador</span></h1>
+        <h1 class="titulo-juego"><span data-die="Alma">Perfil</span> de <span class="palabra-fase" data-die="Jugador">Jugador</span></h1>
     {{/es_propio}}
 
     {{#perfil}}
