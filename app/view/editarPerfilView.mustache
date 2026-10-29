@@ -26,6 +26,24 @@
             <label for="nombre_completo">Nombre completo</label>
             <input id="nombre_completo" type="text" name="nombre_completo" value="{{nombre_completo}}" maxlength="100" required>
 
+            <label for="mapa-busqueda">¿Dónde vivís? <span class="opcional">(opcional)</span></label>
+            <small>Buscá tu ciudad o tocá el mapa para cambiarla.</small>
+            <div class="mapa-buscador">
+                <input id="mapa-busqueda" type="search" placeholder="Ej: San Justo, Buenos Aires" autocomplete="off">
+                <button id="mapa-buscar" type="button" class="btn btn-primario">Buscar</button>
+            </div>
+            <div id="mapa" class="mapa" data-modo="elegir" data-lat="{{latitud}}" data-lng="{{longitud}}"></div>
+            <p id="mapa-ubicacion" class="mapa-ubicacion" aria-live="polite">
+                {{#tiene_ubicacion}}{{#ubicacion_texto}}{{ubicacion_texto}}, {{/ubicacion_texto}}{{pais_nombre}}{{/tiene_ubicacion}}
+                {{^tiene_ubicacion}}Todavía no marcaste tu ubicación.{{/tiene_ubicacion}}
+            </p>
+            <input id="latitud" type="hidden" name="latitud">
+            <input id="longitud" type="hidden" name="longitud">
+            <input id="ciudad" type="hidden" name="ciudad">
+            <input id="provincia" type="hidden" name="provincia">
+            <input id="pais_codigo" type="hidden" name="pais_codigo">
+            <input id="pais_nombre" type="hidden" name="pais_nombre">
+
             <label for="foto">Cambiar foto de perfil <span class="opcional">(opcional)</span></label>
             <input id="foto" type="file" name="foto" accept="image/jpeg,image/png,image/webp">
             <small>JPG, PNG o WEBP de hasta 2 MB.</small>

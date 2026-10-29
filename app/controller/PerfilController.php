@@ -2,6 +2,7 @@
 
 namespace app\controller;
 
+use app\model\UbicacionModel;
 use Redirect;
 use Request;
 use Sesion;
@@ -10,12 +11,14 @@ class PerfilController
 {
     private $perfilModel;
     private $fotoModel;
+    private $ubicacionModel;
     private $render;
 
-    public function __construct($perfilModel, $fotoModel, $render)
+    public function __construct($perfilModel, $fotoModel, $ubicacionModel, $render)
     {
         $this->perfilModel = $perfilModel;
         $this->fotoModel = $fotoModel;
+        $this->ubicacionModel = $ubicacionModel;
         $this->render = $render;
     }
 
@@ -132,6 +135,7 @@ class PerfilController
             $this->perfilModel->obtenerPorId($usuarioSesion["id"])
         );
         $data["errores"] = Sesion::tomarFlash("perfil_errores") ?? [];
+        $data["usaMapa"] = true;
 
         $this->render->renderiza("editarPerfil", $data);
     }
@@ -149,7 +153,21 @@ class PerfilController
             Redirect::to("/perfil/editar");
         }
 
-        // La foto se guarda solo si el nombre está bien, para no dejar archivos sueltos.
+        // Ubicación: si no tocó el mapa (los campos llegan vacíos), queda la que tenía.
+        $ubicacion = [];
+        foreach (UbicacionModel::CAMPOS as $campo) {
+            $ubicacion[$campo] = trim((string)Request::post($campo, ""));
+        }
+        $cambiaUbicacion = $ubicacion["latitud"] !== "";
+        if ($cambiaUbicacion) {
+            $validacion = $this->ubicacionModel->validar($ubicacion);
+            if ($validacion["error"] !== null) {
+                Sesion::flash("perfil_errores", [$validacion["error"]]);
+                Redirect::to("/perfil/editar");
+            }
+        }
+
+        // La foto se guarda solo si lo demás está bien, para no dejar archivos sueltos.
         $resultadoFoto = $this->fotoModel->guardar($_FILES["foto"] ?? null);
         if ($resultadoFoto["error"] !== null) {
             Sesion::flash("perfil_errores", [$resultadoFoto["error"]]);
@@ -165,6 +183,9 @@ class PerfilController
         }
 
         $this->perfilModel->actualizarDatos($idUsuario, $nombreCompleto, $fotoFinal);
+        if ($cambiaUbicacion) {
+            $this->perfilModel->actualizarUbicacion($idUsuario, $validacion["pais_id"], $ubicacion);
+        }
         Sesion::actualizarFoto($fotoFinal);
 
         Sesion::flash("perfil_exito", "Tus datos de perfil se actualizaron correctamente.");

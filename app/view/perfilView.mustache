@@ -48,6 +48,11 @@
             <div id="mapa" class="mapa" data-modo="ver" data-lat="{{latitud}}" data-lng="{{longitud}}"></div>
         </div>
         {{/tiene_ubicacion}}
+        {{^tiene_ubicacion}}
+            {{#es_propio}}
+            <p class="perfil-ubicacion-texto">Todavía no marcaste tu ubicación. Podés agregarla desde <a href="/perfil/editar">Editar perfil</a>.</p>
+            {{/es_propio}}
+        {{/tiene_ubicacion}}
 
         {{#es_propio}}
         <ul class="perfil-datos">

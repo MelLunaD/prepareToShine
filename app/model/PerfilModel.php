@@ -29,6 +29,19 @@ class PerfilModel
         $this->database->execute($sql, [$nombreCompleto, $foto, $id]);
     }
 
+    public function actualizarUbicacion($id, $paisId, array $ubicacion)
+    {
+        $sql = "UPDATE usuario SET pais_id = ?, ciudad = ?, provincia = ?, latitud = ?, longitud = ? WHERE id = ?";
+        $this->database->execute($sql, [
+            $paisId,
+            $ubicacion["ciudad"],
+            $ubicacion["provincia"] !== "" ? $ubicacion["provincia"] : null,
+            $ubicacion["latitud"],
+            $ubicacion["longitud"],
+            $id
+        ]);
+    }
+
     public function obtenerPasswordHash($id)
     {
         $sql = "SELECT password_hash FROM usuario WHERE id = ?";

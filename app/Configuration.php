@@ -11,6 +11,7 @@ use app\model\PaisModel;
 use app\model\UsuarioModel;
 use app\model\ValidacionModel;
 use app\model\PerfilModel;
+use app\model\UbicacionModel;
 use Mailer;
 use MustacheRender;
 use MyDatabase;
@@ -53,7 +54,7 @@ class Configuration
     {
         return new RegistroController(
             $this->getUsuarioModel(),
-            new PaisModel($this->getDatabase()),
+            $this->getUbicacionModel(),
             new FotoPerfilModel(),
             $this->getValidacionModel(),
             $this->getRender()
@@ -66,6 +67,13 @@ class Configuration
     {
         return new UsuarioModel(
             $this->getDatabase()
+        );
+    }
+
+    private function getUbicacionModel()
+    {
+        return new UbicacionModel(
+            new PaisModel($this->getDatabase())
         );
     }
 
@@ -112,6 +120,7 @@ class Configuration
         return new PerfilController(
             $this->getPerfilModel(),
             new FotoPerfilModel(),
+            $this->getUbicacionModel(),
             $this->getRender()
         );
     }

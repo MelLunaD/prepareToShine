@@ -753,6 +753,14 @@ a {
     z-index: 0;
 }
 
+/* El juego dibuja sus imágenes como pixel art (img { image-rendering: pixelated }),
+   pero los mapas y las fotos de los jugadores se ven mejor suavizados. */
+.mapa img,
+.perfil-avatar,
+.hud-foto {
+    image-rendering: auto;
+}
+
 .mapa-ubicacion {
     margin: 0.25rem 0 0;
     font-weight: 800;
