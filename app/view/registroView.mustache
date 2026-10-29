@@ -32,12 +32,20 @@
                 {{/sexos}}
             </fieldset>
 
-            <label for="pais_id">País</label>
-            <select id="pais_id" name="pais_id" required>
-                {{#paises}}
-                    <option value="{{id}}" {{#elegido}}selected{{/elegido}}>{{nombre}}</option>
-                {{/paises}}
-            </select>
+            <label for="mapa-busqueda">¿Dónde vivís?</label>
+            <small>Buscá tu ciudad o tocá el mapa para marcarla.</small>
+            <div class="mapa-buscador">
+                <input id="mapa-busqueda" type="search" placeholder="Ej: San Justo, Buenos Aires" autocomplete="off">
+                <button id="mapa-buscar" type="button" class="btn btn-primario">Buscar</button>
+            </div>
+            <div id="mapa" class="mapa" data-modo="elegir" data-lat="{{latitud}}" data-lng="{{longitud}}"></div>
+            <p id="mapa-ubicacion" class="mapa-ubicacion" aria-live="polite">{{ubicacion_texto}}</p>
+            <input id="latitud" type="hidden" name="latitud" value="{{latitud}}">
+            <input id="longitud" type="hidden" name="longitud" value="{{longitud}}">
+            <input id="ciudad" type="hidden" name="ciudad" value="{{ciudad}}">
+            <input id="provincia" type="hidden" name="provincia" value="{{provincia}}">
+            <input id="pais_codigo" type="hidden" name="pais_codigo" value="{{pais_codigo}}">
+            <input id="pais_nombre" type="hidden" name="pais_nombre" value="{{pais_nombre}}">
 
             <label for="email">Mail</label>
             <input id="email" type="email" name="email" value="{{email}}" maxlength="120" autocomplete="email" required>

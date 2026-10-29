@@ -41,6 +41,10 @@ class PerfilController
         $timestamp = strtotime($datosPerfil["fecha_alta"]);
         $datosPerfil["fecha_alta_formateada"] = $timestamp ? date("d/m/Y", $timestamp) : $datosPerfil["fecha_alta"];
 
+        // Los usuarios registrados antes del mapa no tienen ubicación: el mapa no se muestra.
+        $datosPerfil["tiene_ubicacion"] = $datosPerfil["latitud"] !== null && $datosPerfil["longitud"] !== null;
+        $datosPerfil["ubicacion_texto"] = implode(", ", array_filter([$datosPerfil["ciudad"], $datosPerfil["provincia"]]));
+
         return $datosPerfil;
     }
 
@@ -79,6 +83,7 @@ class PerfilController
         $data["cantidad_partidas"] = 0;
 
         $data["exito"] = Sesion::tomarFlash("perfil_exito");
+        $data["usaMapa"] = true;
 
         $this->render->renderiza("perfil", $data);
     }
@@ -108,6 +113,7 @@ class PerfilController
         $data["es_propio"] = false; // En el perfil de otro no se muestran sus datos privados ni la edición
         $data["puntaje_total"] = 0;
         $data["cantidad_partidas"] = 0;
+        $data["usaMapa"] = true;
 
         $this->render->renderiza("perfil", $data);
     }
@@ -200,4 +206,4 @@ class PerfilController
         Sesion::flash("perfil_exito", "Tu contraseña se actualizó correctamente.");
         Redirect::to("/perfil");
     }
-}
+}

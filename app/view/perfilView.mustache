@@ -39,6 +39,16 @@
             </div>
         </div>
 
+        {{#tiene_ubicacion}}
+        <div class="perfil-ubicacion">
+            <p class="perfil-ubicacion-texto">
+                <img class="perfil-bandera" src="https://flagcdn.com/w20/{{pais_codigo_min}}.png" alt="{{pais_codigo}}">
+                {{#ubicacion_texto}}{{ubicacion_texto}}, {{/ubicacion_texto}}{{pais_nombre}}
+            </p>
+            <div id="mapa" class="mapa" data-modo="ver" data-lat="{{latitud}}" data-lng="{{longitud}}"></div>
+        </div>
+        {{/tiene_ubicacion}}
+
         {{#es_propio}}
         <ul class="perfil-datos">
             <li>
@@ -84,4 +94,4 @@
     </div>
     {{/perfil}}
 
-</section>
+</section>

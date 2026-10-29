@@ -730,9 +730,54 @@ a {
     color: inherit;
 }
 
+/* --- Mapa de ubicación (Leaflet): registro y perfil --- */
+.mapa-buscador {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.formulario .mapa-buscador .btn {
+    width: auto;
+    margin-top: 0;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.65rem;
+}
+
+.mapa {
+    width: 100%;
+    height: 260px;
+    margin-top: 0.5rem;
+    border: 3px solid var(--tinta);
+    /* Leaflet usa z-index altos: así el mapa no tapa el header ni el telón del secreto. */
+    position: relative;
+    z-index: 0;
+}
+
+.mapa-ubicacion {
+    margin: 0.25rem 0 0;
+    font-weight: 800;
+}
+
+.mapa-ubicacion-error {
+    color: var(--rojo);
+}
+
+.perfil-ubicacion {
+    margin-bottom: 1.5rem;
+}
+
+.perfil-ubicacion-texto {
+    margin: 0 0 0.25rem;
+    font-weight: 800;
+}
+
 /* ---------- Pantallas más grandes ---------- */
 
 @media (min-width: 600px) {
+    .mapa {
+        height: 320px;
+    }
+
     .hud {
         font-size: 0.7rem;
         padding: 1rem 1.5rem;

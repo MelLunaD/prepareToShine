@@ -38,7 +38,7 @@ class RegistroController
             Redirect::toIndex();
         }
 
-        $this->mostrarFormulario([], ["pais_id" => $this->paisModel->idPorCodigo("AR")]);
+        $this->mostrarFormulario([], []);
     }
 
     public function crear()
@@ -51,13 +51,20 @@ class RegistroController
             "nombre_completo" => trim((string)Request::post("nombre_completo", "")),
             "anio_nacimiento" => trim((string)Request::post("anio_nacimiento", "")),
             "sexo" => (string)Request::post("sexo", ""),
-            "pais_id" => (string)Request::post("pais_id", ""),
+            // Ubicación elegida en el mapa: la completa public/js/mapa.js con Nominatim.
+            "latitud" => trim((string)Request::post("latitud", "")),
+            "longitud" => trim((string)Request::post("longitud", "")),
+            "ciudad" => trim((string)Request::post("ciudad", "")),
+            "provincia" => trim((string)Request::post("provincia", "")),
+            "pais_codigo" => strtoupper(trim((string)Request::post("pais_codigo", ""))),
+            "pais_nombre" => trim((string)Request::post("pais_nombre", "")),
             "email" => trim((string)Request::post("email", "")),
             "usuario" => trim((string)Request::post("usuario", "")),
             "password" => (string)Request::post("password", ""),
             "password2" => (string)Request::post("password2", ""),
         ];
 
+        $datos["pais_id"] = $this->paisModel->idPorCodigo($datos["pais_codigo"]);
         $errores = $this->erroresDelFormulario($datos);
 
         // La foto se guarda solo si todo lo demás está bien, para no dejar archivos sueltos.
@@ -180,8 +187,13 @@ class RegistroController
             $errores[] = "Elegí una opción de sexo.";
         }
 
-        if (!ctype_digit($datos["pais_id"]) || !$this->paisModel->existe($datos["pais_id"])) {
-            $errores[] = "Elegí tu país.";
+        if (!$this->esCoordenada($datos["latitud"], 90) || !$this->esCoordenada($datos["longitud"], 180)
+            || $datos["ciudad"] === "" || $datos["pais_codigo"] === "") {
+            $errores[] = "Marcá en el mapa dónde vivís.";
+        } elseif ($datos["pais_id"] === null) {
+            $errores[] = "Todavía no tenemos ese país en el juego. Elegí otro punto del mapa.";
+        } elseif (mb_strlen($datos["ciudad"]) > 100 || mb_strlen($datos["provincia"]) > 100) {
+            $errores[] = "El nombre de la ciudad o la provincia es demasiado largo.";
         }
 
         if (!filter_var($datos["email"], FILTER_VALIDATE_EMAIL) || mb_strlen($datos["email"]) > 120) {
@@ -203,6 +215,12 @@ class RegistroController
         }
 
         return $errores;
+    }
+
+    // Un número entre -$limite y $limite (latitud: 90, longitud: 180).
+    private function esCoordenada($valor, $limite)
+    {
+        return is_numeric($valor) && abs((float)$valor) <= $limite;
     }
 
     // Arma los datos del formulario. Si hubo errores, vuelve con lo que ya se había cargado
@@ -228,14 +246,12 @@ class RegistroController
             ];
         }
 
-        $data["paises"] = [];
-        foreach ($this->paisModel->listar() as $pais) {
-            $data["paises"][] = [
-                "id" => $pais["id"],
-                "nombre" => $pais["nombre"],
-                "elegido" => (string)($datos["pais_id"] ?? "") === (string)$pais["id"],
-            ];
+        // Si vuelve con errores, el mapa arranca con el punto que ya había elegido.
+        foreach (["latitud", "longitud", "ciudad", "provincia", "pais_codigo", "pais_nombre"] as $campo) {
+            $data[$campo] = $datos[$campo] ?? "";
         }
+        $data["ubicacion_texto"] = implode(", ", array_filter([$data["ciudad"], $data["provincia"], $data["pais_nombre"]]));
+        $data["usaMapa"] = true;
 
         $this->render->renderiza("registro", $data);
     }
