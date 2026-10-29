@@ -761,6 +761,11 @@ a {
     image-rendering: auto;
 }
 
+/* Modo Souls: el mismo mapa de OpenStreetMap, invertido y en tonos oscuros. */
+.tema-souls .mapa .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);
+}
+
 .mapa-ubicacion {
     margin: 0.25rem 0 0;
     font-weight: 800;

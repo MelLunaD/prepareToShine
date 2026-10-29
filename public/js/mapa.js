@@ -1,4 +1,4 @@
-// Mapa de ubicación con Leaflet (public/js/vendor/leaflet.js) y los mapas de OpenStreetMap (estilo de CARTO).
+// Mapa de ubicación con Leaflet (public/js/vendor/leaflet.js) y los mapas de OpenStreetMap.
 // - En el registro (data-modo="elegir"): el jugador toca el mapa o busca su ciudad, y con
 //   Nominatim (el buscador de OpenStreetMap) se completan ciudad, provincia y país en los
 //   campos ocultos del formulario. El servidor valida esos datos al crear la cuenta.
@@ -27,15 +27,11 @@
     var mapa = L.map(contenedor)
         .setView(hayPunto ? [lat, lng] : CENTRO_INICIAL, hayPunto ? ZOOM_ELEGIDO : ZOOM_INICIAL);
 
-    // Estilo del mapa según el tema de la página (lo elige el controller): CARTO Voyager para
-    // Shine y CARTO Dark Matter para Souls. Son gratis para proyectos no comerciales, sin API key,
-    // y piden citar a CARTO además de OpenStreetMap.
-    var estiloMapa = document.body.classList.contains("tema-souls") ? "dark_all" : "rastertiles/voyager";
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/" + estiloMapa + "/{z}/{x}/{y}{r}.png", {
-        subdomains: "abcd",
-        maxZoom: 20,
+    // Mapas de OpenStreetMap (gratis y sin API key). En el tema Souls se oscurecen con CSS
+    // (.tema-souls .mapa .leaflet-tile-pane en estilos.css), así no dependemos de otro servicio.
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            + ' &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(mapa);
 
     if (contenedor.dataset.modo === "zona") {
