@@ -2,6 +2,8 @@
 
 namespace app\controller;
 
+use Redirect;
+use Request;
 use Sesion;
 
 class PerfilController
@@ -56,11 +58,6 @@ class PerfilController
 
     public function show()
     {
-        if (!Sesion::estaLogueada()) {
-            header("Location: /login");
-            exit;
-        }
-
         $usuarioSesion = Sesion::usuario();
         $idUsuario = $usuarioSesion["id"];
 
@@ -86,13 +83,13 @@ class PerfilController
         $this->render->renderiza("perfil", $data);
     }
 
-    // Vista pública al escanear el QR o entrar a /perfil/ver?usuario=xxx
+    // Perfil de otro jugador, al escanear el QR o entrar a /perfil/ver?usuario=xxx.
+    // Como todo el sitio, pide haber iniciado sesión (lo controla el Router).
     public function ver()
     {
-        $nombreUsuario = trim($_GET["usuario"] ?? "");
+        $nombreUsuario = trim((string)Request::get("usuario", ""));
         if ($nombreUsuario === "") {
-            header("Location: /");
-            exit;
+            Redirect::toIndex();
         }
 
         $datosPerfil = $this->formatearDatosPerfil(
@@ -100,8 +97,7 @@ class PerfilController
         );
 
         if (!$datosPerfil) {
-            header("Location: /");
-            exit;
+            Redirect::toIndex();
         }
 
         $data["tema"] = "shine";
@@ -109,7 +105,7 @@ class PerfilController
         $data["sesion"] = Sesion::usuario();
 
         $data["perfil"] = $datosPerfil;
-        $data["es_propio"] = false; // En el enlace público nunca se muestran datos privados ni edición
+        $data["es_propio"] = false; // En el perfil de otro no se muestran sus datos privados ni la edición
         $data["puntaje_total"] = 0;
         $data["cantidad_partidas"] = 0;
 
@@ -120,11 +116,6 @@ class PerfilController
     // Los formularios de esta vista mandan a editarDatos y cambiarPassword.
     public function editar()
     {
-        if (!Sesion::estaLogueada()) {
-            header("Location: /login");
-            exit;
-        }
-
         $usuarioSesion = Sesion::usuario();
 
         $data["tema"] = "shine";
@@ -141,31 +132,22 @@ class PerfilController
 
     public function editarDatos()
     {
-        if (!Sesion::estaLogueada()) {
-            header("Location: /login");
-            exit;
-        }
-
         $usuarioSesion = Sesion::usuario();
         $idUsuario = $usuarioSesion["id"];
         $actual = $this->perfilModel->obtenerPorId($idUsuario);
 
-        $nombreCompleto = trim($_POST["nombre_completo"] ?? "");
-        $errores = [];
+        $nombreCompleto = trim((string)Request::post("nombre_completo", ""));
 
         if ($nombreCompleto === "" || mb_strlen($nombreCompleto) > 100) {
-            $errores[] = "El nombre completo es obligatorio y debe tener hasta 100 caracteres.";
+            Sesion::flash("perfil_errores", ["El nombre completo es obligatorio y debe tener hasta 100 caracteres."]);
+            Redirect::to("/perfil/editar");
         }
 
+        // La foto se guarda solo si el nombre está bien, para no dejar archivos sueltos.
         $resultadoFoto = $this->fotoModel->guardar($_FILES["foto"] ?? null);
         if ($resultadoFoto["error"] !== null) {
-            $errores[] = $resultadoFoto["error"];
-        }
-
-        if (!empty($errores)) {
-            Sesion::flash("perfil_errores", $errores);
-            header("Location: /perfil/editar");
-            exit;
+            Sesion::flash("perfil_errores", [$resultadoFoto["error"]]);
+            Redirect::to("/perfil/editar");
         }
 
         $fotoFinal = $actual["foto"];
@@ -180,23 +162,17 @@ class PerfilController
         Sesion::actualizarFoto($fotoFinal);
 
         Sesion::flash("perfil_exito", "Tus datos de perfil se actualizaron correctamente.");
-        header("Location: /perfil");
-        exit;
+        Redirect::to("/perfil");
     }
 
     public function cambiarPassword()
     {
-        if (!Sesion::estaLogueada()) {
-            header("Location: /login");
-            exit;
-        }
-
         $usuarioSesion = Sesion::usuario();
         $idUsuario = $usuarioSesion["id"];
 
-        $passwordActual = $_POST["password_actual"] ?? "";
-        $passwordNueva = $_POST["password_nueva"] ?? "";
-        $passwordNueva2 = $_POST["password_nueva2"] ?? "";
+        $passwordActual = (string)Request::post("password_actual", "");
+        $passwordNueva = (string)Request::post("password_nueva", "");
+        $passwordNueva2 = (string)Request::post("password_nueva2", "");
 
         $errores = [];
         $hashGuardado = $this->perfilModel->obtenerPasswordHash($idUsuario);
@@ -215,15 +191,13 @@ class PerfilController
 
         if (!empty($errores)) {
             Sesion::flash("perfil_errores", $errores);
-            header("Location: /perfil/editar");
-            exit;
+            Redirect::to("/perfil/editar");
         }
 
         $nuevoHash = password_hash($passwordNueva, PASSWORD_DEFAULT);
         $this->perfilModel->actualizarPassword($idUsuario, $nuevoHash);
 
         Sesion::flash("perfil_exito", "Tu contraseña se actualizó correctamente.");
-        header("Location: /perfil");
-        exit;
+        Redirect::to("/perfil");
     }
-}
+}
