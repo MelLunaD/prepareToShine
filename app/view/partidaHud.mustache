@@ -1,0 +1,11 @@
+<div class="partida-hud">
+    <span>Pregunta <strong>{{numero}}</strong>/{{totalPreguntas}}</span>
+    <span>{{#esDie}}Almas{{/esDie}}{{^esDie}}Puntos{{/esDie}} <strong>{{puntos}}</strong></span>
+    {{#esDie}}<span>Aseguradas <strong>{{asegurados}}</strong></span>{{/esDie}}
+</div>
+{{#proximoCheckpoint}}
+    <p class="partida-aviso">Próxima hoguera: pregunta {{proximoCheckpoint}}.</p>
+{{/proximoCheckpoint}}
+{{#almasEsperando}}
+    <p class="partida-aviso partida-almas">Tus almas ({{almas}}) te esperan en la pregunta {{numero}}.</p>
+{{/almasEsperando}}

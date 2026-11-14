@@ -16,10 +16,10 @@
         <p class="saludo">¡Hola, {{usuario}}!</p>
     {{/sesion}}
 
-    <div class="acciones">
-        <a href="#" class="btn btn-primario">Jugar</a>
-        <a href="#" class="btn btn-secundario">Ranking</a>
-    </div>
+    <!-- Lobby: un panel por modo. Shine y Die llevan puntos, rangos y partidas por separado,
+         y el CSS muestra el del tema activo (el de Die aparece con el secreto). -->
+    <div class="solo-shine">{{#shine}}{{> lobbyModo}}{{/shine}}</div>
+    <div class="solo-souls">{{#die}}{{> lobbyModo}}{{/die}}</div>
 
     <!-- Cada paso tiene su versión Shine y su versión Souls: el CSS muestra
          la que corresponde según la clase del body (.solo-shine / .solo-souls). -->

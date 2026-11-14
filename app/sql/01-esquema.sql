@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS partida;
 DROP TABLE IF EXISTS respuesta;
 DROP TABLE IF EXISTS pregunta;
 DROP TABLE IF EXISTS categoria;
+DROP TABLE IF EXISTS rango;
 DROP TABLE IF EXISTS usuario;
 DROP TABLE IF EXISTS pais;
 
@@ -54,6 +55,19 @@ CREATE TABLE categoria (
     fase ENUM('shine', 'die') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Rangos por puntos de la semana, uno por modo. La aplicación los usa por id,
+-- así que los nombres se pueden cambiar acá sin tocar código.
+CREATE TABLE rango (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    modo ENUM('shine', 'die') NOT NULL,
+    nombre VARCHAR(40) NOT NULL,
+    puntos_minimos INT NOT NULL,
+    color CHAR(7) NOT NULL DEFAULT '#888888',  -- borde de la caja del rango en el lobby
+    brilla TINYINT(1) NOT NULL DEFAULT 0,      -- 1 = el nombre lleva el destello de "Shine"
+    icono VARCHAR(40) NULL,                    -- archivo en public/img/rangos/
+    UNIQUE KEY uq_rango_modo_puntos (modo, puntos_minimos)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE pregunta (
     id INT AUTO_INCREMENT PRIMARY KEY,
     categoria_id INT NOT NULL,
@@ -90,11 +104,19 @@ CREATE TABLE respuesta (
 CREATE TABLE partida (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
+    -- Shine y Die llevan puntos, niveles, rangos y rankings separados.
+    modo ENUM('shine', 'die') NOT NULL DEFAULT 'shine',
+    -- Nivel del jugador (0 a 10) al empezar: decide cuántas fáciles, medias y difíciles le tocan.
+    nivel TINYINT NOT NULL DEFAULT 0,
     puntaje INT NOT NULL DEFAULT 0,
     estado ENUM('en_curso', 'terminada') NOT NULL DEFAULT 'en_curso',
+    -- Solo Die: al morir, los puntos de la partida quedan como almas en la pregunta del error
+    -- y se recuperan respondiendo bien esa misma pregunta en la próxima partida de Die.
+    almas INT NOT NULL DEFAULT 0,
+    almas_estado ENUM('ninguna', 'esperando', 'recuperadas', 'perdidas') NOT NULL DEFAULT 'ninguna',
     fecha_inicio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fecha_fin DATETIME NULL,
-    INDEX idx_partida_ranking (fecha_inicio, usuario_id),
+    INDEX idx_partida_ranking (modo, fecha_inicio, usuario_id),
     CONSTRAINT fk_partida_usuario FOREIGN KEY (usuario_id) REFERENCES usuario (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

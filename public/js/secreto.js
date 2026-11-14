@@ -17,6 +17,28 @@
     palabra.classList.add("palabra-secreta");
     palabra.setAttribute("role", "button");
     palabra.setAttribute("tabindex", "0");
+    // El destello del CSS (::after) es una copia de la palabra: lee el texto de acá.
+    palabra.dataset.texto = palabra.textContent;
+
+    // Grietas: una por cada click antes de que se caiga (4). Están todas dibujadas
+    // desde el principio pero ocultas; cada click muestra la siguiente.
+    var SVG = "http://www.w3.org/2000/svg";
+    var grietas = document.createElementNS(SVG, "svg");
+    grietas.setAttribute("class", "grietas");
+    grietas.setAttribute("viewBox", "0 0 100 100");
+    grietas.setAttribute("preserveAspectRatio", "none");
+    grietas.setAttribute("aria-hidden", "true");
+    [
+        "M31 12 L35 28 L29 40 L34 55",
+        "M34 55 L45 63 L41 76 L46 90",
+        "M68 90 L65 76 L71 62 L63 46",
+        "M63 46 L50 51 L34 55 M63 46 L72 32 L68 22 L74 12"
+    ].forEach(function (d) {
+        var trazo = document.createElementNS(SVG, "path");
+        trazo.setAttribute("d", d);
+        grietas.appendChild(trazo);
+    });
+    palabra.appendChild(grietas);
 
     // El "telón": una capa negra que tapa toda la pantalla mientras
     // cambian los estilos, así el salto de Shine a Souls no se ve.
@@ -44,6 +66,21 @@
         palabra.classList.remove("palabra-secreta");
         palabra.removeAttribute("role");
         palabra.removeAttribute("tabindex");
+    }
+
+    // Muestra la grieta del click actual; con GSAP se "dibuja" de punta a punta.
+    function agrietar() {
+        var trazo = grietas.children[clicks - 1];
+        if (!trazo) {
+            return;
+        }
+        trazo.classList.add("visible");
+        if (hayGsap && !sinAnimaciones) {
+            var largo = trazo.getTotalLength();
+            gsap.fromTo(trazo,
+                { strokeDasharray: largo, strokeDashoffset: largo },
+                { strokeDashoffset: 0, duration: 0.2, ease: "power1.out", clearProps: "strokeDasharray,strokeDashoffset" });
+        }
     }
 
     // Clicks 1 a 4: la palabra tiembla, cada vez un poco más fuerte.
@@ -108,6 +145,7 @@
             return;
         }
         clicks++;
+        agrietar();
 
         // Sin GSAP (no cargó) o con animaciones desactivadas en el sistema: cambio directo.
         if (!hayGsap || sinAnimaciones) {

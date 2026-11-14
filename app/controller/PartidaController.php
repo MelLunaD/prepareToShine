@@ -1,0 +1,227 @@
+<?php
+
+namespace app\controller;
+
+use app\model\PartidaModel;
+use Redirect;
+use Request;
+use Sesion;
+
+// Pantallas de la partida:
+//   POST /partida/nueva       crea (o retoma) la partida del modo elegido en el lobby
+//   GET  /partida/jugar       muestra lo que toque: cartas, pregunta o checkpoint
+//   POST /partida/elegir      el jugador tocó una carta: sale la pregunta y corre el reloj
+//   POST /partida/responder   corrige la respuesta
+//   POST /partida/retirarse   Die: retirarse en un checkpoint con todo lo ganado
+//   GET  /partida/resultado   fin de la partida
+class PartidaController
+{
+    private $partidaModel;
+    private $render;
+
+    public function __construct($partidaModel, $render)
+    {
+        $this->partidaModel = $partidaModel;
+        $this->render = $render;
+    }
+
+    public function show()
+    {
+        Redirect::to("/partida/jugar");
+    }
+
+    public function nueva()
+    {
+        if (!Request::esPost()) {
+            Redirect::toIndex();
+        }
+
+        $modo = Request::post("modo") === "die" ? "die" : "shine";
+        $this->partidaModel->crear($this->usuarioId(), $modo);
+
+        Redirect::to("/partida/jugar");
+    }
+
+    public function jugar()
+    {
+        $partida = $this->partidaEnCurso();
+
+        $pregunta = $this->partidaModel->preguntaActual($partida);
+        if ($pregunta !== null) {
+            $this->mostrarPregunta($partida, $pregunta);
+            return;
+        }
+
+        if ($this->partidaModel->puedeRetirarse($partida) && Request::get("seguir") === null) {
+            $this->mostrarCheckpoint($partida);
+            return;
+        }
+
+        $this->mostrarCartas($partida);
+    }
+
+    public function elegir()
+    {
+        if (Request::esPost()) {
+            $this->partidaModel->elegirCarta($this->partidaEnCurso());
+        }
+
+        Redirect::to("/partida/jugar");
+    }
+
+    public function responder()
+    {
+        if (!Request::esPost()) {
+            Redirect::to("/partida/jugar");
+        }
+
+        $partida = $this->partidaEnCurso();
+        $respuestaId = Request::post("respuesta");
+        $resultado = $this->partidaModel->responder($partida, $respuestaId !== null && $respuestaId !== "" ? (int)$respuestaId : null);
+
+        if ($resultado === null) {
+            Redirect::to("/partida/jugar");
+        }
+
+        if ($resultado["terminada"]) {
+            Redirect::to("/partida/resultado?id=" . $partida["id"]);
+        }
+
+        Sesion::flash("partida_acierto", $resultado);
+        Redirect::to("/partida/jugar");
+    }
+
+    public function retirarse()
+    {
+        $partida = $this->partidaEnCurso();
+
+        if (Request::esPost() && $this->partidaModel->retirarse($partida)) {
+            Redirect::to("/partida/resultado?id=" . $partida["id"]);
+        }
+
+        Redirect::to("/partida/jugar");
+    }
+
+    public function resultado()
+    {
+        $partida = $this->partidaModel->resultado((int)Request::get("id", 0), $this->usuarioId());
+        if ($partida === null) {
+            Redirect::toIndex();
+        }
+
+        $esDie = $partida["modo"] === "die";
+        $completa = $partida["respondidas"] === PartidaModel::PREGUNTAS_POR_PARTIDA && $partida["error"] === null;
+
+        $data = $this->datosComunes($partida["modo"]);
+        $data["puntaje"] = (int)$partida["puntaje"];
+        $data["respondidas"] = $partida["respondidas"];
+        $data["completa"] = $completa;
+        $data["retiro"] = $partida["error"] === null && !$completa;
+        $data["error"] = $partida["error"];
+        $data["sin_responder"] = $partida["error"] !== null && $partida["error"]["respuesta_id"] === null;
+        $data["almas"] = $esDie && (int)$partida["almas"] > 0 ? (int)$partida["almas"] : null;
+        $data["urlLobby"] = $esDie ? "/?modo=die" : "/";
+
+        $this->render->renderiza("resultado", $data);
+    }
+
+    // ---------- Pantallas ----------
+
+    private function mostrarCartas(array $partida)
+    {
+        $data = $this->datosDeLaPartida($partida);
+        $data["cartas"] = range(1, $this->partidaModel->cantidadDeCartas($partida["modo"]));
+        $data["acierto"] = Sesion::tomarFlash("partida_acierto");
+
+        $this->render->renderiza("cartas", $data);
+    }
+
+    private function mostrarPregunta(array $partida, array $pregunta)
+    {
+        $data = $this->datosDeLaPartida($partida);
+        $data["numero"] = (int)$pregunta["numero"];
+        $data["pregunta"] = $pregunta;
+        $data["categoriaTitulo"] = $pregunta["juego"] !== null && $pregunta["juego"] !== ""
+            ? $pregunta["categoria"] . " (" . $pregunta["juego"] . ")"
+            : $pregunta["categoria"];
+        $data["segundosRestantes"] = (int)$pregunta["segundos_restantes"];
+        $data["segundosTotales"] = PartidaModel::SEGUNDOS_POR_PREGUNTA;
+        // Recién elegida: la carta muestra la categoría unos segundos antes de la pregunta.
+        $data["segundosParaEmpezar"] = (int)$pregunta["segundos_para_empezar"];
+
+        $this->render->renderiza("pregunta", $data);
+    }
+
+    private function mostrarCheckpoint(array $partida)
+    {
+        $data = $this->datosDeLaPartida($partida);
+        $this->render->renderiza("checkpoint", $data);
+    }
+
+    // ---------- Datos ----------
+
+    // Tema según el modo: una partida de Die siempre se ve Souls, aunque se recargue.
+    private function datosComunes($modo)
+    {
+        $data["tema"] = $modo === "die" ? "souls" : "shine";
+        $data["palabraFase"] = $modo === "die" ? "Die" : "Shine";
+        $data["sesion"] = Sesion::usuario();
+        $data["esDie"] = $modo === "die";
+        $data["usaPartida"] = true;
+        return $data;
+    }
+
+    private function datosDeLaPartida(array $partida)
+    {
+        $puntos = $this->partidaModel->puntosEnJuego($partida);
+        $respondidas = $this->partidaModel->preguntasRespondidas($partida);
+
+        $data = $this->datosComunes($partida["modo"]);
+        $data["numero"] = $respondidas + 1;
+        $data["totalPreguntas"] = PartidaModel::PREGUNTAS_POR_PARTIDA;
+        $data["puntos"] = $puntos["total"];
+        $data["asegurados"] = $data["esDie"] ? $puntos["asegurados"] : null;
+        $data["proximoCheckpoint"] = $this->proximoCheckpoint($partida, $respondidas);
+
+        $almas = $data["esDie"] ? $this->partidaModel->almasEsperando($partida["usuario_id"]) : null;
+        $data["almasEsperando"] = $almas !== null && (int)$almas["partida_id"] !== (int)$partida["id"] && (int)$almas["numero"] > $respondidas
+            ? ["almas" => (int)$almas["almas"], "numero" => (int)$almas["numero"]]
+            : null;
+
+        return $data;
+    }
+
+    private function proximoCheckpoint(array $partida, $respondidas)
+    {
+        if ($partida["modo"] !== "die") {
+            return null;
+        }
+        foreach (PartidaModel::CHECKPOINTS_DIE as $checkpoint) {
+            if ($checkpoint > $respondidas) {
+                return $checkpoint;
+            }
+        }
+        return null;
+    }
+
+    // La partida en curso del jugador. Si se le terminó el tiempo con la página cerrada,
+    // se cierra acá y va directo al resultado. Sin partida en curso, vuelve al lobby.
+    private function partidaEnCurso()
+    {
+        $partida = $this->partidaModel->enCurso($this->usuarioId());
+        if ($partida === null) {
+            Redirect::toIndex();
+        }
+
+        if ($this->partidaModel->cerrarSiVencio($partida)) {
+            Redirect::to("/partida/resultado?id=" . $partida["id"]);
+        }
+
+        return $partida;
+    }
+
+    private function usuarioId()
+    {
+        return Sesion::usuario()["id"];
+    }
+}

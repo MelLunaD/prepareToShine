@@ -12,13 +12,30 @@ class PerfilController
     private $perfilModel;
     private $fotoModel;
     private $ubicacionModel;
+    private $rankingModel;
     private $render;
 
-    public function __construct($perfilModel, $fotoModel, $ubicacionModel, $render)
+    // El perfil tiene versión Shine y versión Die (se pasa con el secreto de los 5 clicks o con
+    // ?modo=die): se mandan los datos de los dos modos y el CSS muestra el del tema activo.
+    private function resumenPorModo($usuarioId)
+    {
+        return [
+            "shine" => $this->rankingModel->resumen($usuarioId, "shine"),
+            "die" => $this->rankingModel->resumen($usuarioId, "die"),
+        ];
+    }
+
+    private function temaPedido()
+    {
+        return Request::get("modo") === "die" ? "souls" : "shine";
+    }
+
+    public function __construct($perfilModel, $fotoModel, $ubicacionModel, $rankingModel, $render)
     {
         $this->perfilModel = $perfilModel;
         $this->fotoModel = $fotoModel;
         $this->ubicacionModel = $ubicacionModel;
+        $this->rankingModel = $rankingModel;
         $this->render = $render;
     }
 
@@ -75,7 +92,7 @@ class PerfilController
 
         $qr = $datosPerfil ? $this->generarUrlQr($datosPerfil["usuario"]) : null;
 
-        $data["tema"] = "shine";
+        $data["tema"] = $this->temaPedido();
         $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
         $data["sesion"] = $usuarioSesion;
 
@@ -83,8 +100,7 @@ class PerfilController
         $data["es_propio"] = true;
         $data["qr_imagen"] = $qr["qr_imagen"] ?? null;
         $data["url_publica"] = $qr["url_publica"] ?? null;
-        $data["puntaje_total"] = 0;
-        $data["cantidad_partidas"] = 0;
+        $data["resumen"] = $datosPerfil ? $this->resumenPorModo($datosPerfil["id"]) : null;
 
         $data["exito"] = Sesion::tomarFlash("perfil_exito");
         $data["usaMapa"] = true;
@@ -112,14 +128,13 @@ class PerfilController
         // A los demás solo se les muestra la localidad: el punto exacto no llega a la vista.
         unset($datosPerfil["latitud"], $datosPerfil["longitud"]);
 
-        $data["tema"] = "shine";
+        $data["tema"] = $this->temaPedido();
         $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
         $data["sesion"] = Sesion::usuario();
 
         $data["perfil"] = $datosPerfil;
         $data["es_propio"] = false; // En el perfil de otro no se muestran sus datos privados ni la edición
-        $data["puntaje_total"] = 0;
-        $data["cantidad_partidas"] = 0;
+        $data["resumen"] = $this->resumenPorModo($datosPerfil["id"]);
         $data["usaMapa"] = true;
 
         $this->render->renderiza("perfil", $data);
@@ -131,7 +146,7 @@ class PerfilController
     {
         $usuarioSesion = Sesion::usuario();
 
-        $data["tema"] = "shine";
+        $data["tema"] = $this->temaPedido();
         $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
         $data["sesion"] = $usuarioSesion;
 

@@ -1,0 +1,17 @@
+<div class="perfil-rango">{{> rangoCaja}}</div>
+<div class="perfil-stats">
+    <div class="stat-caja stat-puntaje">
+        <span class="stat-etiqueta">
+            <img src="/public/img/{{#esDie}}hoguera{{/esDie}}{{^esDie}}estrella{{/esDie}}.svg" alt="" width="18" height="18">
+            {{#esDie}}Almas de la semana{{/esDie}}{{^esDie}}Puntos de la semana{{/esDie}}
+        </span>
+        <span class="stat-valor">{{puntosSemana}}</span>
+    </div>
+    <div class="stat-caja stat-partidas">
+        <span class="stat-etiqueta">
+            <img src="/public/img/{{#esDie}}calavera{{/esDie}}{{^esDie}}moneda{{/esDie}}.svg" alt="" width="18" height="18">
+            Partidas de la semana
+        </span>
+        <span class="stat-valor">{{partidasSemana}}</span>
+    </div>
+</div>

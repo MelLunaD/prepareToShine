@@ -191,25 +191,22 @@ a {
     text-align: center;
 }
 
+/* Tres cubos quietos; el del medio, más alto. */
 .bloques {
     display: flex;
     justify-content: center;
+    align-items: flex-end;
     gap: 0;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 
 .bloques img {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
 }
 
 .bloques img:nth-child(2) {
-    animation: rebote 1.2s ease-in-out infinite;
-}
-
-@keyframes rebote {
-    0%, 70%, 100% { transform: translateY(0); }
-    80%           { transform: translateY(-12px); }
+    margin-bottom: 12px;
 }
 
 .titulo-juego {
@@ -247,15 +244,90 @@ a {
 
 /* ---------- Secreto: 5 clicks en "Shine" ---------- */
 
+/* Para que se note que se puede tocar:
+   - relieve 3D como los botones: se levanta al pasar el mouse y se hunde al clickear;
+   - un destello que la cruza cada tanto (el ::after, una copia de la palabra con brillo);
+   - grietas que aparecen con cada click (el SVG que agrega secreto.js).
+   El movimiento usa "translate" y no "transform", así no choca con el temblor de GSAP. */
 .palabra-secreta {
+    position: relative;
+    width: fit-content;
+    margin-inline: auto;
     cursor: pointer;
     user-select: none;
+    text-shadow: 1px 1px 0 var(--tinta), 2px 2px 0 var(--tinta), 3px 3px 0 var(--tinta),
+                 4px 4px 0 var(--tinta), 5px 5px 0 var(--tinta), 6px 6px 0 var(--tinta);
+    transition: translate 0.12s ease-out, text-shadow 0.12s ease-out;
 }
 
 .palabra-secreta:hover,
 .palabra-secreta:focus-visible {
     outline: none;
-    filter: brightness(1.15);
+    translate: -2px -2px;
+    text-shadow: 1px 1px 0 var(--tinta), 2px 2px 0 var(--tinta), 3px 3px 0 var(--tinta),
+                 4px 4px 0 var(--tinta), 5px 5px 0 var(--tinta), 6px 6px 0 var(--tinta),
+                 7px 7px 0 var(--tinta), 8px 8px 0 var(--tinta);
+}
+
+.palabra-secreta:active {
+    translate: 4px 4px;
+    text-shadow: 1px 1px 0 var(--tinta), 2px 2px 0 var(--tinta);
+    transition-duration: 0.05s;
+}
+
+.palabra-secreta::after,
+.destello::after {
+    content: attr(data-texto);
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    text-shadow: none;
+    background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.95) 50%, transparent 60%) no-repeat;
+    background-size: 250% 100%;
+    background-position: 150% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    pointer-events: none;
+    animation: destello 5s ease-in-out 1s infinite;
+}
+
+@keyframes destello {
+    0%       { background-position: 150% 0; }
+    20%, 100% { background-position: -50% 0; }
+}
+
+.grietas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.grietas path {
+    fill: none;
+    stroke: var(--tinta);
+    stroke-width: 3;
+    stroke-linejoin: miter;
+    vector-effect: non-scaling-stroke;
+    visibility: hidden;
+}
+
+.grietas path.visible {
+    visibility: visible;
+}
+
+/* El mismo destello sirve para cualquier texto con class="destello" y data-texto (ej. los rangos altos). */
+.destello {
+    position: relative;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .palabra-secreta::after,
+    .destello::after {
+        animation: none;
+    }
 }
 
 /* Capa negra para el fundido entre temas (la crea secreto.js). */
@@ -784,6 +856,381 @@ a {
     font-weight: 800;
 }
 
+/* ---------- Lobby (home con sesión) ---------- */
+
+.lobby {
+    max-width: 720px;
+    margin: 0 auto 2.5rem;
+}
+
+.lobby-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.lobby-stats .stat-caja {
+    padding: 0.75rem 0.25rem;
+    gap: 0.4rem;
+}
+
+.lobby-stats .stat-etiqueta {
+    font-size: 0.65rem;
+}
+
+.lobby-stats .stat-valor {
+    font-family: var(--fuente-titulo);
+    font-size: 0.9rem;
+}
+
+/* ---------- Caja del rango (partial rangoCaja: lobby y perfil) ---------- */
+/* Cada rango pinta el borde de abajo de su caja y tiñe su nombre con su color
+   (mezclado con blanco para que se lea sobre el fondo oscuro). El ícono va a la izquierda. */
+.stat-rango {
+    box-shadow: 0 4px 0 var(--color-rango, rgba(0, 0, 0, 0.25));
+}
+
+.stat-rango .rango-nombre {
+    font-family: var(--fuente-titulo);
+    color: color-mix(in srgb, var(--color-rango, #fff) 55%, #fff);
+}
+
+.rango-linea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.rango-icono {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+}
+
+/* Que no destelle al mismo tiempo que "Shine". */
+.rango-nombre.destello::after {
+    animation-delay: 3.5s;
+}
+
+/* Perfil: la caja del rango ocupa todo el ancho, con ícono y nombre más grandes. */
+.perfil-rango {
+    margin-bottom: 1rem;
+}
+
+.perfil-rango .rango-icono {
+    width: 40px;
+    height: 40px;
+}
+
+.perfil-rango .rango-nombre {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Los nombres de rango pueden ser largos ("Portador de la llama"): más chicos y cortando entre palabras. */
+.lobby-stats .rango-nombre {
+    font-size: 0.65rem;
+    line-height: 1.6;
+}
+
+.lobby-siguiente {
+    margin: 0 0 1rem;
+    font-weight: 700;
+    color: var(--texto-sobre-color);
+    text-shadow: 2px 2px 0 var(--tinta);
+}
+
+/* Aviso de almas para recuperar, en rojo junto al botón de jugar. */
+.lobby-almas {
+    margin: 0 auto 1rem;
+    max-width: 36ch;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #a3161a;
+    background: rgba(163, 22, 26, 0.18);
+    color: #ff6b6b;
+    font-weight: 700;
+}
+
+.acciones form {
+    display: flex;
+    margin: 0;
+}
+
+.acciones form .btn {
+    flex: 1;
+    width: 100%;
+}
+
+.tabla-partidas {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.tabla-partidas th,
+.tabla-partidas td {
+    padding: 0.4rem 0.25rem;
+    border-bottom: 1px solid var(--texto-suave);
+    text-align: left;
+}
+
+.tabla-partidas td:last-child,
+.tabla-partidas th:last-child {
+    text-align: right;
+}
+
+/* ---------- Partida ---------- */
+
+.partida {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.partida-hud {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    background: var(--tinta);
+    color: var(--texto-sobre-color);
+    font-size: 0.9rem;
+}
+
+.partida-hud strong {
+    color: var(--moneda);
+}
+
+.partida-aviso {
+    margin: 0 0 0.75rem;
+    font-weight: 700;
+    color: var(--texto-sobre-color);
+    text-shadow: 2px 2px 0 var(--tinta);
+}
+
+.partida-almas {
+    color: #ff6b6b;
+}
+
+.partida-acierto {
+    display: inline-block;
+    margin: 0 0 1rem;
+    padding: 0.5rem 1rem;
+    background: #c8f7c5;
+    color: var(--tinta);
+    border: var(--borde);
+    font-weight: 800;
+}
+
+.partida-titulo {
+    margin: 0.5rem 0;
+    font-family: var(--fuente-titulo);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--texto-sobre-color);
+    text-shadow: 3px 3px 0 var(--tinta);
+}
+
+.partida-ayuda {
+    margin: 0 auto 1.5rem;
+    max-width: 36ch;
+    color: var(--texto-sobre-color);
+    text-shadow: 1px 1px 0 var(--tinta);
+}
+
+/* Cartas boca abajo: 3 por fila en el celular. */
+.cartas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    max-width: 360px;
+    margin: 0 auto;
+    perspective: 800px;
+}
+
+.tema-souls .cartas {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 240px;
+}
+
+.carta {
+    aspect-ratio: 2 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border: var(--borde);
+    border-radius: 6px;
+    box-shadow: var(--sombra-bloque);
+    background: repeating-linear-gradient(45deg, var(--rojo) 0 10px, var(--moneda) 10px 20px);
+    font: inherit;
+    cursor: pointer;
+}
+
+.carta:disabled {
+    cursor: default;
+}
+
+.carta-dorso {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--tinta);
+    color: var(--moneda);
+    font-family: var(--fuente-titulo);
+    font-size: 1rem;
+}
+
+.tema-souls .carta {
+    background: radial-gradient(circle, #2a2723 0%, #0e0d0b 80%);
+}
+
+.tema-souls .carta-dorso {
+    background: transparent;
+    border: 1px solid var(--moneda);
+    border-radius: 50%;
+}
+
+/* Pregunta: la carta elegida, de frente y con el color de su categoría. */
+.pregunta {
+    --color-categoria: var(--rojo);
+}
+
+.carta.carta-revelada {
+    aspect-ratio: auto;
+    max-width: 320px;
+    margin: 0 auto 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--color-categoria);
+    cursor: default;
+}
+
+/* Mientras se da vuelta (partida.js), la carta elegida muestra el dorso. */
+.carta-revelada .carta-dorso,
+.carta-revelada.boca-abajo .carta-frente {
+    display: none;
+}
+
+.carta-revelada.boca-abajo .carta-dorso {
+    display: flex;
+}
+
+.carta.carta-revelada.boca-abajo {
+    background: repeating-linear-gradient(45deg, var(--rojo) 0 10px, var(--moneda) 10px 20px);
+}
+
+.tema-souls .carta.carta-revelada.boca-abajo {
+    background: radial-gradient(circle, #2a2723 0%, #0e0d0b 80%);
+}
+
+.carta-frente {
+    font-family: var(--fuente-titulo);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: #ffffff;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+}
+
+.reloj {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 480px;
+    margin: 0 auto 1rem;
+}
+
+.reloj-barra {
+    flex: 1;
+    height: 14px;
+    border: 3px solid var(--tinta);
+    background: var(--papel);
+}
+
+.reloj-relleno {
+    display: block;
+    height: 100%;
+    background: var(--color-categoria);
+    transition: width 0.25s linear;
+}
+
+.reloj-numero {
+    min-width: 2.5ch;
+    font-family: var(--fuente-titulo);
+    font-size: 1rem;
+    color: var(--texto-sobre-color);
+    text-shadow: 2px 2px 0 var(--tinta);
+}
+
+.reloj-urgente .reloj-numero {
+    color: #ff6b6b;
+}
+
+.pregunta-texto {
+    margin: 0 auto 1.25rem;
+    padding: 1rem;
+    background: var(--papel);
+    border: var(--borde);
+    border-top: 8px solid var(--color-categoria);
+    box-shadow: var(--sombra-bloque);
+    font-size: 1.15rem;
+    line-height: 1.4;
+}
+
+.opciones {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.opcion-respuesta {
+    width: 100%;
+    background: var(--papel);
+    color: var(--texto);
+    font-family: var(--fuente-texto);
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.opcion-respuesta:hover,
+.opcion-respuesta:focus-visible {
+    outline: 3px solid var(--color-categoria);
+}
+
+.checkpoint {
+    text-align: center;
+}
+
+.checkpoint h1 {
+    font-family: var(--fuente-titulo);
+    font-size: 1rem;
+}
+
+.resultado .tarjeta {
+    text-align: center;
+}
+
+.resultado-puntaje {
+    font-size: 1.25rem;
+}
+
+.resultado-error {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    border: 1px dashed var(--texto-suave);
+    text-align: left;
+}
+
+.resultado-error p {
+    margin: 0.25rem 0;
+}
+
 /* ---------- Pantallas más grandes ---------- */
 
 @media (min-width: 600px) {
@@ -814,13 +1261,53 @@ a {
         max-width: none;
     }
 
+    /* Mismo ancho para todos: "Jugar" va dentro de un form, que si no se achica al texto. */
+    .acciones > * {
+        flex: 0 0 14rem;
+    }
+
     .bloques img {
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .bloques img:nth-child(2) {
+        margin-bottom: 16px;
     }
 
     .nube {
         width: 128px;
+    }
+
+    .cartas {
+        grid-template-columns: repeat(6, 1fr);
+        max-width: 720px;
+    }
+
+    .tema-souls .cartas {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 480px;
+    }
+
+    .opciones {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .lobby-stats .stat-valor {
+        font-size: 1.1rem;
+    }
+
+    .lobby-stats .rango-nombre {
+        font-size: 0.8rem;
+    }
+
+    .perfil-rango .rango-icono {
+        width: 48px;
+        height: 48px;
+    }
+
+    .perfil-rango .rango-nombre {
+        font-size: 1.4rem;
     }
 }
 

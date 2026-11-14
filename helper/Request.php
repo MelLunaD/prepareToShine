@@ -11,4 +11,11 @@ class Request
     {
         return $_POST[$key] ?? $default;
     }
+
+    // Las acciones que cambian datos (jugar, responder) solo se aceptan por POST,
+    // así un link o una recarga no pueden dispararlas.
+    public static function esPost()
+    {
+        return ($_SERVER["REQUEST_METHOD"] ?? "GET") === "POST";
+    }
 }

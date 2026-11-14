@@ -22,22 +22,11 @@
             </div>
         </div>
 
-        <div class="perfil-stats">
-            <div class="stat-caja stat-puntaje">
-                <span class="stat-etiqueta">
-                    <img src="/public/img/estrella.svg" alt="" width="18" height="18">
-                    Puntaje total
-                </span>
-                <span class="stat-valor">{{puntaje_total}}</span>
-            </div>
-            <div class="stat-caja stat-partidas">
-                <span class="stat-etiqueta">
-                    <img src="/public/img/moneda.svg" alt="" width="18" height="18">
-                    Partidas jugadas
-                </span>
-                <span class="stat-valor">{{cantidad_partidas}}</span>
-            </div>
-        </div>
+        {{#resumen}}
+        <!-- Rango y números del modo del tema activo: Shine o Die (.solo-shine / .solo-souls). -->
+        <div class="solo-shine">{{#shine}}{{> perfilModo}}{{/shine}}</div>
+        <div class="solo-souls">{{#die}}{{> perfilModo}}{{/die}}</div>
+        {{/resumen}}
 
         {{#tiene_ubicacion}}
         <div class="perfil-ubicacion">

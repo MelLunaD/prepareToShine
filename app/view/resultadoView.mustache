@@ -1,0 +1,33 @@
+<section class="partida resultado">
+
+    <h1 class="titulo-juego">
+        {{#completa}}{{#esDie}}Victoria obtenida{{/esDie}}{{^esDie}}¡Partida perfecta!{{/esDie}}{{/completa}}
+        {{#retiro}}Te retiraste a tiempo{{/retiro}}
+        {{#error}}{{#esDie}}<span class="palabra-fase">Has muerto</span>{{/esDie}}{{^esDie}}Game over{{/esDie}}{{/error}}
+    </h1>
+
+    <div class="tarjeta">
+        <p class="resultado-puntaje">
+            {{#esDie}}Almas ganadas{{/esDie}}{{^esDie}}Puntos ganados{{/esDie}}: <strong>{{puntaje}}</strong>
+        </p>
+        <p>Llegaste hasta la pregunta {{respondidas}} de 15.</p>
+
+        {{#error}}
+            <div class="resultado-error">
+                <p>Pregunta {{numero}}: {{pregunta}}</p>
+                {{#sin_responder}}<p>Se terminó el tiempo.</p>{{/sin_responder}}
+                {{#elegida}}<p>Tu respuesta: <strong>{{elegida}}</strong></p>{{/elegida}}
+                <p>La correcta era: <strong>{{correcta}}</strong></p>
+            </div>
+        {{/error}}
+
+        {{#almas}}
+            <p class="lobby-almas">Tus {{almas}} almas quedaron en la pregunta {{error.numero}}. Respondela bien en tu próxima partida para recuperarlas.</p>
+        {{/almas}}
+
+        <div class="acciones">
+            <a href="{{urlLobby}}" class="btn btn-primario">Volver al lobby</a>
+        </div>
+    </div>
+
+</section>

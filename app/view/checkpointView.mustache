@@ -1,0 +1,19 @@
+<section class="partida">
+
+    {{> partidaHud}}
+
+    <div class="tarjeta checkpoint">
+        <img src="/public/img/hoguera.svg" alt="" width="48" height="64">
+        <h1>Encontraste una hoguera</h1>
+        <p>Tenés <strong>{{puntos}}</strong> almas. Si seguís, quedan aseguradas: si morís más adelante, solo perdés lo que ganes desde acá.</p>
+        <p>O podés retirarte ahora y llevarte todo.</p>
+
+        <div class="acciones">
+            <a href="/partida/jugar?seguir=1" class="btn btn-primario">Seguir</a>
+            <form method="post" action="/partida/retirarse">
+                <button type="submit" class="btn btn-secundario">Retirarme con {{puntos}}</button>
+            </form>
+        </div>
+    </div>
+
+</section>

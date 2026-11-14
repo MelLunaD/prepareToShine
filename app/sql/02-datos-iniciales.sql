@@ -204,7 +204,7 @@ INSERT INTO pais (nombre, codigo) VALUES
     ('Zimbabue', 'ZW');
 
 -- Los ids de categoría son fijos: 03-preguntas.sql los usa.
--- Shine (preguntas 1 a 4): colores vivos. Die (preguntas 5 a 8): colores oscuros.
+-- Shine: colores vivos. Die: colores oscuros.
 INSERT INTO categoria (id, nombre, color, fase) VALUES
     (1, 'Plataformas', '#E4572E', 'shine'),
     (2, 'Acción y aventura', '#29B6F6', 'shine'),
@@ -216,6 +216,23 @@ INSERT INTO categoria (id, nombre, color, fase) VALUES
     (8, 'Lore', '#4A3B2A', 'die'),
     (9, 'Frases', '#2E3A4A', 'die'),
     (10, 'Skills', '#3D4A2E', 'die');
+
+-- Rangos por puntos de la semana (Shine y Die llevan rankings separados).
+INSERT INTO rango (id, modo, nombre, puntos_minimos, color, brilla, icono) VALUES
+    (1, 'shine', 'Cartón', 0, '#b08850', 0, 'carton.svg'),
+    (2, 'shine', 'Madera', 1000, '#4d2c12', 0, 'madera.svg'),
+    (3, 'shine', 'Piedra', 2500, '#8a8d91', 0, 'piedra.svg'),
+    (4, 'shine', 'Bronce', 4000, '#cd7f32', 1, 'bronce.svg'),
+    (5, 'shine', 'Plata', 6000, '#c9d1d9', 1, 'plata.svg'),
+    (6, 'shine', 'Oro', 8000, '#e6b422', 1, 'oro.svg'),
+    (7, 'shine', 'Diamante', 10000, '#5fd8f0', 1, 'diamante.svg'),
+    (8, 'die', 'Hueco', 0, '#3d3d3d', 0, 'hueco.svg'),
+    (9, 'die', 'No muerto', 1000, '#6b7a4f', 0, 'no-muerto.svg'),
+    (10, 'die', 'Caballero errante', 2500, '#8c6a3f', 0, 'caballero-errante.svg'),
+    (11, 'die', 'Portador de la llama', 4000, '#e8833a', 1, 'portador-de-la-llama.svg'),
+    (12, 'die', 'Matadioses', 6000, '#c9a227', 1, 'matadioses.svg'),
+    (13, 'die', 'Señor de la ceniza', 8000, '#d8d2c4', 1, 'senor-de-la-ceniza.svg'),
+    (14, 'die', 'Primera llama', 10000, '#ff5a1f', 1, 'primera-llama.svg');
 
 -- Usuario 'sistema' (id 1): autor de las preguntas iniciales.
 -- Su password_hash no es un hash válido, así que nadie puede iniciar sesión con él.

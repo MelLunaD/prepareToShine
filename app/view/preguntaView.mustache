@@ -1,0 +1,38 @@
+<section class="partida">
+
+    {{> partidaHud}}
+
+    {{#pregunta}}
+    <!-- El color de la categoría pinta la pantalla; viene de la tabla categoria. -->
+    <div class="pregunta" style="--color-categoria: {{color}}">
+
+        <!-- La carta elegida: recién elegida, partida.js la muestra grande y se da vuelta con la
+             categoría; después de segundosParaEmpezar aparecen la pregunta y el reloj. -->
+        <div class="carta carta-revelada" data-revelar data-espera="{{segundosParaEmpezar}}">
+            <span class="carta-dorso" aria-hidden="true">?</span>
+            <span class="carta-frente">{{categoriaTitulo}}</span>
+        </div>
+
+        <div class="pregunta-cuerpo" data-cuerpo>
+
+        <div class="reloj" data-reloj data-restante="{{segundosRestantes}}" data-total="{{segundosTotales}}">
+            <div class="reloj-barra"><span class="reloj-relleno" style="width: 100%"></span></div>
+            <span class="reloj-numero" aria-live="polite">{{segundosRestantes}}</span>
+        </div>
+
+        <h1 class="pregunta-texto">{{texto}}</h1>
+
+        <!-- Cada opción es un botón que manda su id. Si se termina el tiempo, partida.js manda el
+             formulario sin respuesta; igual el que decide si llegó a tiempo es el servidor. -->
+        <form method="post" action="/partida/responder" class="opciones" data-opciones>
+            {{#respuestas}}
+                <button type="submit" name="respuesta" value="{{id}}" class="btn opcion-respuesta">{{texto}}</button>
+            {{/respuestas}}
+        </form>
+
+        </div>
+
+    </div>
+    {{/pregunta}}
+
+</section>

@@ -1,0 +1,58 @@
+<div class="lobby">
+
+    <div class="lobby-stats">
+        {{> rangoCaja}}
+        <div class="stat-caja">
+            <span class="stat-etiqueta">{{#esDie}}Almas de la semana{{/esDie}}{{^esDie}}Puntos de la semana{{/esDie}}</span>
+            <span class="stat-valor">{{puntosSemana}}</span>
+        </div>
+    </div>
+
+    {{#siguienteRango}}
+        <p class="lobby-siguiente">Te faltan {{faltan}} para {{nombre}}.</p>
+    {{/siguienteRango}}
+
+    {{#almasEsperando}}
+        <p class="lobby-almas">Tus almas te esperan en la pregunta {{numero}} ({{almas}} almas).</p>
+    {{/almasEsperando}}
+
+    <div class="acciones">
+        {{#enCurso}}
+            <a href="/partida/jugar" class="btn btn-primario">
+                {{#enCursoEsDeEsteModo}}Continuar partida{{/enCursoEsDeEsteModo}}
+                {{^enCursoEsDeEsteModo}}Continuar partida de {{#esDie}}Shine{{/esDie}}{{^esDie}}Die{{/esDie}}{{/enCursoEsDeEsteModo}}
+            </a>
+        {{/enCurso}}
+        {{^enCurso}}
+            <form method="post" action="/partida/nueva">
+                <input type="hidden" name="modo" value="{{modo}}">
+                <button type="submit" class="btn btn-primario">{{#esDie}}Encender la hoguera{{/esDie}}{{^esDie}}Jugar{{/esDie}}</button>
+            </form>
+        {{/enCurso}}
+        <a href="#" class="btn btn-secundario">Ranking</a>
+    </div>
+
+    <div class="tarjeta lobby-partidas">
+        <h2>{{#esDie}}Tus muertes{{/esDie}}{{^esDie}}Mis partidas{{/esDie}}</h2>
+        {{#hayPartidas}}
+            <table class="tabla-partidas">
+                <thead>
+                    <tr><th>Fecha</th><th>Resultado</th><th>Puntos</th></tr>
+                </thead>
+                <tbody>
+                    {{#partidas}}
+                        <tr>
+                            <td>{{fecha}}</td>
+                            <td>{{resultado}}</td>
+                            <td>{{puntaje}}{{#almas}} <small>(dejó {{almas}} almas)</small>{{/almas}}</td>
+                        </tr>
+                    {{/partidas}}
+                </tbody>
+            </table>
+        {{/hayPartidas}}
+        {{^hayPartidas}}
+            <p>{{#esDie}}Todavía no moriste. Ya va a pasar.{{/esDie}}{{^esDie}}Todavía no jugaste ninguna partida.{{/esDie}}</p>
+        {{/hayPartidas}}
+    </div>
+
+</div>

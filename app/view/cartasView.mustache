@@ -1,0 +1,26 @@
+<section class="partida">
+
+    {{> partidaHud}}
+
+    {{#acierto}}
+        <p class="partida-acierto">
+            ¡Correcta! +{{puntos}}{{#almas_recuperadas}} y recuperaste {{almas_recuperadas}} almas{{/almas_recuperadas}}
+        </p>
+    {{/acierto}}
+
+    <h1 class="partida-titulo">
+        {{#esDie}}Elegí tu destino{{/esDie}}{{^esDie}}¡Elegí una carta!{{/esDie}}
+    </h1>
+    <p class="partida-ayuda">La carta que elijas decide la categoría de la pregunta. El reloj arranca al darla vuelta.</p>
+
+    <!-- Las cartas llegan boca abajo y sin datos: la categoría la sortea el servidor al elegir,
+         así que no se puede espiar con "inspeccionar". partida.js las mezcla antes de dejarlas tocar. -->
+    <form method="post" action="/partida/elegir" class="cartas" data-cartas>
+        {{#cartas}}
+            <button type="submit" name="carta" value="{{.}}" class="carta" aria-label="Carta {{.}}">
+                <span class="carta-dorso" aria-hidden="true">?</span>
+            </button>
+        {{/cartas}}
+    </form>
+
+</section>

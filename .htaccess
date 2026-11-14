@@ -73,3 +73,34 @@ Options -Indexes
     # Si solo viene el controller, el router usa el método default ('show').
     RewriteRule ^([^/]+)$         index.php?controller=$1           [L,QSA]
 </IfModule>
+# ══════════════════════════════════════════════════════
+# CACHÉ DEL NAVEGADOR PARA LOS ASSETS
+# Cada página pide ~20 archivos (CSS, JS, imágenes, íconos). Sin caché,
+# cada visita los vuelve a pedir y todos cuentan como "hits" y procesos
+# contra los límites de InfinityFree (que corta con 502 cuando se pasan).
+# Con caché, el navegador los guarda y en la próxima página no los pide.
+# CSS y JS llevan ?v=<versión> en el link (MustacheRender), así que un
+# cambio nuevo se descarga igual aunque el viejo esté cacheado.
+# ══════════════════════════════════════════════════════
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css                 "access plus 1 year"
+    ExpiresByType application/javascript   "access plus 1 year"
+    ExpiresByType text/javascript          "access plus 1 year"
+    ExpiresByType image/svg+xml            "access plus 7 days"
+    ExpiresByType image/png                "access plus 7 days"
+    ExpiresByType image/jpeg               "access plus 7 days"
+    ExpiresByType image/webp               "access plus 7 days"
+    ExpiresByType image/x-icon             "access plus 7 days"
+    ExpiresByType image/vnd.microsoft.icon "access plus 7 days"
+    ExpiresByType font/woff2               "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|woff2)$">
+        Header set Cache-Control "public, max-age=31536000"
+    </FilesMatch>
+    <FilesMatch "\.(svg|png|jpe?g|webp|ico)$">
+        Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
+</IfModule>

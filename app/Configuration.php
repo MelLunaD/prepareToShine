@@ -6,12 +6,15 @@ use app\controller\HomeController;
 use app\controller\LoginController;
 use app\controller\RegistroController;
 use app\controller\PerfilController;
+use app\controller\PartidaController;
 use app\model\FotoPerfilModel;
 use app\model\PaisModel;
 use app\model\UsuarioModel;
 use app\model\ValidacionModel;
 use app\model\PerfilModel;
 use app\model\UbicacionModel;
+use app\model\PartidaModel;
+use app\model\RankingModel;
 use Mailer;
 use MustacheRender;
 use MyDatabase;
@@ -37,6 +40,8 @@ class Configuration
     public function getHomeController()
     {
         return new HomeController(
+            $this->getPartidaModel(),
+            new RankingModel($this->getDatabase()),
             $this->getRender()
         );
     }
@@ -46,6 +51,14 @@ class Configuration
         return new LoginController(
             $this->getUsuarioModel(),
             $this->getValidacionModel(),
+            $this->getRender()
+        );
+    }
+
+    public function getPartidaController()
+    {
+        return new PartidaController(
+            $this->getPartidaModel(),
             $this->getRender()
         );
     }
@@ -66,6 +79,13 @@ class Configuration
     private function getUsuarioModel()
     {
         return new UsuarioModel(
+            $this->getDatabase()
+        );
+    }
+
+    private function getPartidaModel()
+    {
+        return new PartidaModel(
             $this->getDatabase()
         );
     }
@@ -121,6 +141,7 @@ class Configuration
             $this->getPerfilModel(),
             new FotoPerfilModel(),
             $this->getUbicacionModel(),
+            new RankingModel($this->getDatabase()),
             $this->getRender()
         );
     }
