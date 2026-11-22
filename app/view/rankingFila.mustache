@@ -1,0 +1,21 @@
+<li class="ranking-fila{{#esYo}} es-yo{{/esYo}}{{#medalla}} medalla-{{medalla}}{{/medalla}}">
+    <span class="ranking-puesto">
+        {{puesto}}
+        {{#cambio}}<small class="ranking-cambio {{clase}}" title="{{titulo}}">{{texto}}</small>{{/cambio}}
+    </span>
+    <img class="ranking-foto" src="{{foto}}" alt="" width="40" height="40" loading="lazy">
+    <span class="ranking-jugador">
+        <a class="ranking-nombre" href="{{urlPerfil}}" data-miniperfil="{{dialogo}}">{{usuario}}</a>
+        <span class="ranking-info">
+            <img class="perfil-bandera" src="https://flagcdn.com/w20/{{pais_codigo_min}}.png" alt="{{pais_codigo}}" title="{{pais_nombre}}" width="20" height="15">
+            {{#rango}}
+                {{#icono}}<img class="ranking-rango-icono" src="{{icono}}" alt="">{{/icono}}
+                <span class="ranking-rango" style="--color-rango: {{color}}">{{nombre}}</span>
+            {{/rango}}
+        </span>
+    </span>
+    <span class="ranking-valor">
+        <strong>{{valor}}</strong> <small>{{unidad}}</small>
+        {{#detalle}}<small class="ranking-detalle">{{detalle}}</small>{{/detalle}}
+    </span>
+</li>

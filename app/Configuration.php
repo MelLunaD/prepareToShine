@@ -7,6 +7,8 @@ use app\controller\LoginController;
 use app\controller\RegistroController;
 use app\controller\PerfilController;
 use app\controller\PartidaController;
+use app\controller\RankingController;
+use app\model\CementerioModel;
 use app\model\FotoPerfilModel;
 use app\model\PaisModel;
 use app\model\UsuarioModel;
@@ -59,6 +61,15 @@ class Configuration
     {
         return new PartidaController(
             $this->getPartidaModel(),
+            $this->getRender()
+        );
+    }
+
+    public function getRankingController()
+    {
+        return new RankingController(
+            new RankingModel($this->getDatabase()),
+            new CementerioModel($this->getDatabase()),
             $this->getRender()
         );
     }

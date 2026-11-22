@@ -1,0 +1,33 @@
+<section class="ranking">
+
+    <h1 class="titulo-juego">Ranking <span class="ranking-modo">{{palabraFase}}</span></h1>
+
+    {{#hayPodio}}
+    <div class="tarjeta salon-fama">
+        <h2>Salón de la fama</h2>
+        <p class="salon-fama-bajada">{{#esDie}}Los que más almas juntaron la semana pasada.{{/esDie}}{{^esDie}}Los 3 mejores de la semana pasada.{{/esDie}}</p>
+        <ol class="podio">
+            {{#podio}}
+            <li class="podio-puesto podio-{{puesto}}{{#esYo}} es-yo{{/esYo}}">
+                <span class="podio-medalla">{{puesto}}</span>
+                <img class="podio-foto" src="{{foto}}" alt="" width="56" height="56">
+                <a class="ranking-nombre" href="{{urlPerfil}}" data-miniperfil="{{dialogo}}">{{usuario}}</a>
+                <span class="podio-valor">{{valor}} <small>{{unidad}}</small></span>
+            </li>
+            {{/podio}}
+        </ol>
+    </div>
+    {{/hayPodio}}
+
+    <div class="tarjeta tarjeta-ranking">
+        <!-- ranking.js reemplaza lo de adentro con lo que devuelve /ranking/lista. -->
+        <div id="ranking-contenido" aria-live="polite">
+            {{> rankingContenido}}
+        </div>
+
+        <p class="pie-formulario"><a href="{{volver}}">Volver al lobby</a></p>
+    </div>
+
+    {{#miniperfilesPodio}}{{> miniperfil}}{{/miniperfilesPodio}}
+
+</section>

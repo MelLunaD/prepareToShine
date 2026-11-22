@@ -1,0 +1,47 @@
+<dialog class="miniperfil" id="{{dialogo}}" aria-labelledby="{{dialogo}}-nombre">
+<div class="miniperfil-contenido">
+    <form method="dialog" class="miniperfil-cerrar-form">
+        <button type="submit" class="miniperfil-cerrar" aria-label="Cerrar">&times;</button>
+    </form>
+
+    <div class="miniperfil-cabecera">
+        <img class="miniperfil-foto" src="{{foto}}" alt="" width="64" height="64" loading="lazy">
+        <div>
+            <h2 id="{{dialogo}}-nombre" class="miniperfil-nombre">{{nombre_completo}}</h2>
+            <p class="miniperfil-usuario">
+                @{{usuario}}
+                <img class="perfil-bandera" src="https://flagcdn.com/w20/{{pais_codigo_min}}.png" alt="" width="20" height="15">
+                {{pais_nombre}}
+            </p>
+        </div>
+    </div>
+
+    {{#rango}}{{> rangoCaja}}{{/rango}}
+
+    <dl class="miniperfil-stats">
+        <div>
+            <dt>{{#esDie}}Almas de la semana{{/esDie}}{{^esDie}}Puntos de la semana{{/esDie}}</dt>
+            <dd>{{puntosSemana}}</dd>
+        </div>
+        <div>
+            <dt>{{#esDie}}Almas de siempre{{/esDie}}{{^esDie}}Puntos totales{{/esDie}}</dt>
+            <dd>{{puntosHistorico}}</dd>
+        </div>
+        <div>
+            <dt>Racha actual</dt>
+            <dd>{{rachaActual}}</dd>
+        </div>
+        <div>
+            <dt>Mejor racha</dt>
+            <dd>{{mejorRacha}}</dd>
+        </div>
+    </dl>
+
+    <div class="miniperfil-qr">
+        <!-- El QR se pide recién al abrir el miniperfil (ranking.js pasa data-src a src). -->
+        <img data-src="{{qr}}" alt="Código QR del perfil de @{{usuario}}" width="140" height="140">
+    </div>
+
+    <a href="{{urlPerfil}}" class="btn btn-primario">Ver perfil</a>
+</div>
+</dialog>

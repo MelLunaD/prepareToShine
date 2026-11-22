@@ -3,6 +3,7 @@
 namespace app\controller;
 
 use app\model\UbicacionModel;
+use Qr;
 use Redirect;
 use Request;
 use Sesion;
@@ -71,13 +72,11 @@ class PerfilController
 
     private function generarUrlQr($nombreUsuario)
     {
-        $protocolo = (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off") ? "https" : "http";
-        $host = $_SERVER["HTTP_HOST"] ?? "localhost";
-        $urlPerfilPublico = $protocolo . "://" . $host . "/perfil/ver?usuario=" . urlencode($nombreUsuario);
+        $urlPerfilPublico = Qr::urlPerfil($nombreUsuario);
 
         return [
             "url_publica" => $urlPerfilPublico,
-            "qr_imagen" => "https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=6&data=" . urlencode($urlPerfilPublico)
+            "qr_imagen" => Qr::imagen($urlPerfilPublico),
         ];
     }
 

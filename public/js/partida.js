@@ -29,7 +29,12 @@
                 return { x: centroX - (r.left + r.width / 2), y: centroY - (r.top + r.height / 2) };
             }
 
-            var tl = gsap.timeline({ onComplete: function () { habilitar(true); } });
+            var tl = gsap.timeline({ onComplete: function () {
+                // GSAP deja escrito en cada carta "scale: none" (y su transform): se borra al
+                // terminar la mezcla para que funcione el agrandado del :hover del CSS.
+                gsap.set(cartas, { clearProps: "transform,translate,rotate,scale" });
+                habilitar(true);
+            } });
 
             // 1. Se juntan todas en el centro, apiladas y un poco giradas.
             tl.to(cartas, {

@@ -1,0 +1,67 @@
+{{! Lo que cambia al tocar una pestaña o un filtro. Se usa dentro de rankingView (página entera)
+    y solo, por AJAX, desde RankingController::lista(). }}
+<nav class="pestanias" aria-label="Período">
+    {{#pestaniasPeriodo}}
+        <a href="{{url}}" class="pestania{{#activa}} activa{{/activa}}"{{#activa}} aria-current="page"{{/activa}}>{{texto}}</a>
+    {{/pestaniasPeriodo}}
+</nav>
+{{#hayPestaniasTipo}}
+<nav class="pestanias pestanias-chicas" aria-label="Qué se cuenta">
+    {{#pestaniasTipo}}
+        <a href="{{url}}" class="pestania{{#activa}} activa{{/activa}}"{{#activa}} aria-current="page"{{/activa}}>{{texto}}</a>
+    {{/pestaniasTipo}}
+</nav>
+{{/hayPestaniasTipo}}
+
+<form class="ranking-filtros" method="get" action="/ranking">
+    <input type="hidden" name="modo" value="{{modo}}">
+    <input type="hidden" name="periodo" value="{{periodo}}">
+    {{#hayPestaniasTipo}}<input type="hidden" name="tipo" value="{{tipo}}">{{/hayPestaniasTipo}}
+    <label>
+        <span>País</span>
+        <select name="pais">
+            <option value="">Todos</option>
+            {{#paises}}<option value="{{valor}}"{{#elegida}} selected{{/elegida}}>{{texto}}</option>{{/paises}}
+        </select>
+    </label>
+    <label>
+        <span>Edad</span>
+        <select name="edad">
+            <option value="">Todas</option>
+            {{#edades}}<option value="{{valor}}"{{#elegida}} selected{{/elegida}}>{{texto}}</option>{{/edades}}
+        </select>
+    </label>
+    <button type="submit" class="btn btn-secundario ranking-filtrar">Filtrar</button>
+    {{#hayFiltros}}<a class="ranking-limpiar" href="{{limpiarFiltros}}">Sacar filtros</a>{{/hayFiltros}}
+</form>
+
+<p class="ranking-explicacion">{{explicacion}}</p>
+
+{{#hayFilas}}
+    {{#esCementerio}}
+        <ol class="cementerio">
+            {{#filas}}{{> rankingLapida}}{{/filas}}
+        </ol>
+        {{#miFila}}
+            <p class="ranking-separador" aria-hidden="true">···</p>
+            <ol class="cementerio">{{> rankingLapida}}</ol>
+        {{/miFila}}
+    {{/esCementerio}}
+    {{^esCementerio}}
+        <ol class="ranking-lista">
+            {{#filas}}{{> rankingFila}}{{/filas}}
+        </ol>
+        {{#miFila}}
+            <p class="ranking-separador" aria-hidden="true">···</p>
+            <ol class="ranking-lista">{{> rankingFila}}</ol>
+        {{/miFila}}
+    {{/esCementerio}}
+{{/hayFilas}}
+{{^hayFilas}}
+    <p class="ranking-vacio">
+        {{#hayFiltros}}No hay jugadores con estos filtros.{{/hayFiltros}}
+        {{^hayFiltros}}{{#esCementerio}}Nadie murió todavía. Sospechoso.{{/esCementerio}}{{^esCementerio}}{{#esDie}}Nadie se animó todavía. El primer lugar te está esperando.{{/esDie}}{{^esDie}}Todavía no hay nadie acá. ¡Jugá y sé el primero!{{/esDie}}{{/esCementerio}}{{/hayFiltros}}
+    </p>
+{{/hayFilas}}
+
+{{#miniperfilesLista}}{{> miniperfil}}{{/miniperfilesLista}}
