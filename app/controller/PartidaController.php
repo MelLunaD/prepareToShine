@@ -3,6 +3,7 @@
 namespace app\controller;
 
 use app\model\PartidaModel;
+use app\model\ReporteModel;
 use Redirect;
 use Request;
 use Sesion;
@@ -17,11 +18,13 @@ use Sesion;
 class PartidaController
 {
     private $partidaModel;
+    private $reporteModel;
     private $render;
 
-    public function __construct($partidaModel, $render)
+    public function __construct($partidaModel, $reporteModel, $render)
     {
         $this->partidaModel = $partidaModel;
+        $this->reporteModel = $reporteModel;
         $this->render = $render;
     }
 
@@ -121,6 +124,7 @@ class PartidaController
         $data["sin_responder"] = $partida["error"] !== null && $partida["error"]["respuesta_id"] === null;
         $data["almas"] = $esDie && (int)$partida["almas"] > 0 ? (int)$partida["almas"] : null;
         $data["urlLobby"] = $esDie ? "/?modo=die" : "/";
+        $data += $this->datosDelReporte($partida["id"]);
 
         $this->render->renderiza("resultado", $data);
     }
@@ -132,6 +136,7 @@ class PartidaController
         $data = $this->datosDeLaPartida($partida);
         $data["cartas"] = range(1, $this->partidaModel->cantidadDeCartas($partida["modo"]));
         $data["acierto"] = Sesion::tomarFlash("partida_acierto");
+        $data += $this->datosDelReporte($partida["id"]);
 
         $this->render->renderiza("cartas", $data);
     }
@@ -155,10 +160,41 @@ class PartidaController
     private function mostrarCheckpoint(array $partida)
     {
         $data = $this->datosDeLaPartida($partida);
+        $data += $this->datosDelReporte($partida["id"]);
         $this->render->renderiza("checkpoint", $data);
     }
 
     // ---------- Datos ----------
+
+    // Botón "Reportar pregunta": solo con la pregunta que el jugador ACABA de responder,
+    // en las pantallas de después de responder (cartas, hoguera y resultado). Nunca en la
+    // pantalla de la pregunta en curso.
+    private function datosDelReporte($partidaId)
+    {
+        $pregunta = $this->reporteModel->ultimaRespondida($partidaId, $this->usuarioId());
+        if ($pregunta === null) {
+            return ["reporte" => null];
+        }
+
+        $restantes = $this->reporteModel->restantes($this->usuarioId());
+        $motivos = [];
+        foreach (ReporteModel::MOTIVOS as $valor => $nombre) {
+            $motivos[] = ["valor" => $valor, "nombre" => $nombre];
+        }
+
+        return [
+            "usaReporte" => true,
+            "reporte" => [
+                "preguntaId" => (int)$pregunta["id"],
+                "texto" => $pregunta["texto"],
+                "yaReportada" => (bool)$pregunta["ya_reportada"],
+                "restantes" => $restantes,
+                "sinReportes" => $restantes === 0,
+                "unoRestante" => $restantes === 1,
+                "motivos" => $motivos,
+            ],
+        ];
+    }
 
     // Tema según el modo: una partida de Die siempre se ve Souls, aunque se recargue.
     private function datosComunes($modo)

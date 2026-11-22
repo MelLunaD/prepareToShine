@@ -1,0 +1,165 @@
+<section class="editor">
+
+    <h1 class="titulo-juego editor-titulo">Moderar preguntas</h1>
+
+    <nav class="pestanias editor-pestanias" aria-label="Secciones del editor">
+        {{#pestanias}}
+            <a href="{{url}}" class="pestania{{#activa}} activa{{/activa}}"{{#activa}} aria-current="page"{{/activa}}>
+                {{titulo}}{{#cantidad}} <span class="editor-contador">{{cantidad}}</span>{{/cantidad}}
+            </a>
+        {{/pestanias}}
+    </nav>
+
+    {{#mensaje}}
+        <div class="alerta alerta-ok">{{mensaje}}</div>
+    {{/mensaje}}
+
+    {{#enReportadas}}
+        {{^hayReportadas}}
+            <div class="tarjeta editor-vacio">
+                <h2>Preguntas reportadas</h2>
+                <p>No hay preguntas reportadas. Todo en orden.</p>
+            </div>
+        {{/hayReportadas}}
+
+        {{#reportadas}}
+            <article class="tarjeta editor-reportada">
+                <header class="editor-reportada-cabecera">
+                    <span class="editor-etiqueta">{{modo}} · {{categoriaTitulo}}</span>
+                    <span class="editor-etiqueta editor-etiqueta-alerta">{{cantidadReportes}} reporte{{#variosReportes}}s{{/variosReportes}}</span>
+                </header>
+
+                <h2 class="editor-reportada-texto">{{texto}}</h2>
+
+                <ol class="editor-opciones">
+                    {{#respuestas}}
+                        <li class="{{#correcta}}es-correcta{{/correcta}}">
+                            <span class="editor-opcion-letra">{{letra}}</span> {{texto}}
+                            {{#correcta}}<span class="editor-opcion-marca">Correcta</span>{{/correcta}}
+                        </li>
+                    {{/respuestas}}
+                </ol>
+
+                <p class="editor-dato">Dificultad inicial: {{dificultad}}{{#porcentaje}} · Aciertos: {{porcentaje}}%{{/porcentaje}} · #{{id}}</p>
+
+                <h3 class="editor-subtitulo">Por qué la reportaron</h3>
+                <ul class="editor-reportes">
+                    {{#reportes}}
+                        <li><strong>{{motivo}}</strong> <span>{{usuario}} · {{fecha}}</span></li>
+                    {{/reportes}}
+                </ul>
+
+                {{#hayHistorial}}
+                    <h3 class="editor-subtitulo">Ya fue revisada antes</h3>
+                    <ul class="editor-reportes editor-historial">
+                        {{#historial}}
+                            <li>El {{fecha}}, {{editor}} {{resultado}} <span>({{motivo}})</span></li>
+                        {{/historial}}
+                    </ul>
+                {{/hayHistorial}}
+
+                <div class="editor-acciones">
+                    <form method="post" action="/editor/resolver">
+                        <input type="hidden" name="pregunta_id" value="{{id}}">
+                        <button type="submit" name="accion" value="valida" class="btn btn-secundario">Es válida</button>
+                    </form>
+                    <a href="/editor/editar?id={{id}}" class="btn btn-neutro">Corregir</a>
+                    <form method="post" action="/editor/resolver">
+                        <input type="hidden" name="pregunta_id" value="{{id}}">
+                        <button type="submit" name="accion" value="baja" class="btn btn-primario">Dar de baja</button>
+                    </form>
+                </div>
+            </article>
+        {{/reportadas}}
+    {{/enReportadas}}
+
+    {{#enSugeridas}}
+        <div class="tarjeta editor-vacio">
+            <h2>Preguntas sugeridas</h2>
+            {{#pendientes.sugeridas}}
+                <p>Hay {{pendientes.sugeridas}} esperando revisión. La revisión llega en el próximo paso.</p>
+            {{/pendientes.sugeridas}}
+            {{^pendientes.sugeridas}}
+                <p>No hay preguntas sugeridas por revisar.</p>
+            {{/pendientes.sugeridas}}
+        </div>
+    {{/enSugeridas}}
+
+    {{#enFormulario}}
+        <div class="tarjeta editor-formulario">
+            <h2>{{tituloFormulario}}</h2>
+
+            {{#mostrarCupo}}{{#puedeCrear}}
+                <p class="editor-cupo">Te {{#unaRestante}}queda <strong>1</strong> pregunta{{/unaRestante}}{{^unaRestante}}quedan <strong>{{restantes}}</strong> preguntas{{/unaRestante}} esta semana (máximo {{limiteSemanal}}).</p>
+            {{/puedeCrear}}{{/mostrarCupo}}
+            {{^puedeCrear}}
+                <div class="alerta alerta-error">Ya creaste las {{limiteSemanal}} preguntas de esta semana. El lunes se renueva el cupo.</div>
+            {{/puedeCrear}}
+
+            {{#errores.0}}
+                <div class="alerta alerta-error">
+                    <ul>
+                        {{#errores}}<li>{{.}}</li>{{/errores}}
+                    </ul>
+                </div>
+            {{/errores.0}}
+
+            {{#puedeCrear}}
+            <form class="formulario" method="post" action="{{accionFormulario}}">
+                {{#editandoId}}<input type="hidden" name="id" value="{{editandoId}}">{{/editandoId}}
+
+                <label for="categoria_id">Categoría</label>
+                <select id="categoria_id" name="categoria_id" required>
+                    <option value="">Elegí una categoría</option>
+                    <optgroup label="Shine">
+                        {{#categoriasShine}}<option value="{{id}}"{{#elegida}} selected{{/elegida}}>{{nombre}}</option>{{/categoriasShine}}
+                    </optgroup>
+                    <optgroup label="Die">
+                        {{#categoriasDie}}<option value="{{id}}"{{#elegida}} selected{{/elegida}}>{{nombre}}</option>{{/categoriasDie}}
+                    </optgroup>
+                </select>
+
+                <label for="juego">Juego <span class="opcional">(opcional)</span></label>
+                <input id="juego" type="text" name="juego" value="{{juego}}" maxlength="{{largoJuego}}" placeholder="Ej: Elden Ring">
+                <small>Se muestra entre paréntesis al lado de la categoría. Dejalo vacío si delata la respuesta.</small>
+
+                <label for="texto">Pregunta</label>
+                <textarea id="texto" name="texto" rows="3" maxlength="{{largoTexto}}" required>{{texto}}</textarea>
+
+                <fieldset class="editor-respuestas">
+                    <legend>Respuestas</legend>
+                    <small>Escribí las 4 y marcá la correcta.</small>
+                    {{#respuestas}}
+                        <div class="editor-respuesta">
+                            <span class="editor-letra" aria-hidden="true">{{letra}}</span>
+                            <input type="text" name="respuestas[{{indice}}]" value="{{texto}}" maxlength="{{largoRespuesta}}"
+                                   aria-label="Respuesta {{letra}}" required>
+                            <label class="editor-correcta">
+                                <input type="radio" name="correcta" value="{{indice}}"{{#correcta}} checked{{/correcta}} required>
+                                <span>Correcta</span>
+                            </label>
+                        </div>
+                    {{/respuestas}}
+                </fieldset>
+
+                <fieldset>
+                    <legend>Dificultad inicial</legend>
+                    <div class="editor-dificultades">
+                        {{#dificultades}}
+                            <label class="editor-dificultad">
+                                <input type="radio" name="dificultad" value="{{valor}}"{{#elegida}} checked{{/elegida}} required>
+                                <span>{{nombre}}</span>
+                            </label>
+                        {{/dificultades}}
+                    </div>
+                    <small>Después de 10 respuestas el juego la recalcula solo con el % de aciertos.</small>
+                </fieldset>
+
+                <button type="submit" class="btn btn-primario">{{botonFormulario}}</button>
+            </form>
+            {{/puedeCrear}}
+            {{#editandoId}}<p class="pie-formulario"><a href="/editor">Cancelar</a></p>{{/editandoId}}
+        </div>
+    {{/enFormulario}}
+
+</section>

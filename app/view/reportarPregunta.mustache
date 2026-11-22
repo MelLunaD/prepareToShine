@@ -1,0 +1,46 @@
+{{#reporte}}
+<!-- Reportar la pregunta que el jugador acaba de responder. El envío es con AJAX
+     (public/js/reportar.js -> POST /pregunta/reportar -> JSON), sin recargar la página. -->
+<div class="reportar" data-reportar>
+    {{#yaReportada}}
+        <p class="reportar-estado">Ya reportaste esta pregunta. ¡Gracias!</p>
+    {{/yaReportada}}
+    {{^yaReportada}}
+        {{#sinReportes}}
+            <button type="button" class="btn btn-reportar" disabled>Reportar pregunta</button>
+            <p class="reportar-estado">Ya usaste tus 3 reportes de esta semana. El lunes se renuevan.</p>
+        {{/sinReportes}}
+        {{^sinReportes}}
+            <button type="button" class="btn btn-reportar" data-abrir-reporte>Reportar pregunta</button>
+        {{/sinReportes}}
+    {{/yaReportada}}
+</div>
+
+{{^yaReportada}}{{^sinReportes}}
+<dialog class="reporte-dialogo" id="reporte-dialogo" aria-labelledby="reporte-titulo">
+    <form method="post" action="/pregunta/reportar" class="reporte-form" data-reporte-form>
+        <h2 id="reporte-titulo">Reportar pregunta</h2>
+        <p class="reporte-pregunta">{{texto}}</p>
+        <input type="hidden" name="pregunta_id" value="{{preguntaId}}">
+
+        <fieldset class="reporte-motivos">
+            <legend>¿Qué tiene de malo?</legend>
+            {{#motivos}}
+                <label class="reporte-motivo">
+                    <input type="radio" name="motivo" value="{{valor}}" required>
+                    <span>{{nombre}}</span>
+                </label>
+            {{/motivos}}
+        </fieldset>
+
+        <p class="reporte-cupo">Te {{#unoRestante}}queda <strong>1</strong> reporte{{/unoRestante}}{{^unoRestante}}quedan <strong>{{restantes}}</strong> reportes{{/unoRestante}} esta semana.</p>
+        <p class="reporte-mensaje" data-reporte-mensaje aria-live="polite"></p>
+
+        <div class="reporte-botones">
+            <button type="button" class="btn btn-secundario" data-cerrar-reporte>Cancelar</button>
+            <button type="submit" class="btn btn-primario">Enviar reporte</button>
+        </div>
+    </form>
+</dialog>
+{{/sinReportes}}{{/yaReportada}}
+{{/reporte}}

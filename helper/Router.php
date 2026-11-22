@@ -6,15 +6,19 @@ class Router
     private $defaultController;
     private $defaultMethod;
     private $controllersPublicos;
+    private $rolesPorController;
 
     // $controllersPublicos: los únicos que se pueden usar sin haber iniciado sesión
     // (login y registro). Cualquier otro pedido sin sesión va a /login.
-    public function __construct($config, $defaultController, $defaultMethod, array $controllersPublicos = [])
+    // $rolesPorController: los controllers que solo puede usar un rol, por ejemplo
+    // ["editor" => ["editor"]]. Los que no están en la lista los usa cualquier logueado.
+    public function __construct($config, $defaultController, $defaultMethod, array $controllersPublicos = [], array $rolesPorController = [])
     {
         $this->config              = $config;
         $this->defaultController   = $defaultController;
         $this->defaultMethod       = $defaultMethod;
         $this->controllersPublicos = $controllersPublicos;
+        $this->rolesPorController  = $rolesPorController;
     }
 
     public function dispatch($controllerName, $method)
@@ -26,9 +30,24 @@ class Router
             Redirect::to('/login');
         }
 
+        // Control de acceso por rol: un jugador que escribe /editor a mano vuelve al lobby.
+        if (!$this->rolPuedeUsar($controllerName)) {
+            Redirect::toIndex();
+        }
+
         $controller = $this->getController($controllerName);
         $method     = $this->getMethod($controller, $method);
         $controller->{$method}();
+    }
+
+    private function rolPuedeUsar($controllerName)
+    {
+        if (!isset($this->rolesPorController[$controllerName])) {
+            return true;
+        }
+
+        $usuario = Sesion::usuario();
+        return $usuario !== null && in_array($usuario["rol"], $this->rolesPorController[$controllerName], true);
     }
 
     private function getController($controllerName)

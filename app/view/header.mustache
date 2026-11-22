@@ -24,11 +24,33 @@
                 <span class="hud-nombre">{{usuario}}</span>
                 <img class="hud-foto" src="{{foto}}" alt="Foto de {{usuario}}">
             </a>
-            <a class="hud-salir" href="/login/logout" title="Cerrar sesión" aria-label="Cerrar sesión">
-                <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" shape-rendering="crispEdges">
-                    <path fill="currentColor" d="M7 1h2v7H7zM4 3h2v2H5v1H4v4h1v1h1v1h4v-1h1v-1h1V6h-1V5h-1V3h2v1h1v1h1v6h-1v1h-1v1h-1v1H5v-1H4v-1H3v-1H2V5h1V4h1z"/>
-                </svg>
-            </a>
+            <!-- Menú hamburguesa: <details> se abre y cierra solo, sin JavaScript
+                 (public/js/menu.js solo lo cierra al tocar afuera o con Escape). -->
+            <details class="hud-menu">
+                <summary class="hud-menu-boton" aria-label="Abrir menú" title="Menú">
+                    <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" shape-rendering="crispEdges">
+                        <path fill="currentColor" d="M2 3h12v2H2zM2 7h12v2H2zM2 11h12v2H2z"/>
+                    </svg>
+                </summary>
+                <ul class="hud-menu-lista">
+                    <!-- Home: el lobby del modo que se está viendo (en Die vuelve al lobby de Die). -->
+                    <li class="solo-shine"><a href="/">Home</a></li>
+                    <li class="solo-souls"><a href="/?modo=die">Home</a></li>
+                    <li><a href="/perfil">Mi perfil</a></li>
+                    <!-- El ranking del modo que se está viendo: el CSS muestra el link del tema activo. -->
+                    <li class="solo-shine"><a href="/ranking?modo=shine">Ranking</a></li>
+                    <li class="solo-souls"><a href="/ranking?modo=die">Ranking</a></li>
+                    {{#esEditor}}<li><a href="/editor">Moderar preguntas</a></li>{{/esEditor}}
+                    <li class="hud-menu-salir">
+                        <a href="/login/logout">
+                            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" shape-rendering="crispEdges">
+                                <path fill="currentColor" d="M7 1h2v7H7zM4 3h2v2H5v1H4v4h1v1h1v1h4v-1h1v-1h1V6h-1V5h-1V3h2v1h1v1h1v6h-1v1h-1v1h-1v1H5v-1H4v-1H3v-1H2V5h1V4h1z"/>
+                            </svg>
+                            Cerrar sesión
+                        </a>
+                    </li>
+                </ul>
+            </details>
         </nav>
     {{/sesion}}
 </header>

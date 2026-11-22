@@ -46,6 +46,24 @@ class MyDatabase
         return $this->conexion->lastInsertId();
     }
 
+    // Para guardar varias cosas juntas (una pregunta y sus 4 respuestas): o se guarda todo o nada.
+    public function iniciarTransaccion()
+    {
+        $this->conexion->beginTransaction();
+    }
+
+    public function confirmarTransaccion()
+    {
+        $this->conexion->commit();
+    }
+
+    public function deshacerTransaccion()
+    {
+        if ($this->conexion->inTransaction()) {
+            $this->conexion->rollBack();
+        }
+    }
+
     private function ejecutar(string $sql, array $params)
     {
         // Se loguea la consulta sin los valores, para no guardar datos de los usuarios en el log.

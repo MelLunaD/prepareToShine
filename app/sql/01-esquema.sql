@@ -141,9 +141,13 @@ CREATE TABLE reporte (
     reportado_por INT NOT NULL,
     revisado_por INT NULL,
     fecha_revision DATETIME NULL,
-    motivo VARCHAR(255) NOT NULL,
+    -- Motivos fijos (el jugador no escribe texto). Los nombres que ve están en ReporteModel::MOTIVOS.
+    motivo ENUM('correcta_mal', 'varias_correctas', 'ninguna_correcta', 'redaccion', 'confusa',
+                'desactualizada', 'categoria', 'regala', 'ofensiva') NOT NULL,
     estado ENUM('pendiente', 'aprobado', 'rechazado') NOT NULL DEFAULT 'pendiente',
     fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Cada jugador reporta una misma pregunta una sola vez (otro jugador sí puede).
+    UNIQUE KEY uq_reporte_pregunta_usuario (pregunta_id, reportado_por),
     CONSTRAINT fk_reporte_pregunta FOREIGN KEY (pregunta_id) REFERENCES pregunta (id) ON DELETE CASCADE,
     CONSTRAINT fk_reporte_reportado_por FOREIGN KEY (reportado_por) REFERENCES usuario (id),
     CONSTRAINT fk_reporte_revisado_por FOREIGN KEY (revisado_por) REFERENCES usuario (id)
