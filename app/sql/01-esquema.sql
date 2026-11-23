@@ -152,3 +152,17 @@ CREATE TABLE reporte (
     CONSTRAINT fk_reporte_reportado_por FOREIGN KEY (reportado_por) REFERENCES usuario (id),
     CONSTRAINT fk_reporte_revisado_por FOREIGN KEY (revisado_por) REFERENCES usuario (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- "Quiero moderar": el jugador que cumple el requisito pide ser editor y un administrador
+-- aprueba o rechaza (SolicitudEditorModel). Una sola pendiente por usuario (lo controla el servidor).
+CREATE TABLE solicitud_editor (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    estado ENUM('pendiente', 'aprobada', 'rechazada') NOT NULL DEFAULT 'pendiente',
+    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    revisada_por INT NULL,
+    fecha_revision DATETIME NULL,
+    INDEX idx_solicitud_estado (estado, fecha),
+    CONSTRAINT fk_solicitud_usuario FOREIGN KEY (usuario_id) REFERENCES usuario (id),
+    CONSTRAINT fk_solicitud_revisada_por FOREIGN KEY (revisada_por) REFERENCES usuario (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

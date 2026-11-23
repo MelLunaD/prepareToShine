@@ -13,7 +13,7 @@ class PerfilModel
 
     public function obtenerPorId($id)
     {
-        $sql = "SELECT u.id, u.nombre_completo, u.usuario, u.email, u.anio_nacimiento, u.sexo, u.foto, u.fecha_alta,
+        $sql = "SELECT u.id, u.nombre_completo, u.usuario, u.rol, u.email, u.anio_nacimiento, u.sexo, u.foto, u.fecha_alta,
                        u.ciudad, u.provincia, u.latitud, u.longitud, u.osm_lugar,
                        p.nombre AS pais_nombre, p.codigo AS pais_codigo 
                 FROM usuario u 

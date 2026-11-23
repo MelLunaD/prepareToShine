@@ -21,6 +21,7 @@ use app\model\PartidaModel;
 use app\model\RankingModel;
 use app\model\PreguntaModel;
 use app\model\ReporteModel;
+use app\model\SolicitudEditorModel;
 use Mailer;
 use MustacheRender;
 use MyDatabase;
@@ -53,6 +54,7 @@ class Configuration
         return new HomeController(
             $this->getPartidaModel(),
             new RankingModel($this->getDatabase()),
+            new SolicitudEditorModel($this->getDatabase()),
             $this->getRender()
         );
     }
@@ -96,7 +98,9 @@ class Configuration
     public function getPreguntaController()
     {
         return new PreguntaController(
-            $this->getReporteModel()
+            $this->getReporteModel(),
+            new PreguntaModel($this->getDatabase()),
+            $this->getRender()
         );
     }
 
@@ -184,6 +188,7 @@ class Configuration
             new FotoPerfilModel(),
             $this->getUbicacionModel(),
             new RankingModel($this->getDatabase()),
+            new SolicitudEditorModel($this->getDatabase()),
             $this->getRender()
         );
     }

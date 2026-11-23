@@ -67,6 +67,26 @@ class RankingModel
         return $ultimoDia === null ? 0 : self::enfriar($puntos, $ultimoDia, $hoy);
     }
 
+    // Lo más alto que llegaron los puntos en esas partidas (de una misma semana), con el
+    // enfriamiento entre días. Lo usa "Quiero moderar": "llegó a 4000" es haberlos tocado alguna vez.
+    public static function maximoConEnfriamiento(array $partidas)
+    {
+        $puntos = 0;
+        $maximo = 0;
+        $ultimoDia = null;
+
+        foreach ($partidas as $partida) {
+            if ($ultimoDia !== null) {
+                $puntos = self::enfriar($puntos, $ultimoDia, $partida["dia"]);
+            }
+            $puntos += (int)$partida["puntaje"];
+            $maximo = max($maximo, $puntos);
+            $ultimoDia = $partida["dia"];
+        }
+
+        return $maximo;
+    }
+
     // Aplica el enfriamiento de cada medianoche entre el último día jugado y $hasta.
     private static function enfriar($puntos, $desde, $hasta)
     {

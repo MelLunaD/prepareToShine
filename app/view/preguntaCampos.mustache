@@ -1,0 +1,38 @@
+{{! Campos de una pregunta: los usan "Nueva pregunta" y "Corregir" del editor y "Sugerir pregunta" del jugador. }}
+<label for="categoria_id">Categoría</label>
+<select id="categoria_id" name="categoria_id" required>
+    <option value="">Elegí una categoría</option>
+    {{#categoriasShine.0}}
+    <optgroup label="Shine">
+        {{#categoriasShine}}<option value="{{id}}"{{#elegida}} selected{{/elegida}}>{{nombre}}</option>{{/categoriasShine}}
+    </optgroup>
+    {{/categoriasShine.0}}
+    {{#categoriasDie.0}}
+    <optgroup label="Die">
+        {{#categoriasDie}}<option value="{{id}}"{{#elegida}} selected{{/elegida}}>{{nombre}}</option>{{/categoriasDie}}
+    </optgroup>
+    {{/categoriasDie.0}}
+</select>
+
+<label for="juego">Juego <span class="opcional">(opcional)</span></label>
+<input id="juego" type="text" name="juego" value="{{juego}}" maxlength="{{largoJuego}}" placeholder="Ej: Elden Ring">
+<small>Se muestra entre paréntesis al lado de la categoría. Dejalo vacío si delata la respuesta.</small>
+
+<label for="texto">Pregunta</label>
+<textarea id="texto" name="texto" rows="3" maxlength="{{largoTexto}}" required>{{texto}}</textarea>
+
+<fieldset class="editor-respuestas">
+    <legend>Respuestas</legend>
+    <small>Escribí las 4 y marcá la correcta.</small>
+    {{#respuestas}}
+        <div class="editor-respuesta">
+            <span class="editor-letra" aria-hidden="true">{{letra}}</span>
+            <input type="text" name="respuestas[{{indice}}]" value="{{texto}}" maxlength="{{largoRespuesta}}"
+                   aria-label="Respuesta {{letra}}" required>
+            <label class="editor-correcta">
+                <input type="radio" name="correcta" value="{{indice}}"{{#correcta}} checked{{/correcta}} required>
+                <span>Correcta</span>
+            </label>
+        </div>
+    {{/respuestas}}
+</fieldset>

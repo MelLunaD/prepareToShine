@@ -1,0 +1,44 @@
+<section class="sugerir">
+
+    <h1 class="titulo-juego sugerir-titulo">Sugerir pregunta</h1>
+    <p class="lema">
+        {{#esDie}}Dejá tu marca en el juego. Un editor decide si es digna.{{/esDie}}
+        {{^esDie}}¿Se te ocurre una buena? Mandala y un editor la revisa.{{/esDie}}
+    </p>
+
+    {{#mensaje}}
+        <div class="alerta alerta-ok">{{mensaje}}</div>
+    {{/mensaje}}
+
+    <div class="tarjeta">
+        <h2>{{#esDie}}Pregunta de Die{{/esDie}}{{^esDie}}Pregunta de Shine{{/esDie}}</h2>
+
+        {{#puedeSugerir}}
+            <p class="sugerir-cupo">Te {{#unaRestante}}queda <strong>1</strong> sugerencia{{/unaRestante}}{{^unaRestante}}quedan <strong>{{restantes}}</strong> sugerencias{{/unaRestante}} esta semana.</p>
+        {{/puedeSugerir}}
+        {{^puedeSugerir}}
+            <div class="alerta alerta-error">Ya mandaste tus {{limiteSemanal}} sugerencias de esta semana. El lunes se renuevan.</div>
+        {{/puedeSugerir}}
+
+        {{#errores.0}}
+            <div class="alerta alerta-error">
+                <ul>
+                    {{#errores}}<li>{{.}}</li>{{/errores}}
+                </ul>
+            </div>
+        {{/errores.0}}
+
+        {{#puedeSugerir}}
+        <form class="formulario" method="post" action="/pregunta/sugerir">
+            <input type="hidden" name="modo" value="{{modo}}">
+
+            {{> preguntaCampos}}
+
+            <button type="submit" class="btn btn-primario">Enviar sugerencia</button>
+        </form>
+        {{/puedeSugerir}}
+
+        <p class="pie-formulario"><a href="/{{#esDie}}?modo=die{{/esDie}}">Volver al lobby</a></p>
+    </div>
+
+</section>

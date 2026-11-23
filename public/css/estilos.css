@@ -612,8 +612,28 @@ a {
     padding-left: 1.2rem;
 }
 
-.alerta-ok    { background: #c8f7c5; }
+.alerta-ok,
+.alerta-exito { background: #c8f7c5; }
 .alerta-error { background: #ffd1d1; }
+
+/* En Die, fondo oscuro con borde y texto del color del aviso (el texto claro del tema
+   no se lee sobre los fondos pastel de Shine). */
+.tema-souls .alerta {
+    border: 1px solid;
+}
+
+.tema-souls .alerta-ok,
+.tema-souls .alerta-exito {
+    background: rgba(143, 191, 106, 0.12);
+    border-color: rgba(143, 191, 106, 0.6);
+    color: #b9dd9a;
+}
+
+.tema-souls .alerta-error {
+    background: rgba(163, 22, 26, 0.18);
+    border-color: #a3161a;
+    color: #ff8a80;
+}
 
 .pie-formulario {
     margin: 0.5rem 0 0;
@@ -2004,6 +2024,26 @@ a {
         flex: 0 0 14rem;
     }
 
+    /* Lobby: Jugar en el medio, un poco más ancho que Ranking y Sugerir pregunta.
+       Letra un poco más chica para que "Sugerir pregunta" entre en una línea. */
+    .lobby-acciones {
+        gap: 0.75rem;
+    }
+
+    .lobby-acciones > * {
+        flex-basis: 13.5rem;
+    }
+
+    .lobby-acciones > .accion-principal {
+        flex-basis: 16rem;
+    }
+
+    .lobby-acciones .btn {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        font-size: 0.72rem;
+    }
+
     .bloques img {
         width: 48px;
         height: 48px;
@@ -2370,8 +2410,17 @@ a {
     color: var(--texto-suave);
 }
 
+/* Cada dificultad con su color: verde, amarillo y rojo. */
+.editor-dificultad input[value="facil"] + span   { --color-dificultad: var(--verde); }
+.editor-dificultad input[value="media"] + span   { --color-dificultad: var(--moneda); }
+.editor-dificultad input[value="dificil"] + span { --color-dificultad: var(--rojo); }
+
+.editor-dificultad span {
+    color: var(--color-dificultad);
+}
+
 .editor-dificultad input:checked + span {
-    background: var(--moneda);
+    background: var(--color-dificultad);
     color: var(--tinta);
 }
 
@@ -2509,7 +2558,17 @@ a {
 }
 
 .editor-acciones form {
+    display: flex;
     margin: 0;
+}
+
+/* El link (Corregir / Editar) y los botones de los form, todos de la misma altura. */
+.editor-acciones .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.4;
 }
 
 .editor-acciones .btn {
@@ -2660,4 +2719,289 @@ a {
 .reporte-botones .btn {
     padding: 0.8rem 0.5rem;
     font-size: 0.6rem;
+}
+
+/* ---------- Sugerir pregunta (jugador) ---------- */
+
+.btn-sugerir {
+    background: var(--moneda);
+    color: var(--tinta);
+}
+
+.tema-souls .btn-sugerir {
+    background: var(--pasto);
+    color: var(--texto-sobre-color);
+}
+
+/* Usa los mismos campos que el formulario del editor (preguntaCampos), con los colores de cada tema. */
+.sugerir {
+    --campo: #ffffff;
+    max-width: 560px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.tema-souls .sugerir {
+    --campo: #141210;
+}
+
+.sugerir .tarjeta {
+    text-align: left;
+}
+
+.sugerir-titulo {
+    font-size: 1.1rem;
+}
+
+.sugerir-cupo {
+    margin: -0.25rem 0 0.75rem;
+    color: var(--texto-suave);
+}
+
+.sugerir-cupo strong {
+    color: var(--texto);
+}
+
+.sugerir .editor-letra {
+    color: var(--texto);
+}
+
+/* ---------- Sugeridas (editor): tarjeta + buscador de parecidas ---------- */
+
+.editor-ancho {
+    max-width: 1080px;
+}
+
+.editor-ancho .editor-pestanias,
+.editor-ancho > .alerta,
+.editor-ancho .editor-vacio {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.editor-ancho .editor-pestanias {
+    margin-bottom: 1.25rem;
+}
+
+/* En celular: la pregunta, el buscador plegado y los botones, uno abajo del otro. */
+.editor-sugerida {
+    display: grid;
+    grid-template-areas: "cuerpo" "buscador" "acciones";
+    gap: 0;
+}
+
+.editor-sugerida-cuerpo   { grid-area: cuerpo; }
+.editor-buscador          { grid-area: buscador; }
+.editor-sugerida-acciones { grid-area: acciones; }
+
+.editor-etiqueta-nueva {
+    border-color: rgba(245, 192, 74, 0.5);
+    background: rgba(245, 192, 74, 0.12);
+    color: var(--moneda);
+}
+
+.editor-buscador {
+    border: var(--borde);
+    border-radius: var(--radio);
+    background: var(--campo);
+}
+
+/* Hasta 20 resultados: la lista scrollea adentro para no estirar la tarjeta. */
+.editor-buscador-lista {
+    max-height: 24rem;
+    overflow-y: auto;
+}
+
+.editor-buscador summary {
+    padding: 0.7rem 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.editor-buscador-cantidad {
+    color: var(--moneda);
+}
+
+.editor-buscador-cuerpo {
+    padding: 0 0.85rem 0.85rem;
+}
+
+.editor-buscador-campo {
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--campo-borde);
+    border-radius: 7px;
+    background: var(--papel);
+    color: var(--texto);
+    font: inherit;
+}
+
+.editor-buscador-campo:focus {
+    outline: 2px solid var(--moneda);
+    border-color: transparent;
+}
+
+.editor-buscador-estado {
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+}
+
+.editor-buscador-lista {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.buscador-resultado {
+    padding: 0.55rem 0.65rem;
+    border: var(--borde);
+    border-radius: 7px;
+    background: var(--papel);
+}
+
+.buscador-texto {
+    margin: 0.3rem 0 0.2rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.buscador-dato {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--texto-suave);
+}
+
+.buscador-estado {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    background: rgba(63, 185, 80, 0.15);
+    color: var(--verde);
+}
+
+.estado-inactiva .buscador-estado   { background: rgba(152, 161, 179, 0.15); color: var(--texto-suave); }
+.estado-cuarentena .buscador-estado { background: rgba(229, 72, 77, 0.15); color: #ffa3a6; }
+.estado-revision .buscador-estado   { background: rgba(245, 192, 74, 0.15); color: var(--moneda); }
+
+.editor-aprobar {
+    margin-top: 1.25rem;
+}
+
+.editor-aprobar fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.editor-aprobar .editor-dificultad {
+    flex: 1;
+    margin: 0;
+    cursor: pointer;
+}
+
+.editor-aprobar .editor-dificultad input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+}
+
+.editor-aprobar .btn {
+    width: 100%;
+    padding: 0.85rem 0.5rem;
+    font-size: 0.6rem;
+}
+
+.editor-sugerida-acciones .editor-acciones {
+    margin-top: 0.6rem;
+}
+
+@media (min-width: 600px) {
+    .editor-sugerida-acciones .editor-acciones {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Pantallas grandes: el buscador al costado, a lo alto de toda la tarjeta. */
+@media (min-width: 900px) {
+    .editor-sugerida {
+        grid-template-columns: minmax(0, 1fr) 340px;
+        grid-template-areas: "cuerpo buscador" "acciones buscador";
+        gap: 0 1.5rem;
+        align-items: start;
+    }
+
+    .editor-buscador-lista {
+        max-height: 27rem;
+    }
+
+    .editor-buscador summary {
+        cursor: default;
+        pointer-events: none; /* al costado siempre queda abierto */
+        list-style: none;
+    }
+}
+
+/* ---------- "Quiero moderar" (perfil propio) ---------- */
+
+.perfil-moderar {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: var(--borde);
+    border-radius: var(--radio);
+    background: rgba(46, 158, 62, 0.1);
+    text-align: left;
+}
+
+.perfil-moderar-titulo {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-family: var(--fuente-titulo);
+    font-size: 0.7rem;
+    line-height: 1.6;
+}
+
+.perfil-moderar p {
+    margin: 0 0 0.75rem;
+}
+
+.perfil-moderar p:last-child {
+    margin-bottom: 0;
+}
+
+.perfil-moderar form {
+    margin: 0;
+}
+
+.perfil-moderar .btn {
+    width: 100%;
+}
+
+.tema-souls .perfil-moderar {
+    border: 1px solid #5a5045;
+    background: rgba(232, 131, 58, 0.08);
+}
+
+.lobby-aviso {
+    max-width: 480px;
+    margin: 0 auto 1.5rem;
+}
+
+/* Lobby en celular: uno abajo del otro, todos del mismo ancho, y Jugar (en el medio) un poco más alto. */
+.lobby-acciones > .accion-principal,
+.lobby-acciones > .accion-principal .btn {
+    min-height: 4.75rem;
+}
+
+@media (min-width: 600px) {
+    /* En fila, todos de la misma altura (ver .acciones .btn). */
+    .lobby-acciones > .accion-principal,
+    .lobby-acciones > .accion-principal .btn {
+        min-height: 0;
+    }
 }

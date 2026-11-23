@@ -14,6 +14,7 @@ class PerfilController
     private $fotoModel;
     private $ubicacionModel;
     private $rankingModel;
+    private $solicitudModel;
     private $render;
 
     // El perfil tiene versión Shine y versión Die (se pasa con el secreto de los 5 clicks o con
@@ -31,8 +32,9 @@ class PerfilController
         return Request::get("modo") === "die" ? "souls" : "shine";
     }
 
-    public function __construct($perfilModel, $fotoModel, $ubicacionModel, $rankingModel, $render)
+    public function __construct($perfilModel, $fotoModel, $ubicacionModel, $rankingModel, $solicitudModel, $render)
     {
+        $this->solicitudModel = $solicitudModel;
         $this->perfilModel = $perfilModel;
         $this->fotoModel = $fotoModel;
         $this->ubicacionModel = $ubicacionModel;
@@ -103,8 +105,43 @@ class PerfilController
 
         $data["exito"] = Sesion::tomarFlash("perfil_exito");
         $data["usaMapa"] = true;
+        // El perfil ya trae el rol de la base: si cambió (por ejemplo, a mano en la base),
+        // se actualiza la sesión, así el recuadro de moderar y el menú muestran lo que corresponde.
+        if ($datosPerfil && $datosPerfil["rol"] !== $usuarioSesion["rol"]) {
+            Sesion::cambiarRol($datosPerfil["rol"]);
+            $usuarioSesion = Sesion::usuario();
+            $data["sesion"] = $usuarioSesion;
+        }
+        $data["moderar"] = $this->datosDeModerar($usuarioSesion);
 
         $this->render->renderiza("perfil", $data);
+    }
+
+    // "Quiero moderar": el botón solo aparece si cumple el requisito (SolicitudEditorModel).
+    public function moderar()
+    {
+        if (Request::esPost() && $this->solicitudModel->pedir(Sesion::usuario())) {
+            Sesion::revisarSolicitud(true); // el lobby se fija si ya la aprobaron
+            Sesion::flash("perfil_exito", "¡Listo! Tu solicitud llegó a los administradores.");
+        }
+        Redirect::to("/perfil" . (Request::post("modo") === "die" ? "?modo=die" : ""));
+    }
+
+    private function datosDeModerar(array $usuario)
+    {
+        $estado = $this->solicitudModel->estadoParaElPerfil($usuario);
+        if ($estado === null) {
+            return null;
+        }
+
+        $ultima = $this->solicitudModel->ultima($usuario["id"]);
+        return [
+            "puede" => $estado === "puede",
+            "pendiente" => $estado === "pendiente",
+            "rechazada" => $estado === "rechazada",
+            "fecha" => $ultima ? date("d/m", strtotime($ultima["fecha"])) : null,
+            "modo" => $this->temaPedido() === "souls" ? "die" : "shine",
+        ];
     }
 
     // Perfil de otro jugador, al escanear el QR o entrar a /perfil/ver?usuario=xxx.

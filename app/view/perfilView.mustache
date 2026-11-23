@@ -86,6 +86,27 @@
         </div>
         {{/qr_imagen}}
 
+        {{! "Quiero moderar": solo aparece si cumple el requisito, o si ya lo pidió. }}
+        {{#moderar}}
+        <div class="perfil-moderar">
+            <strong class="perfil-moderar-titulo">Moderar preguntas</strong>
+            {{#puede}}
+                {{! El jugador nunca ve el requisito: solo que ya puede pedirlo. }}
+                <p>¿Querés estar del otro lado? Podés pedir ser moderador y ayudar a mejorar el juego.</p>
+                <form method="post" action="/perfil/moderar">
+                    <input type="hidden" name="modo" value="{{modo}}">
+                    <button type="submit" class="btn btn-secundario">Quiero moderar</button>
+                </form>
+            {{/puede}}
+            {{#pendiente}}
+                <p>Pediste ser moderador el {{fecha}}. Un administrador va a revisar tu solicitud.</p>
+            {{/pendiente}}
+            {{#rechazada}}
+                <p>Esta vez no aprobaron tu solicitud. Podés volver a pedirlo desde el lunes.</p>
+            {{/rechazada}}
+        </div>
+        {{/moderar}}
+
         <a href="/perfil/editar" class="btn btn-primario">Editar perfil</a>
         {{/es_propio}}
 

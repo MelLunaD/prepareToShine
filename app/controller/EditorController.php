@@ -60,7 +60,7 @@ class EditorController
         Redirect::to("/editor");
     }
 
-    // Editar una pregunta reportada (y reactivarla al guardar).
+    // Editar una pregunta reportada (y reactivarla al guardar) o una sugerida (y aprobarla al guardar).
     public function editar()
     {
         $datos = $this->preguntaModel->paraEditar((int)Request::get("id", 0));
@@ -68,7 +68,7 @@ class EditorController
             Redirect::to("/editor");
         }
 
-        $this->mostrarFormulario($datos, [], $datos["id"]);
+        $this->mostrarFormulario($datos, [], $datos["id"], $datos["estado"]);
     }
 
     public function guardar()
@@ -82,7 +82,7 @@ class EditorController
         $datos = $this->preguntaModel->datosDelFormulario($_POST);
         $errores = $this->preguntaModel->validar($datos, $id);
         if ($errores) {
-            $this->mostrarFormulario($datos, $errores, $id);
+            $this->mostrarFormulario($datos, $errores, $id, $original["estado"]);
             return;
         }
 
@@ -93,15 +93,73 @@ class EditorController
         if ($original["estado"] === "cuarentena") {
             $this->reporteModel->resolver($id, "corregida", $editorId);
             Sesion::flash("editor", "Pregunta #$id corregida. Vuelve al juego.");
+            Redirect::to("/editor");
         }
 
-        Redirect::to("/editor");
+        // Si era sugerida, guardar es aprobarla con la dificultad elegida en el formulario.
+        $this->preguntaModel->aprobar($id, $datos["dificultad"], $editorId);
+        Sesion::flash("editor", "Pregunta #$id corregida y aprobada. Ya sale en el juego.");
+        Redirect::to("/editor/sugeridas");
     }
 
-    // Pestaña Sugeridas (la revisión llega en el paso 3 del rol).
+    // Pestaña Sugeridas: las que mandaron los jugadores, la más vieja primero.
     public function sugeridas()
     {
-        $this->mostrar("sugeridas", []);
+        $sugeridas = array_map([$this, "formatearSugerida"], $this->preguntaModel->sugeridas());
+        $this->mostrar("sugeridas", [
+            "sugeridas" => $sugeridas,
+            "haySugeridas" => count($sugeridas) > 0,
+            "dificultades" => $this->dificultadesParaLaVista(""),
+            "usaBuscador" => count($sugeridas) > 0,
+        ]);
+    }
+
+    // "Aprobar" desde la tarjeta de una sugerida, con la dificultad inicial elegida ahí.
+    public function aprobar()
+    {
+        if (Request::esPost()) {
+            $preguntaId = (int)Request::post("pregunta_id", 0);
+            $dificultad = (string)Request::post("dificultad", "");
+
+            if (!isset(PreguntaModel::DIFICULTADES[$dificultad])) {
+                Sesion::flash("editor_error", "Elegí la dificultad inicial para aprobar la pregunta #$preguntaId.");
+            } elseif ($this->preguntaModel->aprobar($preguntaId, $dificultad, Sesion::usuario()["id"])) {
+                Sesion::flash("editor", "Pregunta #$preguntaId aprobada. Ya sale en el juego.");
+            } else {
+                Sesion::flash("editor", "Esa pregunta ya la había resuelto otro editor.");
+            }
+        }
+
+        Redirect::to("/editor/sugeridas");
+    }
+
+    // "Rechazar": la sugerida se borra.
+    public function rechazar()
+    {
+        if (Request::esPost()) {
+            $preguntaId = (int)Request::post("pregunta_id", 0);
+            Sesion::flash("editor", $this->preguntaModel->rechazar($preguntaId)
+                ? "Sugerencia #$preguntaId rechazada y borrada."
+                : "Esa pregunta ya la había resuelto otro editor.");
+        }
+
+        Redirect::to("/editor/sugeridas");
+    }
+
+    // Buscador de parecidas (AJAX, solo lectura). Lo llama public/js/buscador.js:
+    //   GET /editor/buscar?q=jefe final&excluir=12&fase=die  ->  {"resultados": [{id, texto, categoria, estado...}]}
+    // fase: solo busca entre las preguntas del mismo modo que la sugerida (Shine o Die).
+    public function buscar()
+    {
+        $fase = Request::get("fase");
+        $resultados = $this->preguntaModel->buscar(
+            (string)Request::get("q", ""),
+            (int)Request::get("excluir", 0),
+            in_array($fase, ["shine", "die"], true) ? $fase : null
+        );
+
+        header("Content-Type: application/json; charset=utf-8");
+        echo json_encode(["resultados" => $resultados], JSON_UNESCAPED_UNICODE);
     }
 
     public function nueva()
@@ -135,18 +193,35 @@ class EditorController
     }
 
     // $editandoId: null para "Nueva pregunta", o el id de la pregunta que se corrige.
-    private function mostrarFormulario(array $datos, array $errores, $editandoId)
+    // $estado: el de la pregunta que se corrige ('cuarentena' = reportada, 'revision' = sugerida).
+    private function mostrarFormulario(array $datos, array $errores, $editandoId, $estado = null)
     {
         $categorias = $this->preguntaModel->categoriasPorModo();
         $restantes = $this->preguntaModel->creacionesRestantes(Sesion::usuario()["id"]);
         $editando = $editandoId !== null;
+        $esSugerida = $estado === "revision";
 
-        $this->mostrar($editando ? "reportadas" : "nueva", [
+        if (!$editando) {
+            $pestania = "nueva";
+            $titulo = "Nueva pregunta";
+            $boton = "Crear pregunta";
+        } elseif ($esSugerida) {
+            $pestania = "sugeridas";
+            $titulo = "Revisar sugerencia #$editandoId";
+            $boton = "Guardar y aprobar";
+        } else {
+            $pestania = "reportadas";
+            $titulo = "Corregir pregunta #$editandoId";
+            $boton = "Guardar y reactivar";
+        }
+
+        $this->mostrar($pestania, $this->camposDelFormulario($datos, $categorias) + [
             "enFormulario" => true,
             "editandoId" => $editandoId,
-            "tituloFormulario" => $editando ? "Corregir pregunta #$editandoId" : "Nueva pregunta",
+            "volverA" => $esSugerida ? "/editor/sugeridas" : "/editor",
+            "tituloFormulario" => $titulo,
             "accionFormulario" => $editando ? "/editor/guardar" : "/editor/crear",
-            "botonFormulario" => $editando ? "Guardar y reactivar" : "Crear pregunta",
+            "botonFormulario" => $boton,
             "mostrarCupo" => !$editando,
             "restantes" => $restantes,
             // Corregir no gasta cupo: el límite de 15 es para preguntas nuevas.
@@ -154,16 +229,24 @@ class EditorController
             "unaRestante" => $restantes === 1,
             "limiteSemanal" => PreguntaModel::CREADAS_POR_SEMANA,
             "errores" => $errores,
+            "dificultades" => $this->dificultadesParaLaVista($datos["dificultad"]),
+        ]);
+    }
+
+    // Lo que necesita el partial preguntaCampos (categoría, juego, texto y respuestas).
+    // PreguntaController lo arma igual para "Sugerir pregunta".
+    public static function camposDelFormulario(array $datos, array $categorias)
+    {
+        return [
             "texto" => $datos["texto"],
             "juego" => $datos["juego"],
             "largoTexto" => PreguntaModel::LARGO_TEXTO,
             "largoJuego" => PreguntaModel::LARGO_JUEGO,
             "largoRespuesta" => PreguntaModel::LARGO_RESPUESTA,
-            "categoriasShine" => $this->marcarCategoria($categorias["shine"], $datos["categoria_id"]),
-            "categoriasDie" => $this->marcarCategoria($categorias["die"], $datos["categoria_id"]),
-            "respuestas" => $this->respuestasParaLaVista($datos),
-            "dificultades" => $this->dificultadesParaLaVista($datos["dificultad"]),
-        ]);
+            "categoriasShine" => self::marcarCategoria($categorias["shine"] ?? [], $datos["categoria_id"]),
+            "categoriasDie" => self::marcarCategoria($categorias["die"] ?? [], $datos["categoria_id"]),
+            "respuestas" => self::respuestasParaLaVista($datos),
+        ];
     }
 
     private function mostrar($pestaniaActiva, array $datos)
@@ -187,6 +270,7 @@ class EditorController
             "pendientes" => $pendientes,
             "en" . ucfirst($pestaniaActiva) => !isset($datos["enFormulario"]),
             "mensaje" => Sesion::tomarFlash("editor"),
+            "mensajeError" => Sesion::tomarFlash("editor_error"),
         ];
 
         $this->render->renderiza("editor", $data);
@@ -225,12 +309,26 @@ class EditorController
         return $pregunta;
     }
 
-    private function marcarCategoria(array $categorias, $elegida)
+    private function formatearSugerida(array $pregunta)
+    {
+        foreach ($pregunta["respuestas"] as $i => &$respuesta) {
+            $respuesta["letra"] = PreguntaModel::LETRAS[$i];
+            $respuesta["correcta"] = (int)$respuesta["es_correcta"] === 1;
+        }
+        unset($respuesta);
+
+        $pregunta["categoriaTitulo"] = $pregunta["juego"] ? $pregunta["categoria"] . " (" . $pregunta["juego"] . ")" : $pregunta["categoria"];
+        $pregunta["modo"] = $pregunta["fase"] === "die" ? "Die" : "Shine";
+        $pregunta["fecha"] = date("d/m H:i", strtotime($pregunta["fecha_alta"]));
+        return $pregunta;
+    }
+
+    private static function marcarCategoria(array $categorias, $elegida)
     {
         return array_map(fn($c) => $c + ["elegida" => $c["id"] === $elegida], $categorias);
     }
 
-    private function respuestasParaLaVista(array $datos)
+    private static function respuestasParaLaVista(array $datos)
     {
         $respuestas = [];
         foreach ($datos["respuestas"] as $i => $texto) {

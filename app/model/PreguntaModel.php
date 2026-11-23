@@ -6,7 +6,9 @@ use Throwable;
 
 // Preguntas vistas desde la moderación: el editor crea preguntas nuevas y revisa las
 // reportadas (estado 'cuarentena') y las sugeridas (estado 'revision').
-// El editor NO ve el listado de todas las preguntas: solo toca las que le llegan.
+// El editor NO ve el listado de todas las preguntas: solo toca las que le llegan
+// (y las puede buscar, solo para mirar, al revisar una sugerida).
+// El jugador sugiere preguntas: quedan en 'revision' hasta que un editor las apruebe.
 class PreguntaModel
 {
     const DIFICULTADES = ["facil" => "Fácil", "media" => "Media", "dificil" => "Difícil"];
@@ -15,6 +17,19 @@ class PreguntaModel
 
     // Cada editor puede crear hasta 15 preguntas por semana (de lunes a domingo).
     const CREADAS_POR_SEMANA = 15;
+
+    // Cada jugador puede sugerir hasta 3 preguntas por semana (como los reportes).
+    const SUGERIDAS_POR_SEMANA = 3;
+
+    // Buscador de parecidas: máximo de resultados y palabras que no sirven para buscar.
+    const RESULTADOS_BUSQUEDA = 20;
+    const LARGO_MINIMO_BUSQUEDA = 3;
+    const PALABRAS_VACIAS = ["que", "cual", "cuales", "del", "los", "las", "por", "con", "para", "una", "uno",
+        "unos", "unas", "este", "esta", "estos", "estas", "ese", "esa", "como", "cuando", "donde", "quien",
+        "cuanto", "cuanta", "cuantos", "cuantas", "sus", "son", "fue", "era", "hay", "mas", "sin", "entre",
+        "sobre", "desde", "the", "and"];
+
+    const NOMBRE_ESTADO = ["activa" => "Activa", "inactiva" => "Dada de baja", "cuarentena" => "Reportada", "revision" => "Sugerida"];
 
     const LARGO_MINIMO_TEXTO = 10;
     const LARGO_TEXTO = 255;      // pregunta.texto
@@ -56,15 +71,28 @@ class PreguntaModel
         return $pendientes;
     }
 
-    // Cuántas preguntas más puede crear el editor esta semana.
+    // Cuántas preguntas más puede crear el editor esta semana. Cuentan las que creó y aprobó
+    // él mismo (las que sugirió como jugador antes de ser editor no).
     public function creacionesRestantes($editorId)
     {
         $fila = $this->database->queryOne(
             "SELECT COUNT(*) AS cantidad FROM pregunta
-             WHERE creada_por = ? AND fecha_alta >= " . PartidaModel::INICIO_SEMANA_SQL,
+             WHERE creada_por = ? AND aprobada_por = creada_por AND fecha_alta >= " . PartidaModel::INICIO_SEMANA_SQL,
             [$editorId]
         );
         return max(0, self::CREADAS_POR_SEMANA - (int)$fila["cantidad"]);
+    }
+
+    // Cuántas preguntas más puede sugerir el jugador esta semana.
+    public function sugerenciasRestantes($usuarioId)
+    {
+        $fila = $this->database->queryOne(
+            "SELECT COUNT(*) AS cantidad FROM pregunta
+             WHERE creada_por = ? AND (aprobada_por IS NULL OR aprobada_por <> creada_por)
+               AND fecha_alta >= " . PartidaModel::INICIO_SEMANA_SQL,
+            [$usuarioId]
+        );
+        return max(0, self::SUGERIDAS_POR_SEMANA - (int)$fila["cantidad"]);
     }
 
     // Limpia lo que llega del formulario. Siempre devuelve las 4 respuestas, aunque vengan vacías,
@@ -89,7 +117,8 @@ class PreguntaModel
 
     // Devuelve la lista de errores (vacía si está todo bien).
     // $excluirId: al editar, la propia pregunta no cuenta como "texto repetido".
-    public function validar(array $datos, $excluirId = 0)
+    // $pideDificultad: false para la sugerencia del jugador (la dificultad la pone el editor al aprobar).
+    public function validar(array $datos, $excluirId = 0, $pideDificultad = true)
     {
         $errores = [];
 
@@ -128,7 +157,7 @@ class PreguntaModel
             $errores[] = "Marcá cuál es la respuesta correcta.";
         }
 
-        if (!isset(self::DIFICULTADES[$datos["dificultad"]])) {
+        if ($pideDificultad && !isset(self::DIFICULTADES[$datos["dificultad"]])) {
             $errores[] = "Elegí la dificultad inicial.";
         }
 
@@ -140,13 +169,24 @@ class PreguntaModel
     // la calcula con el % de aciertos (PartidaModel::DIFICULTAD_SQL).
     public function crear(array $datos, $editorId)
     {
+        return $this->insertar($datos, $editorId, true);
+    }
+
+    // La que sugiere un jugador entra en 'revision': no sale en el juego hasta que la apruebe un editor.
+    public function sugerir(array $datos, $usuarioId)
+    {
+        return $this->insertar($datos, $usuarioId, false);
+    }
+
+    private function insertar(array $datos, $usuarioId, $activa)
+    {
         $this->database->iniciarTransaccion();
         try {
             $this->database->execute(
                 "INSERT INTO pregunta (categoria_id, juego, texto, estado, dificultad, creada_por, aprobada_por, fecha_aprobacion)
-                 VALUES (?, ?, ?, 'activa', ?, ?, ?, NOW())",
+                 VALUES (?, ?, ?, ?, ?, ?, ?, " . ($activa ? "NOW()" : "NULL") . ")",
                 [$datos["categoria_id"], $datos["juego"] === "" ? null : $datos["juego"], $datos["texto"],
-                 $datos["dificultad"], $editorId, $editorId]
+                 $activa ? "activa" : "revision", $datos["dificultad"] ?: "media", $usuarioId, $activa ? $usuarioId : null]
             );
             $preguntaId = (int)$this->database->lastInsertId();
 
@@ -165,6 +205,113 @@ class PreguntaModel
         }
     }
 
+    // ---------- Sugeridas (para el editor) ----------
+
+    // Las que esperan revisión, la más vieja primero, con sus respuestas y quién la sugirió.
+    public function sugeridas()
+    {
+        $preguntas = $this->database->queryAll(
+            "SELECT p.id, p.texto, p.juego, p.fecha_alta, c.nombre AS categoria, c.fase, u.usuario AS sugerida_por
+             FROM pregunta p
+             JOIN categoria c ON c.id = p.categoria_id
+             JOIN usuario u ON u.id = p.creada_por
+             WHERE p.estado = 'revision'
+             ORDER BY p.fecha_alta, p.id
+             LIMIT 20"
+        );
+
+        foreach ($preguntas as &$pregunta) {
+            $pregunta["respuestas"] = $this->database->queryAll(
+                "SELECT texto, es_correcta FROM respuesta WHERE pregunta_id = ? ORDER BY id",
+                [$pregunta["id"]]
+            );
+        }
+        return $preguntas;
+    }
+
+    // Aprobar: pasa a activa con la dificultad inicial que elige el editor.
+    // Devuelve false si ya no estaba en revisión (otro editor la resolvió antes).
+    public function aprobar($id, $dificultad, $editorId)
+    {
+        return $this->database->execute(
+            "UPDATE pregunta SET estado = 'activa', dificultad = ?, aprobada_por = ?, fecha_aprobacion = NOW()
+             WHERE id = ? AND estado = 'revision'",
+            [$dificultad, $editorId, $id]
+        ) > 0;
+    }
+
+    // Rechazar: la sugerida se borra (sus respuestas se van con ON DELETE CASCADE).
+    // Nunca se jugó, así que no la referencia ninguna partida.
+    public function rechazar($id)
+    {
+        return $this->database->execute(
+            "DELETE FROM pregunta WHERE id = ? AND estado = 'revision'",
+            [$id]
+        ) > 0;
+    }
+
+    // Buscador de parecidas (solo lectura): trae las preguntas que tienen alguna de las palabras
+    // y las ordena primero por cuántas palabras tienen y después por similar_text().
+    // $excluirId: la sugerida que se está revisando no se busca a sí misma.
+    // $fase: 'shine' o 'die', para buscar solo entre las preguntas del mismo modo (null = todas).
+    public function buscar($texto, $excluirId = 0, $fase = null)
+    {
+        $palabras = $this->palabrasParaBuscar($texto);
+        if (!$palabras) {
+            return [];
+        }
+
+        // Un LIKE por palabra. La collation de la tabla no distingue mayúsculas ni tildes.
+        $condiciones = implode(" OR ", array_fill(0, count($palabras), "p.texto LIKE ?"));
+        $filtroFase = $fase === null ? "" : " AND c.fase = ?";
+        $parametros = array_merge([(int)$excluirId], $fase === null ? [] : [$fase], array_map(fn($p) => "%" . $p . "%", $palabras));
+        $candidatas = $this->database->queryAll(
+            "SELECT p.id, p.texto, p.estado, p.juego, c.nombre AS categoria, c.fase
+             FROM pregunta p JOIN categoria c ON c.id = p.categoria_id
+             WHERE p.id <> ?$filtroFase AND ($condiciones)
+             LIMIT 300",
+            $parametros
+        );
+
+        $buscado = $this->normalizar($texto);
+        foreach ($candidatas as &$candidata) {
+            $normalizada = $this->normalizar($candidata["texto"]);
+            $candidata["coincidencias"] = count(array_filter($palabras, fn($p) => strpos($normalizada, $p) !== false));
+            similar_text($buscado, $normalizada, $porcentaje);
+            $candidata["parecido"] = (int)round($porcentaje);
+        }
+        unset($candidata);
+
+        usort($candidatas, fn($a, $b) => [$b["coincidencias"], $b["parecido"]] <=> [$a["coincidencias"], $a["parecido"]]);
+
+        return array_map(fn($c) => [
+            "id" => (int)$c["id"],
+            "texto" => $c["texto"],
+            "categoria" => $c["juego"] ? $c["categoria"] . " (" . $c["juego"] . ")" : $c["categoria"],
+            "modo" => $c["fase"] === "die" ? "Die" : "Shine",
+            "estado" => $c["estado"],
+            "estadoNombre" => self::NOMBRE_ESTADO[$c["estado"]] ?? $c["estado"],
+            "coincidencias" => $c["coincidencias"],
+            "palabras" => count($palabras),
+            "parecido" => $c["parecido"],
+        ], array_slice($candidatas, 0, self::RESULTADOS_BUSQUEDA));
+    }
+
+    // "¿Quién es el jefe final de Dark Souls?" -> ["quien" no (vacía), "jefe", "final", "dark", "souls"]
+    private function palabrasParaBuscar($texto)
+    {
+        $palabras = preg_split('/[^\p{L}\p{N}]+/u', $this->normalizar($texto), -1, PREG_SPLIT_NO_EMPTY);
+        $palabras = array_filter($palabras, fn($p) => mb_strlen($p) >= self::LARGO_MINIMO_BUSQUEDA
+            && !in_array($p, self::PALABRAS_VACIAS, true));
+        return array_slice(array_values(array_unique($palabras)), 0, 8);
+    }
+
+    // Minúsculas y sin tildes, para comparar como lo hace la base.
+    private function normalizar($texto)
+    {
+        return strtr(mb_strtolower(trim($texto)), ["á" => "a", "é" => "e", "í" => "i", "ó" => "o", "ú" => "u", "ü" => "u", "ñ" => "n"]);
+    }
+
     // La comparación usa la collation de la tabla: no distingue mayúsculas ni tildes.
     private function existeTexto($texto, $excluirId = 0)
     {
@@ -176,6 +323,7 @@ class PreguntaModel
 
     // Los datos de una pregunta en el formato del formulario, solo si el editor puede tocarla:
     // reportada (cuarentena) o sugerida (revision). Las demás no las edita (permisos limitados).
+    // A la sugerida no se le carga dificultad: la elige el editor al aprobarla.
     public function paraEditar($id)
     {
         $pregunta = $this->database->queryOne(
@@ -200,7 +348,7 @@ class PreguntaModel
             "texto" => $pregunta["texto"],
             "respuestas" => array_column($respuestas, "texto"),
             "correcta" => null,
-            "dificultad" => $pregunta["dificultad"],
+            "dificultad" => $pregunta["estado"] === "revision" ? "" : $pregunta["dificultad"],
         ];
         foreach ($respuestas as $i => $respuesta) {
             if ((int)$respuesta["es_correcta"] === 1) {

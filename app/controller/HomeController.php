@@ -15,17 +15,20 @@ class HomeController
 
     private $partidaModel;
     private $rankingModel;
+    private $solicitudModel;
     private $render;
 
-    public function __construct($partidaModel, $rankingModel, $render)
+    public function __construct($partidaModel, $rankingModel, $solicitudModel, $render)
     {
         $this->partidaModel = $partidaModel;
         $this->rankingModel = $rankingModel;
+        $this->solicitudModel = $solicitudModel;
         $this->render = $render;
     }
 
     public function show()
     {
+        $aviso = $this->revisarSolicitud();
         $usuario = Sesion::usuario();
 
         // Fase visual: "shine" (colorida) o "souls" (oscura). La home arranca en shine y el paso
@@ -34,6 +37,7 @@ class HomeController
         $data["tema"] = Request::get("modo") === "die" ? "souls" : "shine";
         $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
         $data["sesion"] = $usuario;
+        $data["aviso"] = $aviso;
 
         // Si se le terminó el tiempo con la página cerrada, la partida se cierra acá:
         // el botón no puede ofrecer "Continuar" una partida que ya perdió.
@@ -47,6 +51,27 @@ class HomeController
         }
 
         $this->render->renderiza("home", $data);
+    }
+
+    // Si tenía un "Quiero moderar" pendiente, mira si ya lo aprobaron: así ve "Moderar" en el
+    // menú sin cerrar sesión. A quien no pidió nada le cuesta una sola consulta por sesión.
+    private function revisarSolicitud()
+    {
+        if (!Sesion::hayQueRevisarSolicitud()) {
+            return null;
+        }
+
+        $usuario = Sesion::usuario();
+        $situacion = $this->solicitudModel->situacion($usuario["id"]);
+        Sesion::revisarSolicitud($situacion["pendiente"]);
+
+        if ($situacion["rol"] === $usuario["rol"]) {
+            return null;
+        }
+        Sesion::cambiarRol($situacion["rol"]);
+        return $situacion["rol"] === "editor"
+            ? "¡Aprobaron tu solicitud! Ya sos moderador: lo encontrás en el menú, en \"Moderar\"."
+            : null;
     }
 
     private function datosDelModo($usuarioId, $modo, $enCurso)
