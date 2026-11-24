@@ -309,7 +309,8 @@
                         {{#ok}}<span class="admin-estado admin-estado-ok">Bien</span>{{/ok}}
                         {{^ok}}<span class="admin-estado admin-estado-error">Error</span>{{/ok}}
                         <p class="admin-csv-texto">{{texto}}{{^texto}}<em>(sin pregunta)</em>{{/texto}}</p>
-                        <p class="editor-dato">{{categoria}}</p>
+                        <p class="editor-dato">{{categoria}} · {{dificultadTexto}}{{^dificultadTexto}}<em>sin dificultad</em>{{/dificultadTexto}}</p>
+                        {{> adminCsvDetalle}}
                         {{^ok}}
                             <ul class="admin-csv-errores">
                                 {{#errores}}<li>{{.}}</li>{{/errores}}
@@ -341,7 +342,8 @@
                         <li class="tarjeta admin-csv-fila admin-csv-fila-mal">
                             <span class="admin-csv-numero">Fila {{numero}}</span>
                             <p class="admin-csv-texto">{{texto}}{{^texto}}<em>(sin pregunta)</em>{{/texto}}</p>
-                            <p class="editor-dato">{{categoria}}</p>
+                            <p class="editor-dato">{{categoria}} · {{dificultadTexto}}{{^dificultadTexto}}<em>sin dificultad</em>{{/dificultadTexto}}</p>
+                            {{> adminCsvDetalle}}
                             <ul class="admin-csv-errores">
                                 {{#errores}}<li>{{.}}</li>{{/errores}}
                             </ul>

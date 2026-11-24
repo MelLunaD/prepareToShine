@@ -20,6 +20,7 @@ class CargaCsvModel
     // Para que "Fácil", "FACIL" o "difícil" también valgan.
     const DIFICULTADES = ["facil" => "facil", "fácil" => "facil", "media" => "media",
         "dificil" => "dificil", "difícil" => "dificil"];
+    const NOMBRES_DIFICULTAD = ["facil" => "Fácil", "media" => "Media", "dificil" => "Difícil"];
 
     private $database;
     private $preguntaModel;
@@ -31,7 +32,7 @@ class CargaCsvModel
     }
 
     // Lee el CSV subido y devuelve ["error" => null|"mensaje", "filas" => [...]].
-    // Cada fila: ["numero" => fila del archivo, "datos" => formato del formulario,
+    // Cada fila: ["numero" => 1, 2, 3... sin contar el encabezado, "datos" => formato del formulario,
     //             "texto", "categoria", "errores" => [...]].
     public function analizar($ruta, $bytes)
     {
@@ -71,7 +72,7 @@ class CargaCsvModel
 
         foreach ($lineas as $i => $valores) {
             // +2: la fila 1 es el encabezado y las filas del archivo se cuentan desde 1.
-            $fila = $this->analizarFila($i + 2, $valores, $posicion, $categorias);
+            $fila = $this->analizarFila($i + 1, $valores, $posicion, $categorias);
 
             // Repetida dentro del mismo archivo (la base no la tiene todavía, así que validar() no la ve).
             $clave = mb_strtolower($fila["texto"]);
@@ -187,6 +188,15 @@ class CargaCsvModel
             "original" => $original,
             "texto" => $datos["texto"],
             "categoria" => ($modo === "die" ? "Die" : "Shine") . " · " . $nombreCategoria,
+            // Para mostrar la fila completa en la vista previa (tal como vino en el archivo).
+            "dificultadTexto" => self::NOMBRES_DIFICULTAD[$dificultad] ?? $valor("dificultad"),
+            "juego" => $valor("juego"),
+            "respuestasCsv" => [
+                ["respuesta" => $valor("correcta"), "esCorrecta" => true],
+                ["respuesta" => $valor("incorrecta_1"), "esCorrecta" => false],
+                ["respuesta" => $valor("incorrecta_2"), "esCorrecta" => false],
+                ["respuesta" => $valor("incorrecta_3"), "esCorrecta" => false],
+            ],
             "errores" => $errores,
         ];
     }

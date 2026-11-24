@@ -1,0 +1,10 @@
+{{! Datos completos de una fila del CSV: juego y las cuatro respuestas, la correcta primero. }}
+<p class="editor-dato">Juego: {{juego}}{{^juego}}<em>sin juego</em>{{/juego}}</p>
+<ul class="admin-csv-respuestas">
+    {{#respuestasCsv}}
+        <li class="{{#esCorrecta}}admin-csv-correcta{{/esCorrecta}}{{^esCorrecta}}admin-csv-incorrecta{{/esCorrecta}}">
+            <span class="admin-csv-marca" aria-hidden="true">{{#esCorrecta}}✓{{/esCorrecta}}{{^esCorrecta}}✗{{/esCorrecta}}</span>
+            <span>{{respuesta}}{{^respuesta}}<em>(vacía)</em>{{/respuesta}}{{#esCorrecta}} <strong class="admin-respuesta-marca">Correcta</strong>{{/esCorrecta}}</span>
+        </li>
+    {{/respuestasCsv}}
+</ul>

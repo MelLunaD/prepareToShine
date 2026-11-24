@@ -3642,6 +3642,42 @@ a.admin-csv-texto:hover {
     margin: 0;
 }
 
+.admin-csv-respuestas {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.92rem;
+}
+
+.admin-csv-respuestas li {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    overflow-wrap: anywhere;
+}
+
+.admin-csv-respuestas .admin-csv-correcta {
+    background: rgba(63, 185, 80, 0.15);
+    color: var(--texto);
+}
+
+.admin-csv-respuestas .admin-csv-incorrecta {
+    color: var(--texto-suave);
+}
+
+.admin-csv-marca {
+    flex: none;
+    width: 1rem;
+    font-weight: 800;
+}
+
+.admin-csv-correcta .admin-csv-marca { color: var(--verde); }
+
 .admin-csv-errores {
     margin: 0.5rem 0 0;
     padding-left: 1.1rem;
