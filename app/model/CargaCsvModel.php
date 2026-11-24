@@ -187,7 +187,10 @@ class CargaCsvModel
             "datos" => $datos,
             "original" => $original,
             "texto" => $datos["texto"],
-            "categoria" => ($modo === "die" ? "Die" : "Shine") . " · " . $nombreCategoria,
+            // Si el modo está mal se muestra tal como vino (no se asume Shine).
+            "categoria" => (["shine" => "Shine", "die" => "Die"][$modo]
+                    ?? ($valor("modo") === "" ? "Sin modo" : "Modo \"" . $valor("modo") . "\""))
+                . " · " . ($nombreCategoria === "" ? "sin categoría" : $nombreCategoria),
             // Para mostrar la fila completa en la vista previa (tal como vino en el archivo).
             "dificultadTexto" => self::NOMBRES_DIFICULTAD[$dificultad] ?? $valor("dificultad"),
             "juego" => $valor("juego"),
