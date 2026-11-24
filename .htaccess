@@ -14,6 +14,11 @@ Options -Indexes
     deny from all
 </FilesMatch>
 
+# Página 404 propia. Las direcciones /controller/metodo las controla el Router;
+# esto cubre lo que Apache no le pasa (un archivo que no existe, como
+# /public/img/nada.png, o una dirección con más de dos partes, /a/b/c).
+ErrorDocument 404 /index.php?controller=error&method=noEncontrada
+
 # ══════════════════════════════════════════════════════
 # URL REWRITING
 # Transforma URLs limpias en la URL real de PHP.

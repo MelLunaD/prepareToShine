@@ -1,0 +1,38 @@
+<section class="acceso">
+
+    <h1 class="titulo-juego">Prepare to <span class="palabra-fase">{{palabraFase}}</span></h1>
+
+    <div class="tarjeta">
+        <h2>Elegí una contraseña nueva</h2>
+
+        {{#aviso}}
+            <p class="alerta alerta-ok">{{aviso}}</p>
+        {{/aviso}}
+        {{#error}}
+            <p class="alerta alerta-error">{{error}}</p>
+        {{/error}}
+
+        <p>Ingresá el código de 6 números que te llegó por mail. Vale por {{minutos}} minutos.</p>
+
+        <form class="formulario" method="post" action="/recuperar/confirmar">
+            <label for="codigo">Código</label>
+            <input id="codigo" class="campo-codigo" type="text" name="codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus>
+
+            <label for="password">Contraseña nueva</label>
+            <input id="password" type="password" name="password" minlength="8" autocomplete="new-password" required>
+            <small>Al menos 8 caracteres.</small>
+
+            <label for="password2">Repetí la contraseña</label>
+            <input id="password2" type="password" name="password2" minlength="8" autocomplete="new-password" required>
+
+            <button type="submit" class="btn btn-primario">Cambiar contraseña</button>
+        </form>
+
+        <form class="formulario" method="post" action="/recuperar/reenviar">
+            <button type="submit" class="btn btn-secundario">Reenviar código</button>
+        </form>
+
+        <p class="pie-formulario">¿No te llegó? Revisá la carpeta de spam. <a href="/recuperar">Probar con otro mail o usuario</a></p>
+    </div>
+
+</section>

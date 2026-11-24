@@ -645,6 +645,14 @@ a {
     color: var(--rojo);
 }
 
+/* "¿Olvidaste tu contraseña?" debajo del campo, alineado a la derecha. */
+.formulario .link-olvide {
+    align-self: flex-end;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--rojo);
+}
+
 /* ---------- Suelo (footer) ---------- */
 
 .suelo {
@@ -4050,5 +4058,156 @@ a.admin-csv-texto:hover {
 
     .sonido-esquina {
         display: flex;
+    }
+}
+
+/* ---------- Página 404 (noEncontradaView) ----------
+   Shine: "404" grande que rebota, como un nivel que no está en el mapa.
+   Die: la franja negra con "YOU DIED" que aparece despacio.
+   Panel (moderar/administrar): tarjeta neutra. */
+
+.no-encontrada {
+    max-width: 480px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.no-encontrada .tarjeta {
+    text-align: center;
+}
+
+.no-encontrada .tarjeta p {
+    margin: 0 0 1.25rem;
+}
+
+.no-encontrada-numero {
+    margin: 0.5rem 0 1rem;
+    font-family: var(--fuente-titulo);
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--moneda);
+    text-shadow: 5px 5px 0 var(--tinta);
+}
+
+.no-encontrada-numero span {
+    display: inline-block;
+    animation: rebote-404 1.2s ease-in-out infinite;
+}
+
+.no-encontrada-numero span:nth-child(2) { animation-delay: 0.15s; }
+.no-encontrada-numero span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes rebote-404 {
+    0%, 60%, 100% { transform: translateY(0); }
+    30%           { transform: translateY(-14px); }
+}
+
+.no-encontrada-titulo {
+    margin: 0 0 1.5rem;
+    font-family: var(--fuente-titulo);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--texto-sobre-color);
+    text-shadow: 3px 3px 0 var(--tinta);
+}
+
+/* Die: la franja ocupa todo el ancho de la pantalla aunque el contenido sea angosto. */
+.no-encontrada-souls {
+    max-width: none;
+}
+
+.no-encontrada-franja {
+    margin: 2rem calc(50% - 50vw) 2rem;
+    padding: 2rem 1rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85) 25%, rgba(0, 0, 0, 0.85) 75%, transparent);
+    animation: aparecer-franja 1.2s ease-out both;
+}
+
+.no-encontrada-murio {
+    margin: 0;
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    font-size: 2.6rem;
+    letter-spacing: 0.12em;
+    color: #a3161a;
+    text-shadow: 0 0 18px rgba(163, 22, 26, 0.45);
+    animation: aparecer-murio 2.4s ease-out both;
+}
+
+@keyframes aparecer-franja {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes aparecer-murio {
+    0%   { opacity: 0; transform: scale(0.92); }
+    30%  { opacity: 0; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.no-encontrada-codigo {
+    margin: 0 0 0.5rem;
+    font-family: var(--fuente-titulo);
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+}
+
+.no-encontrada-texto {
+    max-width: 32ch;
+    margin: 0 auto 2rem;
+    font-size: 1.2rem;
+}
+
+.no-encontrada-codigo,
+.no-encontrada-texto,
+.no-encontrada-boton {
+    animation: aparecer-franja 1s ease-out 1.6s both;
+}
+
+.no-encontrada-boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* Panel: el número sin rebote ni sombra de bloque, con el acento amarillo del panel. */
+.no-encontrada-panel .no-encontrada-numero {
+    font-size: 3rem;
+    text-shadow: none;
+}
+
+.no-encontrada-panel .no-encontrada-titulo {
+    color: var(--texto);
+    text-shadow: none;
+}
+
+@media (min-width: 600px) {
+    .no-encontrada-numero {
+        font-size: 6rem;
+    }
+
+    .no-encontrada-titulo {
+        font-size: 1.3rem;
+    }
+
+    .no-encontrada-murio {
+        font-size: 4.5rem;
+    }
+
+    .no-encontrada-franja {
+        padding: 3rem 1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .no-encontrada-numero span,
+    .no-encontrada-franja,
+    .no-encontrada-murio,
+    .no-encontrada-codigo,
+    .no-encontrada-texto,
+    .no-encontrada-boton {
+        animation: none;
     }
 }

@@ -5,12 +5,14 @@ namespace app;
 use app\controller\HomeController;
 use app\controller\LoginController;
 use app\controller\RegistroController;
+use app\controller\RecuperarController;
 use app\controller\PerfilController;
 use app\controller\PartidaController;
 use app\controller\RankingController;
 use app\controller\EditorController;
 use app\controller\AdminController;
 use app\controller\PreguntaController;
+use app\controller\ErrorController;
 use app\model\CargaCsvModel;
 use app\model\CementerioModel;
 use app\model\FotoPerfilModel;
@@ -38,7 +40,9 @@ require_once("helper/Autoloader.php");
 class Configuration
 {
     // Controllers que se pueden usar sin haber iniciado sesión. Todo lo demás pide login.
-    const CONTROLLERS_PUBLICOS = ["login", "registro"];
+    // "error" es la página 404: la tiene que poder ver cualquiera.
+    // "recuperar" es "¿Olvidaste tu contraseña?": justamente no puede entrar.
+    const CONTROLLERS_PUBLICOS = ["login", "registro", "recuperar", "error"];
 
     // Controllers que pide un rol (el Router los controla). Los demás los usa cualquier logueado.
     const ROLES_POR_CONTROLLER = [
@@ -137,7 +141,22 @@ class Configuration
         );
     }
 
+    public function getRecuperarController()
+    {
+        return new RecuperarController(
+            $this->getUsuarioModel(),
+            $this->getValidacionModel(),
+            $this->getRender()
+        );
+    }
+
     // Los privados
+
+    // Página 404 (la usan el Router y el ErrorDocument del .htaccess).
+    public function getErrorController()
+    {
+        return new ErrorController($this->getRender());
+    }
 
     private function getUsuarioModel()
     {

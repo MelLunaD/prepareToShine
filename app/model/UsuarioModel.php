@@ -35,6 +35,25 @@ class UsuarioModel
         );
     }
 
+    // Para "¿Olvidaste tu contraseña?": acepta el mail o el nombre de usuario.
+    // El usuario 'sistema' queda afuera (no es de nadie).
+    public function buscarPorUsuarioOEmail($dato)
+    {
+        return $this->database->queryOne(
+            "SELECT id, usuario, nombre_completo, email, foto, rol, validado FROM usuario
+             WHERE (usuario = ? OR email = ?) AND usuario <> 'sistema'",
+            [$dato, $dato]
+        );
+    }
+
+    public function cambiarPassword($id, $password)
+    {
+        $this->database->execute(
+            "UPDATE usuario SET password_hash = ? WHERE id = ?",
+            [password_hash($password, PASSWORD_DEFAULT), $id]
+        );
+    }
+
     public function existeUsuario($usuario)
     {
         return $this->database->queryOne("SELECT id FROM usuario WHERE usuario = ?", [$usuario]) !== null;

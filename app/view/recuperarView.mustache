@@ -1,0 +1,24 @@
+<section class="acceso">
+
+    <h1 class="titulo-juego">Prepare to <span class="palabra-fase">{{palabraFase}}</span></h1>
+
+    <div class="tarjeta">
+        <h2>Recuperá tu contraseña</h2>
+
+        {{#error}}
+            <p class="alerta alerta-error">{{error}}</p>
+        {{/error}}
+
+        <p>Escribí el mail o el usuario de tu cuenta y te mandamos un código para elegir una contraseña nueva.</p>
+
+        <form class="formulario" method="post" action="/recuperar/enviar">
+            <label for="dato">Mail o usuario</label>
+            <input id="dato" type="text" name="dato" maxlength="120" autocomplete="username" required autofocus>
+
+            <button type="submit" class="btn btn-primario">Mandar código</button>
+        </form>
+
+        <p class="pie-formulario">¿Te acordaste? <a href="/login">Volver al inicio de sesión</a></p>
+    </div>
+
+</section>

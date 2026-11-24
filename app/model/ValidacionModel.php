@@ -5,9 +5,16 @@ namespace app\model;
 // Código de validación de la cuenta: 6 dígitos que vencen a los 10 minutos.
 // Pedir uno nuevo (reenviar o volver a loguearse) reemplaza al anterior,
 // así el viejo deja de servir.
+// El mismo código sirve para recuperar la contraseña: cambia solo el mail que se manda.
 class ValidacionModel
 {
     const MINUTOS_VIGENCIA = 10;
+
+    // Para qué es el código: el asunto y las vistas del mail de cada caso.
+    const MAILS = [
+        "validar" => ["asunto" => "Tu código para Prepare to Shine", "vista" => "mailCodigo"],
+        "recuperar" => ["asunto" => "Recuperá tu contraseña de Prepare to Shine", "vista" => "mailRecuperar"],
+    ];
 
     private $database;
     private $mailer;
@@ -21,8 +28,10 @@ class ValidacionModel
     }
 
     // Genera un código nuevo, lo guarda y lo manda por mail. Devuelve true si el mail salió.
-    public function enviarCodigoNuevo(array $usuario)
+    // $motivo: "validar" (registro y login sin validar) o "recuperar" (olvidé mi contraseña).
+    public function enviarCodigoNuevo(array $usuario, $motivo = "validar")
     {
+        $mail = self::MAILS[$motivo];
         $codigo = str_pad((string)random_int(0, 999999), 6, "0", STR_PAD_LEFT);
 
         // El vencimiento lo calcula MySQL con su propio reloj, igual que la comparación
@@ -42,13 +51,14 @@ class ValidacionModel
         return $this->mailer->enviar(
             $usuario["email"],
             $usuario["nombre_completo"],
-            "Tu código para Prepare to Shine: $codigo",
-            $this->render->generar("mailCodigo", $datosMail),
-            $this->render->generar("mailCodigoTexto", $datosMail)
+            $mail["asunto"] . ": $codigo",
+            $this->render->generar($mail["vista"], $datosMail),
+            $this->render->generar($mail["vista"] . "Texto", $datosMail)
         );
     }
 
-    // Devuelve "ok", "vencido" o "incorrecto".
+    // Devuelve "ok", "vencido" o "incorrecto". Si es "ok", la cuenta queda validada
+    // (también al recuperar la contraseña: el código llegó a su mail, así que es suya).
     public function confirmar($usuarioId, $codigo)
     {
         $fila = $this->database->queryOne(

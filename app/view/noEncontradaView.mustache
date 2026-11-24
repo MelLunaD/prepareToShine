@@ -1,0 +1,37 @@
+<!-- Página 404. El controller (ErrorController) elige el tema y adónde lleva el botón. -->
+{{#esShine}}
+<section class="no-encontrada no-encontrada-shine">
+    <p class="no-encontrada-numero" aria-hidden="true"><span>4</span><span>0</span><span>4</span></p>
+    <h1 class="no-encontrada-titulo">¡Nivel no encontrado!</h1>
+
+    <div class="tarjeta">
+        <p>Esta pantalla no existe. Puede que el link esté roto o que la dirección tenga un error.</p>
+        <a class="btn btn-primario" href="{{volver.url}}">{{volver.texto}}</a>
+    </div>
+</section>
+{{/esShine}}
+
+{{#esSouls}}
+<section class="no-encontrada no-encontrada-souls">
+    <div class="no-encontrada-franja">
+        <h1 class="no-encontrada-murio">YOU DIED</h1>
+    </div>
+    <p class="no-encontrada-codigo">Error 404</p>
+    <p class="no-encontrada-texto">Esta página se perdió en la niebla. Quizás nunca existió.</p>
+    <a class="btn btn-primario no-encontrada-boton" href="{{volver.url}}">
+        <img src="/public/img/hoguera.svg" alt="" width="20" height="20">
+        {{volver.texto}}
+    </a>
+</section>
+{{/esSouls}}
+
+{{#esPanel}}
+<section class="no-encontrada no-encontrada-panel">
+    <div class="tarjeta">
+        <p class="no-encontrada-numero" aria-hidden="true">404</p>
+        <h1 class="no-encontrada-titulo">Página no encontrada</h1>
+        <p>Esta dirección no lleva a ninguna sección del panel.</p>
+        <a class="btn btn-neutro" href="{{volver.url}}">{{volver.texto}}</a>
+    </div>
+</section>
+{{/esPanel}}

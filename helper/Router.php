@@ -26,6 +26,12 @@ class Router
         $controllerName = is_string($controllerName) ? strtolower($controllerName) : $this->defaultController;
         $method         = is_string($method) ? $method : $this->defaultMethod;
 
+        // Una dirección que no lleva a ningún controller es un 404 (antes caía en el lobby sin
+        // avisar). Se revisa antes que la sesión: así tampoco se guarda para después del login.
+        if (!method_exists($this->config, $this->getFactoryMethodName($controllerName))) {
+            $this->noEncontrada();
+        }
+
         if (!Sesion::estaLogueada() && !in_array($controllerName, $this->controllersPublicos, true)) {
             $this->recordarPaginaPedida();
             Redirect::to('/login');
@@ -36,9 +42,23 @@ class Router
             Redirect::toIndex();
         }
 
-        $controller = $this->getController($controllerName);
-        $method     = $this->getMethod($controller, $method);
+        $controller = $this->config->{$this->getFactoryMethodName($controllerName)}();
+
+        // is_callable y no method_exists: así por URL solo se llega a los métodos públicos.
+        // Un método que no existe (o privado) también es un 404.
+        // Los que empiezan con "__" (__construct...) son de PHP, nunca páginas.
+        if (strpos($method, "__") === 0 || !is_callable([$controller, $method])) {
+            $this->noEncontrada();
+        }
+
         $controller->{$method}();
+    }
+
+    // Muestra la página 404 (con código HTTP 404) y corta el pedido.
+    private function noEncontrada()
+    {
+        $this->config->getErrorController()->noEncontrada();
+        exit();
     }
 
     // Si abrió una página con el navegador (por ejemplo, un perfil desde el QR), se guarda para
@@ -64,25 +84,8 @@ class Router
         return $usuario !== null && in_array($usuario["rol"], $this->rolesPorController[$controllerName], true);
     }
 
-    private function getController($controllerName)
-    {
-        $factoryMethod = $this->getFactoryMethodName($controllerName);
-
-        if (!method_exists($this->config, $factoryMethod)) {
-            $factoryMethod = $this->getFactoryMethodName($this->defaultController);
-        }
-
-        return $this->config->{$factoryMethod}();
-    }
-
     private function getFactoryMethodName($controllerName)
     {
         return "get" . ucfirst($controllerName) . "Controller";
-    }
-
-    private function getMethod($controller, $method)
-    {
-        // is_callable y no method_exists: así por URL solo se llega a los métodos públicos.
-        return is_callable([$controller, $method]) ? $method : $this->defaultMethod;
     }
 }

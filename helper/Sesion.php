@@ -4,6 +4,7 @@
 // están en un solo lugar.
 //  - "usuario": el jugador logueado y validado (id, usuario, foto, rol).
 //  - "validar_id": cuenta creada o logueada que todavía no ingresó su código.
+//  - "recuperar_id": cuenta que pidió "¿Olvidaste tu contraseña?" (0 si el dato no era de nadie).
 //  - "intentos_fallidos": códigos mal ingresados desde el último código enviado.
 //  - "flash": mensajes que se muestran una sola vez (después de un redirect).
 //  - "revisar_solicitud": si el lobby tiene que mirar en la base si aprobaron su "Quiero moderar".
@@ -17,7 +18,7 @@ class Sesion
     {
         // Id de sesión nuevo al loguearse: evita que alguien fije uno de antemano.
         session_regenerate_id(true);
-        unset($_SESSION["validar_id"], $_SESSION["intentos_fallidos"], $_SESSION["revisar_solicitud"]);
+        unset($_SESSION["validar_id"], $_SESSION["recuperar_id"], $_SESSION["intentos_fallidos"], $_SESSION["revisar_solicitud"]);
         $_SESSION["usuario"] = [
             "id" => (int)$usuario["id"],
             "usuario" => $usuario["usuario"],
@@ -59,6 +60,24 @@ class Sesion
     public static function idAValidar()
     {
         return $_SESSION["validar_id"] ?? null;
+    }
+
+    // Recuperar contraseña. Se guarda aunque el mail o usuario no exista (con id 0), así la
+    // pantalla siguiente es igual para todos y no se puede averiguar quién tiene cuenta.
+    public static function esperarRecuperacion($usuarioId)
+    {
+        $_SESSION["recuperar_id"] = (int)$usuarioId;
+        $_SESSION["intentos_fallidos"] = 0;
+    }
+
+    public static function idARecuperar()
+    {
+        return $_SESSION["recuperar_id"] ?? null;
+    }
+
+    public static function terminarRecuperacion()
+    {
+        unset($_SESSION["recuperar_id"], $_SESSION["intentos_fallidos"]);
     }
 
     // Suma un código mal ingresado y devuelve cuántos van.
