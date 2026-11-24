@@ -7,6 +7,11 @@
 # todos los archivos .mustache como un índice de carpeta.
 Options -Indexes
 
+# La raíz (/) abre index.php directo. Sin esto, el hosting prueba antes
+# index.html, index.htm, etc.; como no existen, la regla de abajo los
+# mandaba al Router como un controller "index.html", que no existe -> 404.
+DirectoryIndex index.php
+
 # Bloquea el acceso HTTP directo a archivos sensibles.
 # config.ini tiene usuario y contraseña de la BD — no debe
 # poder descargarse desde el browser bajo ningún concepto.
@@ -72,11 +77,13 @@ ErrorDocument 404 /index.php?controller=error&method=noEncontrada
     # [L]   = Last: si esta regla coincide, no evaluar las siguientes.
     # [QSA] = Query String Append: conserva parámetros adicionales.
     #   /home/editar?id=5 llega como controller=home&method=editar&id=5
-    RewriteRule ^([^/]+)/([^/]+)$ index.php?controller=$1&method=$2 [L,QSA]
+    # Sin puntos: ningún controller ni método tiene, y así un archivo que
+    # no existe (/favicon.ico, /index.html) no se toma por un controller.
+    RewriteRule ^([^/.]+)/([^/.]+)$ index.php?controller=$1&method=$2 [L,QSA]
 
     # ── REGLA 2: /controller (sin method) ────────────────
     # Si solo viene el controller, el router usa el método default ('show').
-    RewriteRule ^([^/]+)$         index.php?controller=$1           [L,QSA]
+    RewriteRule ^([^/.]+)$        index.php?controller=$1           [L,QSA]
 </IfModule>
 # ══════════════════════════════════════════════════════
 # CACHÉ DEL NAVEGADOR PARA LOS ASSETS

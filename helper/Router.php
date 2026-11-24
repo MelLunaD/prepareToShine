@@ -26,6 +26,12 @@ class Router
         $controllerName = is_string($controllerName) ? strtolower($controllerName) : $this->defaultController;
         $method         = is_string($method) ? $method : $this->defaultMethod;
 
+        // "index", "index.html", "index.php"...: algunos hostings piden la raíz así
+        // (DirectoryIndex). Es la página principal, no un 404.
+        if (preg_match('/^index(\.\w+)?$/', $controllerName)) {
+            $controllerName = $this->defaultController;
+        }
+
         // Una dirección que no lleva a ningún controller es un 404 (antes caía en el lobby sin
         // avisar). Se revisa antes que la sesión: así tampoco se guarda para después del login.
         if (!method_exists($this->config, $this->getFactoryMethodName($controllerName))) {

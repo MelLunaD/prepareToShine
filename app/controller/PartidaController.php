@@ -126,7 +126,9 @@ class PartidaController
         $data["sin_responder"] = $partida["error"] !== null && $partida["error"]["respuesta_id"] === null;
         $data["almas"] = $esDie && (int)$partida["almas"] > 0 ? (int)$partida["almas"] : null;
         $data["urlLobby"] = $esDie ? "/?modo=die" : "/";
-        $data["sonidos"] = $this->sonidosDelResultado($partida, $completa, $data["retiro"]);
+        $rangoNuevo = $this->rankingModel->subioDeRango($this->usuarioId(), $partida["modo"], $partida["id"]);
+        $data["sonidos"] = $this->sonidosDelResultado($completa, $data["retiro"], $rangoNuevo !== null);
+        $data["rangoNuevo"] = $this->datosDelRangoNuevo($rangoNuevo, $esDie);
         $data += $this->datosDelReporte($partida["id"]);
 
         $this->render->renderiza("resultado", $data);
@@ -177,7 +179,7 @@ class PartidaController
 
     // Sonidos del final, en orden (sonidos.js elige la versión Shine o Die de cada uno):
     // ganar / retirarse con las almas / errar y perder; y si subió de rango, el de rango al final.
-    private function sonidosDelResultado(array $partida, $completa, $retiro)
+    private function sonidosDelResultado($completa, $retiro, $subioDeRango)
     {
         if ($completa) {
             $sonidos = "ganar";
@@ -187,10 +189,28 @@ class PartidaController
             $sonidos = "incorrecta perder";
         }
 
-        if ($this->rankingModel->subioDeRango($this->usuarioId(), $partida["modo"], $partida["id"]) !== null) {
+        if ($subioDeRango) {
             $sonidos .= " subir-rango";
         }
         return $sonidos;
+    }
+
+    // Cartel (modal) que aparece en el resultado cuando la partida le hizo subir de rango.
+    // Los textos cambian según el modo, como el resto de la pantalla.
+    private function datosDelRangoNuevo($rango, $esDie)
+    {
+        if ($rango === null) {
+            return null;
+        }
+        return [
+            "titulo" => $esDie ? "Nuevo rango alcanzado" : "¡Subiste de rango!",
+            "nombre" => $rango["nombre"],
+            "colorRango" => $rango["color"],
+            "rangoBrilla" => (bool)$rango["brilla"],
+            "iconoRango" => !empty($rango["icono"]) ? "/public/img/rangos/" . $rango["icono"] : null,
+            "texto" => $esDie ? "Tus almas de esta semana te llevaron más lejos." : "Con los puntos de esta semana llegaste a un rango nuevo.",
+            "boton" => $esDie ? "Continuar" : "¡Genial!",
+        ];
     }
 
     // Botón "Reportar pregunta": solo con la pregunta que el jugador ACABA de responder,

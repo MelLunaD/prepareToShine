@@ -167,7 +167,8 @@ class RankingModel
 
     // ¿Esa partida le hizo subir de rango en la semana? Compara los puntos de la semana con y sin
     // esa partida. Solo vale para la última partida del modo (si después jugó otra, ya no es
-    // "recién"). Devuelve el nombre del rango nuevo, o null. Lo usa el resultado para el sonido.
+    // "recién"). Devuelve el rango nuevo (nombre, color, brilla, icono), o null. Lo usa el
+    // resultado para el sonido y el cartel de "subiste de rango".
     public function subioDeRango($usuarioId, $modo, $partidaId)
     {
         $partidas = $this->database->queryAll(
@@ -187,7 +188,7 @@ class RankingModel
         if ($ahora === null || ($antes !== null && (int)$ahora["puntos_minimos"] <= (int)$antes["puntos_minimos"])) {
             return null;
         }
-        return $ahora["nombre"];
+        return $ahora;
     }
 
     // ---------- Racha ----------

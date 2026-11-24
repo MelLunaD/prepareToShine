@@ -3053,9 +3053,10 @@ a {
         order: 0;
     }
 
-    /* El editor no tiene "Sugerir pregunta": Ranking y Jugar quedan del mismo ancho. */
+    /* El editor no tiene "Sugerir pregunta": Jugar | Ranking, los dos del mismo ancho. */
     .lobby-acciones-dos > .accion-principal {
         flex-basis: 13.5rem;
+        order: -1;
     }
 }
 
@@ -4210,4 +4211,56 @@ a.admin-csv-texto:hover {
     .no-encontrada-boton {
         animation: none;
     }
+}
+
+/* ---------- Cartel de "subiste de rango" (partial rangoNuevo, en el resultado) ---------- */
+/* Mismo fondo oscuro que la caja del rango del lobby, con el borde de abajo del color del rango. */
+.rango-dialogo {
+    width: min(88vw, 360px);
+    padding: 1.75rem 1.25rem 1.5rem;
+    border: 3px solid #1a1c2c;
+    border-radius: var(--radio);
+    box-shadow: 0 6px 0 var(--color-rango, rgba(0, 0, 0, 0.25));
+    background: #1a1c2c;
+    color: #fff;
+    text-align: center;
+}
+
+.rango-dialogo::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.rango-dialogo-titulo {
+    margin: 0 0 1.25rem;
+    font-family: var(--fuente-titulo);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--moneda, #f5c04a);
+}
+
+.rango-dialogo-icono {
+    display: block;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 1rem;
+    image-rendering: pixelated;
+}
+
+.rango-dialogo-nombre {
+    display: inline-block;
+    margin: 0 0 0.75rem;
+    font-family: var(--fuente-titulo);
+    font-size: 1.3rem;
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--color-rango, #fff) 55%, #fff);
+}
+
+.rango-dialogo-texto {
+    margin: 0 0 1.25rem;
+    font-size: 0.95rem;
+    color: #c8cbd6;
+}
+
+.rango-dialogo .btn {
+    width: 100%;
 }

@@ -31,6 +31,33 @@
 
     var leyenda = { display: true, position: "bottom", labels: { boxWidth: 12, padding: 14 } };
 
+    // Cuadrito de la leyenda armado con franjas de colores (SVG de 12x12). "Calculada" lleva
+    // las 3 dificultades juntas, porque sus barras son verde, amarilla y roja.
+    function cuadrito(franjas) {
+        var ancho = 12 / franjas.length;
+        var rects = franjas.map(function (c, i) {
+            return '<rect x="' + (i * ancho) + '" width="' + ancho + '" height="12" fill="' + c + '"/>';
+        }).join("");
+        var imagen = new Image(12, 12);
+        imagen.src = "data:image/svg+xml," + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" shape-rendering="crispEdges">' + rects + "</svg>");
+        // Si el gráfico se dibujó antes de que cargue la imagen, se vuelve a dibujar.
+        imagen.onload = function () {
+            if (graficos && graficos.dificultad) {
+                graficos.dificultad.update("none");
+            }
+        };
+        return imagen;
+    }
+    var cuadritoCargada = cuadrito([gris]);
+    var cuadritoCalculada = cuadrito([colores.facil, colores.media, colores.dificil]);
+
+    var leyendaDeDificultad = {
+        display: true,
+        position: "bottom",
+        labels: { usePointStyle: true, padding: 14 }
+    };
+
     function eje(titulo) {
         return { display: !!titulo, text: titulo || "", color: texto };
     }
@@ -79,7 +106,7 @@
             type: "bar",
             data: datosDeDificultad(datos.dificultades),
             options: {
-                plugins: { legend: leyenda },
+                plugins: { legend: leyendaDeDificultad },
                 scales: {
                     x: { grid: { display: false } },
                     y: { beginAtZero: true, ticks: { precision: 0 }, title: eje("Preguntas activas") }
@@ -110,9 +137,10 @@
         return {
             labels: dificultades.etiquetas,
             datasets: [
-                { label: "Cargada", data: dificultades.inicial, backgroundColor: gris, borderRadius: 4, maxBarThickness: 40 },
+                { label: "Cargada", data: dificultades.inicial, backgroundColor: gris, borderRadius: 4, maxBarThickness: 40, pointStyle: cuadritoCargada },
                 {
-                    label: "Calculada hoy",
+                    label: "Calculada",
+                    pointStyle: cuadritoCalculada,
                     data: dificultades.hoy,
                     backgroundColor: [colores.facil, colores.media, colores.dificil],
                     borderRadius: 4,

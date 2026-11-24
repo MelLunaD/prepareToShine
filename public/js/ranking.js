@@ -1,5 +1,4 @@
 // Ranking: miniperfiles y cambio de pestañas y filtros sin recargar la página (AJAX).
-// Explicación paso por paso: doc "AJAX en el ranking, paso por paso" (https://claude.ai/artifact/Kj7SUWJgr8SByAK9rJseav).
 (function () {
     var contenido = document.getElementById("ranking-contenido");
     if (!contenido) {

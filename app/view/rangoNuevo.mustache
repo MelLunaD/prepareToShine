@@ -1,0 +1,11 @@
+<!-- Cartel de "subiste de rango" en el resultado. Lo abre rangoNuevo.js al cargar la página;
+     el sonido de subir de rango lo toca sonidos.js (el controller lo agrega a $data["sonidos"]). -->
+<dialog class="rango-dialogo" id="rango-dialogo" aria-labelledby="rango-dialogo-titulo" style="--color-rango: {{colorRango}}">
+    <p class="rango-dialogo-titulo" id="rango-dialogo-titulo">{{titulo}}</p>
+    {{#iconoRango}}<img class="rango-dialogo-icono" src="{{iconoRango}}" alt="">{{/iconoRango}}
+    <p class="rango-dialogo-nombre{{#rangoBrilla}} destello{{/rangoBrilla}}" data-texto="{{nombre}}">{{nombre}}</p>
+    <p class="rango-dialogo-texto">{{texto}}</p>
+    <form method="dialog">
+        <button type="submit" class="btn btn-primario" autofocus>{{boton}}</button>
+    </form>
+</dialog>

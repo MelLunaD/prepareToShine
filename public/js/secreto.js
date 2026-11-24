@@ -1,7 +1,7 @@
 // Secreto de la portada: clickear 5 veces el "Shine" del título
 // hace que tiemble, se caiga, "se apague la luz" y el juego pase
 // a "Prepare to Die". Las animaciones están hechas con GSAP
-// (public/js/vendor/gsap.min.js). Guía: notas/gsap-guia.md
+// (public/js/vendor/gsap.min.js).
 (function () {
     var CLICKS_PARA_CAER = 5;
 
