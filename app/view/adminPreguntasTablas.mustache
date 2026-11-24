@@ -1,0 +1,50 @@
+<div class="tarjeta admin-ultimas">
+    <h2>Las últimas agregadas</h2>
+    {{^hayUltimas}}
+        <p class="editor-dato">Todavía no se agregó ninguna pregunta de {{nombreModo}} (las iniciales del juego no cuentan).</p>
+    {{/hayUltimas}}
+    {{#hayUltimas}}
+        <ul class="admin-ultimas-lista">
+            {{#ultimas}}
+                <li>
+                    <a class="admin-ranking-texto" href="/admin/pregunta?id={{id}}">{{texto}}</a>
+                    {{#dadaDeBaja}}<span class="admin-estado">Dada de baja</span>{{/dadaDeBaja}}
+                    {{#reportada}}<span class="admin-estado admin-estado-error">Reportada</span>{{/reportada}}
+                    <span class="admin-ranking-dato">{{categoria}} · agregada el {{fecha}}</span>
+                    <span class="admin-ultimas-quien">
+                        {{#sugerida}}
+                            Sugerida por el {{rolCreador}} <strong>{{creador}}</strong> el {{fechaSugerida}} · aprobada por el {{rolAprobador}} <strong>{{aprobador}}</strong>
+                        {{/sugerida}}
+                        {{^sugerida}}
+                            Creada por el {{rolCreador}} <strong>{{creador}}</strong>
+                        {{/sugerida}}
+                    </span>
+                    <a class="btn btn-neutro admin-revisar" href="/admin/editar?id={{id}}">Revisar</a>
+                </li>
+            {{/ultimas}}
+        </ul>
+    {{/hayUltimas}}
+</div>
+
+<div class="admin-preguntas-tablas">
+    {{#tablas}}
+        <div class="tarjeta admin-tabla-caja">
+            <h2>{{titulo}}</h2>
+            {{^hay}}
+                <p class="editor-dato">Todavía no hay suficientes preguntas de {{nombreModo}} respondidas {{minimoRespuestas}} veces o más.</p>
+            {{/hay}}
+            {{#hay}}
+                <ol class="admin-ranking-preguntas">
+                    {{#preguntas}}
+                        <li>
+                            <a class="admin-ranking-texto" href="/admin/pregunta?id={{id}}">{{texto}}</a>
+                            <span class="admin-ranking-dato">{{categoria}} · {{acertadas}} de {{respondidas}}</span>
+                            <span class="admin-barra{{#falladas}} admin-barra-mala{{/falladas}}" style="--porcentaje: {{porcentaje}}%">{{porcentaje}}%</span>
+                        </li>
+                    {{/preguntas}}
+                </ol>
+            {{/hay}}
+        </div>
+    {{/tablas}}
+</div>
+<p class="editor-dato admin-nota">Solo cuentan las activas que se respondieron al menos {{minimoRespuestas}} veces ({{conDatos}} en {{nombreModo}}).</p>

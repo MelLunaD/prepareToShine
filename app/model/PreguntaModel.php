@@ -165,7 +165,8 @@ class PreguntaModel
     }
 
     // La pregunta que crea un editor entra activa: la aprueba él mismo.
-    // La dificultad que elige es solo la inicial; después de 10 respuestas el juego
+    // La dificultad que elige es solo la inicial; después de PartidaModel::MINIMO_PARA_CALCULAR
+    // respuestas el juego
     // la calcula con el % de aciertos (PartidaModel::DIFICULTAD_SQL).
     public function crear(array $datos, $editorId)
     {
@@ -324,11 +325,12 @@ class PreguntaModel
     // Los datos de una pregunta en el formato del formulario, solo si el editor puede tocarla:
     // reportada (cuarentena) o sugerida (revision). Las demás no las edita (permisos limitados).
     // A la sugerida no se le carga dificultad: la elige el editor al aprobarla.
-    public function paraEditar($id)
+    // $cualquiera: true para el administrador, que puede editar cualquier pregunta.
+    public function paraEditar($id, $cualquiera = false)
     {
         $pregunta = $this->database->queryOne(
             "SELECT id, categoria_id, juego, texto, dificultad, estado FROM pregunta
-             WHERE id = ? AND estado IN ('cuarentena', 'revision')",
+             WHERE id = ?" . ($cualquiera ? "" : " AND estado IN ('cuarentena', 'revision')"),
             [$id]
         );
         if ($pregunta === null) {
@@ -348,7 +350,7 @@ class PreguntaModel
             "texto" => $pregunta["texto"],
             "respuestas" => array_column($respuestas, "texto"),
             "correcta" => null,
-            "dificultad" => $pregunta["estado"] === "revision" ? "" : $pregunta["dificultad"],
+            "dificultad" => $pregunta["estado"] === "revision" && !$cualquiera ? "" : $pregunta["dificultad"],
         ];
         foreach ($respuestas as $i => $respuesta) {
             if ((int)$respuesta["es_correcta"] === 1) {
@@ -388,5 +390,52 @@ class PreguntaModel
             $this->database->deshacerTransaccion();
             throw $e;
         }
+    }
+
+    // ---------- Para el administrador ----------
+
+    // Deja de salir en el juego. Devuelve false si ya estaba dada de baja.
+    // Si estaba reportada, sus reportes quedan resueltos (el reporte tenía razón).
+    public function darDeBaja($id, $adminId, $reporteModel)
+    {
+        if ($this->estadoDe($id) === "cuarentena") {
+            return $reporteModel->resolver($id, "baja", $adminId);
+        }
+        return $this->database->execute(
+            "UPDATE pregunta SET estado = 'inactiva', desactivada_por = ?, fecha_desactivacion = NOW()
+             WHERE id = ? AND estado <> 'inactiva'",
+            [$adminId, $id]
+        ) > 0;
+    }
+
+    // Vuelve a salir en el juego. Según cómo estaba:
+    // reportada -> como "Es válida" del editor (cierra los reportes pendientes);
+    // sugerida -> aprobada con la dificultad con la que se cargó; dada de baja -> activa otra vez.
+    public function activar($id, $adminId, $reporteModel)
+    {
+        switch ($this->estadoDe($id)) {
+            case "cuarentena":
+                return $reporteModel->resolver($id, "valida", $adminId);
+            case "revision":
+                return $this->database->execute(
+                    "UPDATE pregunta SET estado = 'activa', aprobada_por = ?, fecha_aprobacion = NOW()
+                     WHERE id = ? AND estado = 'revision'",
+                    [$adminId, $id]
+                ) > 0;
+            case "inactiva":
+                return $this->database->execute(
+                    "UPDATE pregunta SET estado = 'activa', desactivada_por = NULL, fecha_desactivacion = NULL
+                     WHERE id = ? AND estado = 'inactiva'",
+                    [$id]
+                ) > 0;
+            default:
+                return false;
+        }
+    }
+
+    private function estadoDe($id)
+    {
+        $fila = $this->database->queryOne("SELECT estado FROM pregunta WHERE id = ?", [$id]);
+        return $fila["estado"] ?? null;
     }
 }

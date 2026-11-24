@@ -11,6 +11,7 @@ use app\controller\RankingController;
 use app\controller\EditorController;
 use app\controller\AdminController;
 use app\controller\PreguntaController;
+use app\model\CargaCsvModel;
 use app\model\CementerioModel;
 use app\model\FotoPerfilModel;
 use app\model\PaisModel;
@@ -24,6 +25,7 @@ use app\model\PreguntaModel;
 use app\model\ReporteModel;
 use app\model\SolicitudEditorModel;
 use app\model\EstadisticaModel;
+use app\model\PreguntaEstadisticaModel;
 use Mailer;
 use MustacheRender;
 use MyDatabase;
@@ -106,6 +108,10 @@ class Configuration
     {
         return new AdminController(
             new EstadisticaModel($this->getDatabase()),
+            new PreguntaEstadisticaModel($this->getDatabase()),
+            new PreguntaModel($this->getDatabase()),
+            $this->getReporteModel(),
+            new CargaCsvModel($this->getDatabase(), new PreguntaModel($this->getDatabase())),
             new SolicitudEditorModel($this->getDatabase()),
             $this->getRender()
         );

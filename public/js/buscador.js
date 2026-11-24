@@ -1,5 +1,7 @@
 // Buscador de preguntas parecidas, en cada tarjeta de la pestaña Sugeridas (solo para mirar).
 // Pide GET /editor/buscar?q=...&excluir=id con fetch (AJAX) y arma la lista con el JSON.
+// El panel del administrador usa el mismo buscador (pestaña Preguntas) con dos datos más:
+// data-url="/admin/buscar" y data-enlace="/admin/pregunta?id=" (cada resultado es un link).
 // Para no hacer un pedido por cada letra: espera 3 letras y 0,4 s sin tipear (debounce).
 (function () {
     var ESPERA_MS = 400;
@@ -14,8 +16,9 @@
         var estado = buscador.querySelector("[data-buscador-estado]");
         var lista = buscador.querySelector("[data-buscador-lista]");
         var cantidad = buscador.querySelector("[data-buscador-cantidad]");
-        var excluir = buscador.getAttribute("data-excluir");
-        var fase = buscador.getAttribute("data-fase"); // solo busca en el mismo modo (shine o die)
+        var excluir = buscador.getAttribute("data-excluir") || "0";
+        var direccion = buscador.getAttribute("data-url") || "/editor/buscar";
+        var enlace = buscador.getAttribute("data-enlace");
         var temporizador = null;
         var pedidoActual = null;
 
@@ -47,9 +50,17 @@
                 etiqueta.className = "buscador-estado";
                 etiqueta.textContent = r.estadoNombre;
 
-                item.appendChild(etiqueta);
-                item.appendChild(texto);
-                item.appendChild(dato);
+                // En el panel del administrador, cada resultado lleva a la página de la pregunta.
+                var contenedor = item;
+                if (enlace) {
+                    contenedor = document.createElement("a");
+                    contenedor.className = "buscador-enlace";
+                    contenedor.href = enlace + r.id;
+                    item.appendChild(contenedor);
+                }
+                contenedor.appendChild(etiqueta);
+                contenedor.appendChild(texto);
+                contenedor.appendChild(dato);
                 lista.appendChild(item);
             });
         }
@@ -70,7 +81,9 @@
             pedidoActual = new AbortController();
             estado.textContent = "Buscando...";
 
-            var url = "/editor/buscar?q=" + encodeURIComponent(texto) + "&excluir=" + encodeURIComponent(excluir) +
+            // data-fase se lee en cada búsqueda: en el panel del administrador cambia con Shine / Die.
+            var fase = buscador.getAttribute("data-fase"); // solo busca en ese modo (shine o die)
+            var url = direccion + "?q=" + encodeURIComponent(texto) + "&excluir=" + encodeURIComponent(excluir) +
                 "&fase=" + encodeURIComponent(fase);
             fetch(url, { headers: { "Accept": "application/json" }, signal: pedidoActual.signal })
                 .then(function (respuesta) {
@@ -85,6 +98,9 @@
                     }
                 });
         }
+
+        // El panel del administrador avisa cuando cambia de modo, para volver a buscar.
+        buscador.addEventListener("buscador:buscar", buscar);
 
         campo.addEventListener("input", function () {
             clearTimeout(temporizador);

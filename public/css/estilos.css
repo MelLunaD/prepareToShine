@@ -3368,6 +3368,572 @@ a {
     }
 }
 
+/* ---------- Panel del administrador: Preguntas ---------- */
+
+/* Shine en amarillo y Die en rojo, para que se note en qué modo se está mirando. */
+.admin-modos .admin-modo-shine.activo {
+    background: rgba(245, 192, 74, 0.18);
+    color: var(--moneda);
+}
+
+.admin-modos .admin-modo-die.activo {
+    background: rgba(229, 72, 77, 0.18);
+    color: #ff7b80;
+}
+
+.admin-graficos-preguntas,
+#admin-preguntas-tablas {
+    transition: opacity 0.2s;
+}
+
+.admin-cargando .admin-graficos-preguntas,
+.admin-cargando #admin-preguntas-tablas {
+    opacity: 0.5;
+}
+
+.admin-ranking-preguntas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: puesto;
+}
+
+.admin-ranking-preguntas li {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr auto;
+    column-gap: 0.5rem;
+    row-gap: 0.15rem;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: var(--borde);
+    counter-increment: puesto;
+}
+
+.admin-ranking-preguntas li:last-child {
+    border-bottom: 0;
+}
+
+.admin-ranking-preguntas li::before {
+    content: counter(puesto) ".";
+    grid-row: 1 / 3;
+    font-weight: 700;
+    color: var(--texto-suave);
+}
+
+.admin-ranking-texto {
+    grid-column: 2 / 4;
+}
+
+.admin-ranking-dato {
+    font-size: 0.8rem;
+    color: var(--texto-suave);
+}
+
+/* En las más falladas la barrita va en rojo. */
+.admin-barra-mala {
+    background: linear-gradient(to right, rgba(229, 72, 77, 0.35) var(--porcentaje), transparent var(--porcentaje));
+}
+
+.admin-ranking-preguntas .admin-barra {
+    text-align: right;
+}
+
+.admin-nota {
+    margin-top: 0;
+    text-align: center;
+}
+
+.admin-nota.admin-nota-grafico {
+    margin: 0.75rem 0 0;
+    font-size: 0.85rem;
+}
+
+@media (min-width: 900px) {
+    .admin-graficos.admin-graficos-preguntas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Sin margin auto: así las dos tarjetas ocupan su columna entera aunque una esté vacía. */
+    .admin-preguntas-tablas .tarjeta {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .admin-preguntas-tablas {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 1rem;
+    }
+}
+
+/* Botones de la pestaña Preguntas (Nueva pregunta, Cargar CSV): en celular de todo el ancho. */
+.admin-acciones-preguntas {
+    display: grid;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.admin-acciones-preguntas .btn {
+    padding: 0.85rem 1.1rem;
+    font-size: 0.65rem;
+}
+
+@media (min-width: 600px) {
+    .admin-acciones-preguntas {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+/* Formulario de Nueva / Editar pregunta: el modo arriba y una raya de su color. */
+.admin-formulario-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.admin .admin-formulario-cabecera h2 {
+    margin: 0;
+}
+
+.admin-chip-grande {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.admin .admin-formulario-shine { border-top: 4px solid var(--moneda); }
+.admin .admin-formulario-die   { border-top: 4px solid #ff7b80; }
+.admin-formulario-die .editor-cupo strong { color: #ff7b80; }
+
+/* Carga masiva por CSV: explicación, vista previa fila por fila y resultado. */
+.admin-csv p {
+    line-height: 1.5;
+}
+
+.admin-csv-columnas code {
+    display: block;
+    padding: 0.6rem 0.7rem;
+    border: var(--borde);
+    border-radius: 7px;
+    background: var(--campo);
+    color: var(--moneda);
+    font-size: 0.85rem;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.admin-csv-reglas {
+    padding-left: 1.1rem;
+    line-height: 1.5;
+    color: var(--texto-suave);
+}
+
+.admin-csv-reglas strong {
+    color: var(--texto);
+}
+
+.admin-link {
+    color: var(--moneda);
+    font-weight: 700;
+}
+
+.admin-csv-form {
+    margin-top: 1rem;
+}
+
+.admin-csv-form input[type="file"] {
+    padding: 0.6rem;
+    border: 1px dashed var(--campo-borde);
+    border-radius: 7px;
+    background: var(--campo);
+    color: var(--texto);
+}
+
+.admin-csv-resumen {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-csv-resumen li {
+    padding: 0.6rem 0.8rem;
+    border-radius: 7px;
+}
+
+.admin-csv-resumen strong {
+    font-family: var(--fuente-titulo);
+    font-size: 0.9rem;
+}
+
+.admin-csv-ok { background: rgba(63, 185, 80, 0.15); }
+.admin-csv-ok strong { color: var(--verde); }
+.admin-csv-mal { background: rgba(229, 72, 77, 0.15); }
+.admin-csv-mal strong { color: #ff7b80; }
+
+/* Celular: botones uno abajo del otro y de todo el ancho. */
+.admin-csv-acciones,
+.admin-csv-acciones form {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.admin-csv-acciones .btn {
+    width: 100%;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.65rem;
+}
+
+.admin .admin-csv-subtitulo {
+    margin: 1.5rem 0 0.75rem;
+    font-size: 0.85rem;
+}
+
+.admin-csv-filas {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.admin .admin-csv-fila {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border-left-width: 4px;
+}
+
+.admin-csv-fila-ok  { border-left-color: var(--verde); }
+.admin-csv-fila-mal { border-left-color: var(--rojo); }
+
+.admin-csv-numero {
+    margin-right: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--texto-suave);
+}
+
+.admin-csv-texto {
+    display: block;
+    margin: 0.4rem 0 0.15rem;
+    font-weight: 700;
+    color: var(--texto);
+    text-decoration: none;
+}
+
+a.admin-csv-texto:hover {
+    color: var(--moneda);
+}
+
+.admin-csv-fila .editor-dato {
+    margin: 0;
+}
+
+.admin-csv-errores {
+    margin: 0.5rem 0 0;
+    padding-left: 1.1rem;
+    color: #ff9ea1;
+    font-size: 0.9rem;
+}
+
+@media (min-width: 600px) {
+    .admin-csv-resumen {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-csv-acciones,
+    .admin-csv-acciones form {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .admin-csv-acciones .btn {
+        width: auto;
+    }
+}
+
+@media (min-width: 900px) {
+    .admin-csv-filas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Últimas preguntas agregadas (pestaña Preguntas). */
+.admin-ultimas-lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-ultimas-lista li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.5rem;
+    padding: 0.7rem 0;
+    border-bottom: var(--borde);
+}
+
+.admin-ultimas-lista li:last-child {
+    border-bottom: 0;
+}
+
+.admin-ultimas-lista .admin-ranking-texto {
+    color: var(--texto);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.admin-ultimas-lista .admin-ranking-texto:hover {
+    color: var(--moneda);
+    text-decoration: underline;
+}
+
+.admin-ultimas-lista .admin-ranking-dato,
+.admin-ultimas-quien {
+    flex-basis: 100%;
+}
+
+.admin-ultimas-quien {
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+}
+
+/* "Revisar": lleva al formulario para modificarla. En celular va abajo; en compu, a la derecha. */
+.admin-ultimas-lista .admin-revisar {
+    margin-top: 0.4rem;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.55rem;
+    box-shadow: none;
+}
+
+@media (min-width: 600px) {
+    .admin-ultimas-lista li {
+        position: relative;
+        padding-right: 8rem;
+    }
+
+    .admin-ultimas-lista .admin-revisar {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        margin: 0;
+        transform: translateY(-50%);
+    }
+}
+
+.admin-ultimas-quien strong {
+    color: var(--moneda);
+}
+
+/* Buscador de la pestaña Preguntas (mismas piezas que el del editor) y la página de una pregunta. */
+
+.admin-buscador .editor-buscador-lista {
+    max-height: 24rem;
+    overflow-y: auto;
+}
+
+.buscador-enlace {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.buscador-resultado:has(.buscador-enlace):hover {
+    border-color: var(--moneda);
+}
+
+.admin-ranking-preguntas a.admin-ranking-texto {
+    color: var(--texto);
+    text-decoration: none;
+}
+
+.admin-ranking-preguntas a.admin-ranking-texto:hover {
+    color: var(--moneda);
+    text-decoration: underline;
+}
+
+.admin-volver {
+    margin: 0 0 0.75rem;
+}
+
+.admin-volver a {
+    color: var(--texto-suave);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.admin-volver a:hover {
+    color: var(--texto);
+}
+
+.admin-pregunta-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-pregunta-id {
+    font-family: var(--fuente-titulo);
+    font-size: 0.75rem;
+    color: var(--texto-suave);
+}
+
+.admin-chip {
+    display: inline-block;
+}
+
+.admin-chip-shine,
+.admin-chip-die {
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.admin-chip-shine { background: rgba(245, 192, 74, 0.15); color: var(--moneda); }
+.admin-chip-die   { background: rgba(229, 72, 77, 0.15); color: #ff7b80; }
+
+.admin .tarjeta .admin-pregunta-texto {
+    margin: 0.25rem 0 1rem;
+    font-family: var(--fuente-texto);
+    font-size: 1.2rem;
+    line-height: 1.4;
+}
+
+.admin-respuestas {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0 0 0.5rem;
+    padding: 0;
+    list-style: none;
+}
+
+/* Cada respuesta con una barrita de fondo que se llena según cuántas veces la eligieron. */
+.admin-respuesta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.7rem;
+    border: var(--borde);
+    border-radius: 7px;
+    background: linear-gradient(to right, rgba(229, 72, 77, 0.22) var(--porcentaje), var(--campo) var(--porcentaje));
+}
+
+.admin-respuesta-correcta {
+    border-color: var(--verde);
+    background: linear-gradient(to right, rgba(63, 185, 80, 0.28) var(--porcentaje), var(--campo) var(--porcentaje));
+}
+
+.admin-respuesta .editor-letra {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    min-height: 0;
+}
+
+.admin-respuesta-texto {
+    flex: 1;
+    font-weight: 700;
+}
+
+.admin-respuesta-marca {
+    margin-left: 0.3rem;
+    font-size: 0.72rem;
+    color: var(--verde);
+}
+
+.admin-respuesta-veces {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--texto-suave);
+    white-space: nowrap;
+}
+
+.admin-pregunta-datos {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1.25rem 0 0.75rem;
+}
+
+.admin-pregunta-datos dt {
+    font-size: 0.8rem;
+    color: var(--texto-suave);
+}
+
+.admin-pregunta-datos dd {
+    margin: 0.1rem 0 0;
+    font-weight: 700;
+}
+
+.admin-pregunta-datos small {
+    display: block;
+    font-weight: 400;
+    color: var(--texto-suave);
+}
+
+.admin-dificultad-facil   { color: var(--verde); }
+.admin-dificultad-media   { color: var(--moneda); }
+.admin-dificultad-dificil { color: var(--rojo); }
+
+.admin-pregunta-historia {
+    margin: 0 0 1.25rem;
+    padding-left: 1.1rem;
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+}
+
+/* Celular: los dos botones uno abajo del otro y de todo el ancho. */
+.admin-pregunta-acciones,
+.admin-pregunta-acciones form {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.admin-pregunta-acciones .btn {
+    width: 100%;
+    margin: 0;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.65rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.admin-tarjetas-cuatro .admin-numero:last-child:nth-child(odd) {
+    grid-column: auto;
+}
+
+@media (min-width: 600px) {
+    .admin-pregunta-datos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-pregunta-acciones,
+    .admin-pregunta-acciones form {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .admin-pregunta-acciones .btn {
+        width: auto;
+    }
+
+    .admin-tarjetas.admin-tarjetas-cuatro {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .admin-tarjetas.admin-tarjetas-cuatro {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
 /* ---------- Botones de sonido (música y efectos) ----------
    Celular: dos renglones arriba de todo en el menú hamburguesa.
    Compu: dos íconos fijos abajo a la izquierda (.sonido-esquina).

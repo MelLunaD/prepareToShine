@@ -53,9 +53,12 @@ class PartidaModel
     const SEGUNDOS_DE_REVELADO = 2;
 
     // Dificultad de una pregunta según la consigna: más del 70% de aciertos es fácil y menos
-    // del 30% es difícil. Hasta tener 10 respuestas usa la dificultad con la que se cargó.
+    // del 30% es difícil. Hasta tener MINIMO_PARA_CALCULAR respuestas usa la dificultad con la
+    // que se cargó. Es el único lugar donde está ese número: las estadísticas del admin y los
+    // textos de los formularios lo leen de acá.
+    const MINIMO_PARA_CALCULAR = 5;
     const DIFICULTAD_SQL = "CASE
-            WHEN p.veces_mostrada < 10 THEN p.dificultad
+            WHEN p.veces_mostrada < " . self::MINIMO_PARA_CALCULAR . " THEN p.dificultad
             WHEN p.veces_acertada > p.veces_mostrada * 0.7 THEN 'facil'
             WHEN p.veces_acertada < p.veces_mostrada * 0.3 THEN 'dificil'
             ELSE 'media'

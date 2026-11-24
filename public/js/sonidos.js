@@ -54,12 +54,35 @@ var Sonido = (function () {
     // El navegador arranca el audio "suspendido" hasta que el usuario toca algo: se despierta
     // en el primer toque o tecla.
     function despertar() {
-        if (contexto && contexto.state === "suspended") {
+        if (contexto && contexto.state === "suspended" && !document.hidden) {
             contexto.resume().then(arrancarMusica);
         }
     }
     document.addEventListener("pointerdown", despertar, true);
     document.addEventListener("keydown", despertar, true);
+
+    // ---- Página oculta ----
+    // En el celular, al minimizar el navegador o pasar a otra pestaña la página sigue viva y la
+    // música seguía sonando. Al ocultarse se SUSPENDE el contexto de audio: se congela todo
+    // (música y efectos) y su reloj (currentTime) también, así la posición de la música no se
+    // pierde. Al volver se retoma desde el mismo punto. Si el navegador pide un toque para
+    // dejar sonar de nuevo, lo resuelve despertar().
+    var pausadoPorOcultar = false;
+    function alCambiarVisibilidad() {
+        if (!contexto) {
+            return;
+        }
+        if (document.hidden) {
+            if (contexto.state === "running") {
+                pausadoPorOcultar = true;
+                contexto.suspend();
+            }
+        } else if (pausadoPorOcultar) {
+            pausadoPorOcultar = false;
+            contexto.resume().then(arrancarMusica);
+        }
+    }
+    document.addEventListener("visibilitychange", alCambiarVisibilidad);
 
     function cargar(ruta) {
         if (!buffers[ruta]) {
@@ -87,7 +110,8 @@ var Sonido = (function () {
     //             alTerminar: función que se llama cuando termina }
     function reproducir(nombre, opciones) {
         opciones = opciones || {};
-        if (!prendido.efectos) {
+        // Con la página oculta no suena nada (por ejemplo el tic del timer en segundo plano).
+        if (!prendido.efectos || document.hidden) {
             return;
         }
         var ruta = CARPETA + archivo(nombre) + ".mp3";
@@ -263,7 +287,7 @@ var Sonido = (function () {
     window.addEventListener("pagehide", guardarPosicion);
 
     function arrancarMusica() {
-        if (!contexto || !hayMusica || !prendido.musica || musica) {
+        if (!contexto || !hayMusica || !prendido.musica || musica || document.hidden) {
             return;
         }
         var modoMusica = modo();

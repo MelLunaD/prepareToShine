@@ -2,6 +2,7 @@
 
 namespace app\controller;
 
+use app\model\PartidaModel;
 use app\model\PreguntaModel;
 use app\model\ReporteModel;
 use Redirect;
@@ -109,7 +110,7 @@ class EditorController
         $this->mostrar("sugeridas", [
             "sugeridas" => $sugeridas,
             "haySugeridas" => count($sugeridas) > 0,
-            "dificultades" => $this->dificultadesParaLaVista(""),
+            "dificultades" => self::dificultadesParaLaVista(""),
             "usaBuscador" => count($sugeridas) > 0,
         ]);
     }
@@ -229,7 +230,8 @@ class EditorController
             "unaRestante" => $restantes === 1,
             "limiteSemanal" => PreguntaModel::CREADAS_POR_SEMANA,
             "errores" => $errores,
-            "dificultades" => $this->dificultadesParaLaVista($datos["dificultad"]),
+            "dificultades" => self::dificultadesParaLaVista($datos["dificultad"]),
+            "minimoParaCalcular" => PartidaModel::MINIMO_PARA_CALCULAR,
         ]);
     }
 
@@ -342,7 +344,8 @@ class EditorController
         return $respuestas;
     }
 
-    private function dificultadesParaLaVista($elegida)
+    // También la usa el formulario del administrador.
+    public static function dificultadesParaLaVista($elegida)
     {
         $dificultades = [];
         foreach (PreguntaModel::DIFICULTADES as $valor => $nombre) {

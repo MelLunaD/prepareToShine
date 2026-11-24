@@ -35,12 +35,15 @@
                 <ul class="hud-menu-lista">
                     <!-- Sonido en el celular: en pantallas grandes estos dos se esconden y se usan
                          los botones fijos de abajo a la izquierda. sonidos.js cambia Sí/No. -->
+                    <!-- El administrador no tiene música de fondo: solo le queda el de efectos. -->
+                    {{^esAdmin}}
                     <li class="hud-menu-sonido">
                         <button type="button" data-sonido-toggle="musica" aria-pressed="true">
                             {{> iconoMusica}}
                             Música <span class="hud-menu-estado" data-sonido-estado>Sí</span>
                         </button>
                     </li>
+                    {{/esAdmin}}
                     <li class="hud-menu-sonido">
                         <button type="button" data-sonido-toggle="efectos" aria-pressed="true">
                             {{> iconoEfectos}}
@@ -77,9 +80,11 @@
      sesión (sin sesión no hay menú hamburguesa donde ponerlos). Música = los loops de fondo;
      Efectos = todo lo demás. sonidos.js los prende/apaga y recuerda la elección. -->
 <div class="sonido-esquina{{^sesion}} sonido-esquina-sin-menu{{/sesion}}">
+    {{^sesion.esAdmin}}
     <button type="button" class="sonido-btn" data-sonido-toggle="musica" aria-pressed="true" title="Música" aria-label="Música">
         {{> iconoMusica}}
     </button>
+    {{/sesion.esAdmin}}
     <button type="button" class="sonido-btn" data-sonido-toggle="efectos" aria-pressed="true" title="Efectos de sonido" aria-label="Efectos de sonido">
         {{> iconoEfectos}}
     </button>

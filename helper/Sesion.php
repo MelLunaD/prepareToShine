@@ -9,6 +9,8 @@
 //  - "revisar_solicitud": si el lobby tiene que mirar en la base si aprobaron su "Quiero moderar".
 //  - "destino": la página que alguien quiso abrir sin sesión (por ejemplo, un perfil desde el QR),
 //    para llevarlo ahí después del login.
+//  - "carga_csv": la carga masiva de preguntas del administrador entre un paso y otro
+//    (las filas de la vista previa, el resultado y las que no se cargaron).
 class Sesion
 {
     public static function iniciar(array $usuario)
@@ -127,5 +129,24 @@ class Sesion
         if (isset($_SESSION["usuario"])) {
             $_SESSION["usuario"]["foto"] = $foto ?: "/public/img/avatar.svg";
         }
+    }
+
+    // Carga de preguntas por CSV: $clave es "vista_previa", "resultado" o "no_cargadas".
+    public static function guardarCargaCsv($clave, $valor)
+    {
+        $_SESSION["carga_csv"][$clave] = $valor;
+    }
+
+    public static function cargaCsv($clave)
+    {
+        return $_SESSION["carga_csv"][$clave] ?? null;
+    }
+
+    // Lo devuelve y lo borra (para lo que se muestra una sola vez).
+    public static function tomarCargaCsv($clave)
+    {
+        $valor = $_SESSION["carga_csv"][$clave] ?? null;
+        unset($_SESSION["carga_csv"][$clave]);
+        return $valor;
     }
 }

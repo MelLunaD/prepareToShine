@@ -1,4 +1,4 @@
-<section class="editor admin{{#enEstadisticas}} admin-ancho{{/enEstadisticas}}">
+<section class="editor admin admin-ancho">
 
     <h1 class="titulo-juego editor-titulo">Panel de administración</h1>
 
@@ -57,6 +57,311 @@
 
         <script type="application/json" id="admin-graficos-datos">{{{graficosJson}}}</script>
     {{/enEstadisticas}}
+
+    {{#enPreguntas}}
+        <!-- Shine / Die: sin JavaScript son links normales; adminPreguntas.js los cambia por AJAX. -->
+        <nav class="admin-periodos admin-modos" aria-label="Modo">
+            {{#modos}}
+                <a href="{{url}}" data-modo="{{valor}}" class="admin-periodo admin-modo-{{valor}}{{#activo}} activo{{/activo}}"{{#activo}} aria-current="true"{{/activo}}>{{nombre}}</a>
+            {{/modos}}
+        </nav>
+
+        <div class="admin-acciones-preguntas">
+            <a href="/admin/csv" class="btn btn-neutro">Cargar CSV</a>
+            <!-- Lleva el modo de la pestaña; adminPreguntas.js lo cambia al pasar de Shine a Die. -->
+            <a href="/admin/nueva?modo={{modoActual}}" id="admin-nueva" class="btn btn-secundario">Nueva pregunta</a>
+        </div>
+
+        <!-- Buscador (el mismo de Mel en el panel del editor): public/js/buscador.js pide
+             /admin/buscar con fetch. Cada resultado lleva a la página de esa pregunta. -->
+        <div class="tarjeta admin-buscador" data-buscador data-url="/admin/buscar" data-enlace="/admin/pregunta?id=" data-fase="{{modoActual}}">
+            <h2>Buscar una pregunta <span class="editor-buscador-cantidad" data-buscador-cantidad></span></h2>
+            <input class="editor-buscador-campo" type="search" placeholder="Buscar, ej: jefe final" autocomplete="off"
+                   aria-label="Buscar una pregunta" data-buscador-texto>
+            <p class="editor-buscador-estado" data-buscador-estado>Escribí al menos 3 letras. Busca en las preguntas del modo elegido.</p>
+            <ul class="editor-buscador-lista" data-buscador-lista></ul>
+        </div>
+
+        <!-- Tarjetas y tablas: las reemplaza el HTML que devuelve /admin/preguntasDatos. -->
+        <div id="admin-preguntas-tarjetas" class="admin-estadisticas">
+            {{> adminPreguntasTarjetas}}
+        </div>
+
+        <div class="admin-graficos admin-graficos-preguntas">
+            <figure class="tarjeta admin-grafico admin-grafico-ancho">
+                <figcaption>Preguntas activas por categoría y dificultad</figcaption>
+                <div class="admin-lienzo"><canvas id="grafico-categorias" aria-label="Preguntas activas por categoría, separadas por dificultad"></canvas></div>
+            </figure>
+            <figure class="tarjeta admin-grafico">
+                <figcaption>Respuestas correctas por categoría</figcaption>
+                <div class="admin-lienzo"><canvas id="grafico-acierto" aria-label="Porcentaje de respuestas correctas por categoría"></canvas></div>
+            </figure>
+            <figure class="tarjeta admin-grafico">
+                <figcaption>Dificultad: cargada y calculada</figcaption>
+                <div class="admin-lienzo"><canvas id="grafico-dificultad" aria-label="Preguntas activas por dificultad, la cargada y la que calcula el juego"></canvas></div>
+                <p class="editor-dato admin-nota admin-nota-grafico" id="nota-dificultad">{{notaDificultad}}</p>
+            </figure>
+        </div>
+
+        <div id="admin-preguntas-tablas">
+            {{> adminPreguntasTablas}}
+        </div>
+
+        <script type="application/json" id="admin-preguntas-datos">{{{graficosJson}}}</script>
+    {{/enPreguntas}}
+
+    {{#enPregunta}}
+        <p class="admin-volver"><a href="/admin/preguntas?modo={{fase}}">&larr; Volver a Preguntas</a></p>
+
+        <article class="tarjeta admin-pregunta">
+            <header class="admin-pregunta-cabecera">
+                <span class="admin-pregunta-id">#{{id}}</span>
+                <span class="admin-chip admin-chip-{{fase}}">{{modo}}</span>
+                <span class="admin-chip estado-{{estado}}"><span class="buscador-estado">{{estadoNombre}}</span></span>
+            </header>
+            <p class="editor-dato">{{categoriaTitulo}}</p>
+            <h2 class="admin-pregunta-texto">{{texto}}</h2>
+
+            <ol class="admin-respuestas">
+                {{#respuestas}}
+                    <li class="admin-respuesta{{#correcta}} admin-respuesta-correcta{{/correcta}}" style="--porcentaje: {{porcentaje}}%">
+                        <span class="editor-letra" aria-hidden="true">{{letra}}</span>
+                        <span class="admin-respuesta-texto">{{texto}}{{#correcta}} <strong class="admin-respuesta-marca">Correcta</strong>{{/correcta}}</span>
+                        <span class="admin-respuesta-veces">{{porcentaje}}% · {{elegida}}</span>
+                    </li>
+                {{/respuestas}}
+            </ol>
+            <p class="editor-dato">Qué porcentaje de las veces eligieron cada respuesta.</p>
+
+            <dl class="admin-pregunta-datos">
+                <div><dt>Dificultad cargada</dt><dd>{{dificultadCargada}}</dd></div>
+                <div>
+                    <dt>Dificultad calculada hoy</dt>
+                    <dd><span class="admin-dificultad admin-dificultad-{{claseDificultadHoy}}">{{dificultadHoy}}</span>
+                        {{#faltanRespuestas}}<small>({{faltanRespuestas}} para calcularla; usa la cargada)</small>{{/faltanRespuestas}}</dd>
+                </div>
+            </dl>
+            <ul class="admin-pregunta-historia">
+                {{#historia}}<li>{{.}}</li>{{/historia}}
+            </ul>
+
+            <div class="admin-pregunta-acciones">
+                <a href="/admin/editar?id={{id}}" class="btn btn-secundario">Editar pregunta</a>
+                <form method="post" action="/admin/estado">
+                    <input type="hidden" name="id" value="{{id}}">
+                    {{#puedeDarDeBaja}}<button type="submit" name="accion" value="baja" class="btn btn-neutro">Dar de baja</button>{{/puedeDarDeBaja}}
+                    {{#textoActivar}}<button type="submit" name="accion" value="activar" class="btn btn-neutro">{{textoActivar}}</button>{{/textoActivar}}
+                </form>
+            </div>
+        </article>
+
+        <ul class="admin-tarjetas admin-tarjetas-cuatro">
+            {{#tarjetas}}
+                <li class="tarjeta admin-numero">
+                    <strong>{{valor}}</strong>
+                    <span class="admin-numero-nombre">{{nombre}}</span>
+                    <span class="admin-numero-detalle">{{detalle}}</span>
+                </li>
+            {{/tarjetas}}
+        </ul>
+
+        {{^hayRespuestas}}
+            <div class="tarjeta editor-vacio">
+                <p>Todavía nadie respondió esta pregunta: los gráficos aparecen cuando le toque a alguien.</p>
+            </div>
+        {{/hayRespuestas}}
+
+        {{#hayRespuestas}}
+            <div class="admin-graficos admin-graficos-preguntas">
+                <figure class="tarjeta admin-grafico admin-grafico-ancho">
+                    <figcaption>Bien y mal según el nivel del jugador</figcaption>
+                    <div class="admin-lienzo"><canvas id="grafico-nivel" aria-label="Respuestas bien y mal según el nivel del jugador, de 0 a 10"></canvas></div>
+                </figure>
+                <figure class="tarjeta admin-grafico">
+                    <figcaption>Bien y mal según la edad</figcaption>
+                    <div class="admin-lienzo"><canvas id="grafico-edad-pregunta" aria-label="Respuestas bien y mal por grupo de edad"></canvas></div>
+                </figure>
+                <figure class="tarjeta admin-grafico">
+                    <figcaption>Respuestas de los últimos 12 meses</figcaption>
+                    <div class="admin-lienzo"><canvas id="grafico-meses" aria-label="Respuestas bien y mal por mes"></canvas></div>
+                </figure>
+            </div>
+            <script type="application/json" id="admin-pregunta-datos">{{{graficosJson}}}</script>
+        {{/hayRespuestas}}
+
+        <div class="tarjeta">
+            <h2>Reportes</h2>
+            {{^hayReportes}}<p class="editor-dato">Nadie reportó esta pregunta.</p>{{/hayReportes}}
+            {{#hayReportes}}
+                <ul class="editor-reportes editor-historial">
+                    {{#reportes}}
+                        <li>
+                            <strong>{{motivo}}</strong>
+                            {{#pendiente}}<span class="admin-estado admin-estado-error">{{estado}}</span>{{/pendiente}}
+                            {{^pendiente}}<span class="admin-estado">{{estado}}</span>{{/pendiente}}
+                            <span>{{usuario}} · {{fecha}}{{#revisadoPor}} · revisó {{revisadoPor}}{{/revisadoPor}}</span>
+                        </li>
+                    {{/reportes}}
+                </ul>
+            {{/hayReportes}}
+        </div>
+    {{/enPregunta}}
+
+    {{#enFormulario}}
+        <p class="admin-volver"><a href="{{volverA}}">&larr; {{textoVolver}}</a></p>
+        <div class="tarjeta editor-formulario admin-formulario-{{modo}}">
+            <div class="admin-formulario-cabecera">
+                <h2>{{tituloFormulario}}</h2>
+                <span class="admin-chip admin-chip-{{modo}} admin-chip-grande">Modo {{nombreModo}}</span>
+            </div>
+            {{#esNueva}}
+                <p class="editor-cupo">Va a salir en las partidas de <strong>{{nombreModo}}</strong> y entra activa apenas la creás.
+                    <a href="{{otroModoUrl}}" class="admin-link">Cambiar a {{otroModoNombre}}</a></p>
+            {{/esNueva}}
+
+            {{#errores.0}}
+                <div class="alerta alerta-error">
+                    <ul>
+                        {{#errores}}<li>{{.}}</li>{{/errores}}
+                    </ul>
+                </div>
+            {{/errores.0}}
+
+            <form class="formulario" method="post" action="{{accionFormulario}}">
+                {{#id}}<input type="hidden" name="id" value="{{id}}">{{/id}}
+                {{#esNueva}}<input type="hidden" name="modo" value="{{modo}}">{{/esNueva}}
+
+                {{> preguntaCampos}}
+
+                <fieldset>
+                    <legend>Dificultad inicial</legend>
+                    <div class="editor-dificultades">
+                        {{#dificultades}}
+                            <label class="editor-dificultad">
+                                <input type="radio" name="dificultad" value="{{valor}}"{{#elegida}} checked{{/elegida}} required>
+                                <span>{{nombre}}</span>
+                            </label>
+                        {{/dificultades}}
+                    </div>
+                    <small>Después de {{minimoParaCalcular}} respuestas el juego la recalcula solo con el % de aciertos.</small>
+                </fieldset>
+
+                <button type="submit" class="btn btn-primario">{{botonFormulario}}</button>
+            </form>
+            <p class="pie-formulario"><a href="{{volverA}}">Cancelar</a></p>
+        </div>
+    {{/enFormulario}}
+
+    {{#enCsv}}
+        <p class="admin-volver"><a href="/admin/preguntas">&larr; Volver a Preguntas</a></p>
+
+        {{#errorCsv}}<div class="alerta alerta-error">{{errorCsv}}</div>{{/errorCsv}}
+
+        {{#enSubir}}
+            <div class="tarjeta admin-csv">
+                <h2>Cargar preguntas desde un CSV</h2>
+                <p>Una pregunta por fila, con las columnas separadas por <strong>punto y coma</strong> (así guarda Excel en español). La primera fila es el encabezado:</p>
+                <p class="admin-csv-columnas"><code>{{columnas}}</code></p>
+                <ul class="admin-csv-reglas">
+                    <li><strong>modo</strong>: shine o die.</li>
+                    <li><strong>dificultad</strong>: facil, media o dificil (la inicial; el juego la recalcula después de {{minimoParaCalcular}} respuestas).</li>
+                    <li><strong>categoria</strong>: Shine: Plataformas, Acción y aventura, Shooters, RPG, Lucha, Deportes y carreras. Die: Jefes, Lore, Frases, Skills.</li>
+                    <li><strong>juego</strong>: opcional, se muestra entre paréntesis. Dejalo vacío si delata la respuesta.</li>
+                    <li><strong>correcta</strong> y las 3 <strong>incorrectas</strong>: en el juego se muestran mezcladas.</li>
+                    <li>Sin id: lo pone la base. Máximo {{maximoFilas}} preguntas y 1 MB por archivo.</li>
+                </ul>
+                <p><a href="/admin/plantilla" class="admin-link">Bajar plantilla de ejemplo</a></p>
+
+                <form method="post" action="/admin/vistaPrevia" enctype="multipart/form-data" class="formulario admin-csv-form">
+                    <label for="archivo">Archivo .csv</label>
+                    <input id="archivo" type="file" name="archivo" accept=".csv,text/csv" required>
+                    <button type="submit" class="btn btn-secundario">Ver vista previa</button>
+                </form>
+                <p class="editor-dato">Antes de cargar nada vas a ver cada fila: cuáles están bien y cuáles tienen errores.</p>
+            </div>
+        {{/enSubir}}
+
+        {{#enVistaPrevia}}
+            <div class="tarjeta admin-csv">
+                <h2>Vista previa</h2>
+                <p class="editor-dato">{{archivo}} · {{total}} preguntas</p>
+                <ul class="admin-csv-resumen">
+                    <li class="admin-csv-ok"><strong>{{cantidadValidas}}</strong> {{#unaValida}}está bien{{/unaValida}}{{^unaValida}}están bien{{/unaValida}}</li>
+                    <li class="admin-csv-mal"><strong>{{cantidadErrores}}</strong> con errores (no se cargan)</li>
+                </ul>
+
+                <div class="admin-csv-acciones">
+                    <form method="post" action="/admin/descartarCsv">
+                        <button type="submit" class="btn btn-neutro">Elegir otro archivo</button>
+                    </form>
+                    {{#hayValidas}}
+                        <form method="post" action="/admin/cargarCsv">
+                            <button type="submit" class="btn btn-secundario">Cargar {{#unaValida}}la válida{{/unaValida}}{{^unaValida}}las {{cantidadValidas}} válidas{{/unaValida}}</button>
+                        </form>
+                    {{/hayValidas}}
+                </div>
+            </div>
+
+            <ol class="admin-csv-filas">
+                {{#filas}}
+                    <li class="tarjeta admin-csv-fila{{#ok}} admin-csv-fila-ok{{/ok}}{{^ok}} admin-csv-fila-mal{{/ok}}">
+                        <span class="admin-csv-numero">Fila {{numero}}</span>
+                        {{#ok}}<span class="admin-estado admin-estado-ok">Bien</span>{{/ok}}
+                        {{^ok}}<span class="admin-estado admin-estado-error">Error</span>{{/ok}}
+                        <p class="admin-csv-texto">{{texto}}{{^texto}}<em>(sin pregunta)</em>{{/texto}}</p>
+                        <p class="editor-dato">{{categoria}}</p>
+                        {{^ok}}
+                            <ul class="admin-csv-errores">
+                                {{#errores}}<li>{{.}}</li>{{/errores}}
+                            </ul>
+                        {{/ok}}
+                    </li>
+                {{/filas}}
+            </ol>
+        {{/enVistaPrevia}}
+
+        {{#enResultado}}
+            <div class="tarjeta admin-csv">
+                <h2>Resultado</h2>
+                <ul class="admin-csv-resumen">
+                    <li class="admin-csv-ok"><strong>{{cantidadCargadas}}</strong> {{#unaCargada}}pregunta cargada{{/unaCargada}}{{^unaCargada}}preguntas cargadas{{/unaCargada}}: ya están activas en el juego</li>
+                    <li class="admin-csv-mal"><strong>{{cantidadNoCargadas}}</strong> no se cargaron</li>
+                </ul>
+                <div class="admin-csv-acciones">
+                    {{#hayNoCargadas}}<a href="/admin/csvErrores" class="btn btn-neutro">Bajar las no cargadas (CSV)</a>{{/hayNoCargadas}}
+                    <a href="/admin/csv" class="btn btn-secundario">Cargar otro archivo</a>
+                </div>
+                {{#hayNoCargadas}}<p class="editor-dato">El CSV trae las que no se cargaron con una columna "error" al final: corregilas, borrá esa columna y subilo de nuevo.</p>{{/hayNoCargadas}}
+            </div>
+
+            {{#hayNoCargadas}}
+                <h2 class="admin-csv-subtitulo">No se cargaron</h2>
+                <ol class="admin-csv-filas">
+                    {{#noCargadas}}
+                        <li class="tarjeta admin-csv-fila admin-csv-fila-mal">
+                            <span class="admin-csv-numero">Fila {{numero}}</span>
+                            <p class="admin-csv-texto">{{texto}}{{^texto}}<em>(sin pregunta)</em>{{/texto}}</p>
+                            <p class="editor-dato">{{categoria}}</p>
+                            <ul class="admin-csv-errores">
+                                {{#errores}}<li>{{.}}</li>{{/errores}}
+                            </ul>
+                        </li>
+                    {{/noCargadas}}
+                </ol>
+            {{/hayNoCargadas}}
+
+            <h2 class="admin-csv-subtitulo">Cargadas</h2>
+            <ol class="admin-csv-filas">
+                {{#cargadas}}
+                    <li class="tarjeta admin-csv-fila admin-csv-fila-ok">
+                        <span class="admin-csv-numero">Fila {{numero}}</span>
+                        <a class="admin-csv-texto" href="/admin/pregunta?id={{id}}">{{texto}}</a>
+                        <p class="editor-dato">{{categoria}} · #{{id}}</p>
+                    </li>
+                {{/cargadas}}
+            </ol>
+        {{/enResultado}}
+    {{/enCsv}}
 
     {{#enSolicitudes}}
         {{^haySolicitudes}}
