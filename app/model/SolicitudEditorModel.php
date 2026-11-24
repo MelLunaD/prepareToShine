@@ -113,14 +113,30 @@ class SolicitudEditorModel
         return ["rol" => $fila["rol"], "pendiente" => (bool)$fila["pendiente"]];
     }
 
-    // ---------- Para el administrador (la pantalla llega con el rol Admin) ----------
+    // ---------- Para el administrador (AdminController, pestaña Solicitudes) ----------
 
+    // Con lo que el administrador necesita para decidir: partidas jugadas y respuestas.
     public function pendientes()
     {
         return $this->database->queryAll(
-            "SELECT s.id, s.fecha, u.id AS usuario_id, u.usuario, u.foto
+            "SELECT s.id, s.fecha, u.id AS usuario_id, u.usuario, u.foto,
+                    u.preguntas_respondidas, u.preguntas_acertadas,
+                    (SELECT COUNT(*) FROM partida p WHERE p.usuario_id = u.id AND p.estado = 'terminada') AS partidas
              FROM solicitud_editor s JOIN usuario u ON u.id = s.usuario_id
              WHERE s.estado = 'pendiente' ORDER BY s.fecha"
+        );
+    }
+
+    // Las últimas resueltas, la más reciente primero, con quién las resolvió.
+    public function revisadas($cantidad = 10)
+    {
+        return $this->database->queryAll(
+            "SELECT s.estado, s.fecha_revision, u.usuario, a.usuario AS admin
+             FROM solicitud_editor s
+             JOIN usuario u ON u.id = s.usuario_id
+             LEFT JOIN usuario a ON a.id = s.revisada_por
+             WHERE s.estado <> 'pendiente'
+             ORDER BY s.fecha_revision DESC LIMIT " . (int)$cantidad
         );
     }
 

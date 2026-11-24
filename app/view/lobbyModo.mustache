@@ -17,7 +17,7 @@
     {{/almasEsperando}}
 
     <!-- Jugar va en el medio y un poco más ancho; a los costados, Ranking y Sugerir pregunta. -->
-    <div class="acciones lobby-acciones">
+    <div class="acciones lobby-acciones{{#sesion.esEditor}} lobby-acciones-dos{{/sesion.esEditor}}">
         <a href="/ranking?modo={{modo}}" class="btn btn-secundario">Ranking</a>
         {{#enCurso}}
             <a href="/partida/jugar" class="btn btn-primario accion-principal">

@@ -1,0 +1,26 @@
+<div class="tarjeta admin-tabla-caja">
+    <h2>Respuestas correctas por jugador</h2>
+    {{^hayAciertos}}
+        <p class="editor-dato">Nadie respondió preguntas en este período.</p>
+    {{/hayAciertos}}
+    {{#hayAciertos}}
+        <div class="admin-tabla-scroll">
+            <table class="admin-tabla">
+                <thead>
+                    <tr><th>Jugador</th><th>Respondidas</th><th>Correctas</th><th>%</th></tr>
+                </thead>
+                <tbody>
+                    {{#aciertos}}
+                        <tr>
+                            <td>{{usuario}}</td>
+                            <td>{{respondidas}}</td>
+                            <td>{{acertadas}}</td>
+                            <td><span class="admin-barra" style="--porcentaje: {{porcentaje}}%">{{porcentaje}}%</span></td>
+                        </tr>
+                    {{/aciertos}}
+                </tbody>
+            </table>
+        </div>
+        {{#muchosUsuarios}}<p class="editor-dato">Se muestran los primeros {{maxUsuarios}}.</p>{{/muchosUsuarios}}
+    {{/hayAciertos}}
+</div>

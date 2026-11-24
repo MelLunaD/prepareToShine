@@ -1,0 +1,130 @@
+<section class="editor admin{{#enEstadisticas}} admin-ancho{{/enEstadisticas}}">
+
+    <h1 class="titulo-juego editor-titulo">Panel de administración</h1>
+
+    <nav class="pestanias editor-pestanias" aria-label="Secciones del administrador">
+        {{#pestanias}}
+            <a href="{{url}}" class="pestania{{#activa}} activa{{/activa}}"{{#activa}} aria-current="page"{{/activa}}>
+                {{titulo}}{{#cantidad}} <span class="editor-contador">{{cantidad}}</span>{{/cantidad}}
+            </a>
+        {{/pestanias}}
+    </nav>
+
+    {{#mensaje}}
+        <div class="alerta alerta-ok">{{mensaje}}</div>
+    {{/mensaje}}
+
+    {{#enEstadisticas}}
+        <!-- Filtro de período: sin JavaScript son links normales; admin.js los cambia por AJAX. -->
+        <nav class="admin-periodos" aria-label="Período">
+            {{#periodos}}
+                <a href="{{url}}" data-periodo="{{valor}}" class="admin-periodo{{#activo}} activo{{/activo}}"{{#activo}} aria-current="true"{{/activo}}>{{nombre}}</a>
+            {{/periodos}}
+        </nav>
+
+        <div class="admin-descargar">
+            <!-- admin.js le cambia el ?periodo= al elegir otro período. -->
+            <a id="admin-pdf" href="/admin/pdf?periodo={{periodoActual}}" class="btn btn-neutro" target="_blank" rel="noopener">Descargar PDF</a>
+        </div>
+
+        <!-- Tarjetas y tabla: las reemplaza el HTML que devuelve /admin/datos. -->
+        <div id="admin-estadisticas" class="admin-estadisticas">
+            {{> adminEstadisticas}}
+        </div>
+
+        <div class="admin-graficos">
+            <figure class="tarjeta admin-grafico admin-grafico-ancho">
+                <figcaption id="titulo-tiempo">{{tituloTiempo}}</figcaption>
+                <div class="admin-lienzo"><canvas id="grafico-tiempo" aria-label="Partidas jugadas en el período"></canvas></div>
+            </figure>
+            <figure class="tarjeta admin-grafico">
+                <figcaption>Jugadores por país</figcaption>
+                <div class="admin-lienzo"><canvas id="grafico-pais" aria-label="Jugadores por país"></canvas></div>
+            </figure>
+            <figure class="tarjeta admin-grafico">
+                <figcaption>Jugadores por sexo</figcaption>
+                <div class="admin-lienzo"><canvas id="grafico-sexo" aria-label="Jugadores por sexo"></canvas></div>
+            </figure>
+            <figure class="tarjeta admin-grafico">
+                <figcaption>Jugadores por edad</figcaption>
+                <div class="admin-lienzo"><canvas id="grafico-edad" aria-label="Jugadores por grupo de edad"></canvas></div>
+            </figure>
+        </div>
+
+        <div id="admin-aciertos">
+            {{> adminAciertos}}
+        </div>
+
+        <script type="application/json" id="admin-graficos-datos">{{{graficosJson}}}</script>
+    {{/enEstadisticas}}
+
+    {{#enSolicitudes}}
+        {{^haySolicitudes}}
+            <div class="tarjeta editor-vacio">
+                <h2>Quieren ser moderadores</h2>
+                <p>No hay solicitudes pendientes.</p>
+            </div>
+        {{/haySolicitudes}}
+
+        {{#solicitudes}}
+            <article class="tarjeta admin-solicitud">
+                <header class="admin-solicitud-cabecera">
+                    <img class="admin-solicitud-foto" src="{{foto}}" alt="Foto de {{usuario}}">
+                    <div>
+                        <h2><a href="{{usuarioUrl}}">{{usuario}}</a></h2>
+                        <p class="editor-dato">Pidió ser moderador el {{fecha}}</p>
+                    </div>
+                </header>
+
+                <ul class="admin-solicitud-datos">
+                    <li><strong>{{semanas}}</strong> semanas con 4000 puntos o más</li>
+                    <li><strong>{{partidas}}</strong> partidas jugadas</li>
+                    <li><strong>{{porcentaje}}%</strong> de respuestas correctas</li>
+                </ul>
+
+                <form method="post" action="/admin/resolver" class="editor-acciones admin-acciones">
+                    <input type="hidden" name="solicitud_id" value="{{id}}">
+                    <input type="hidden" name="usuario" value="{{usuario}}">
+                    <button type="submit" name="accion" value="rechazar" class="btn btn-neutro">Rechazar</button>
+                    <button type="submit" name="accion" value="aprobar" class="btn btn-secundario">Aprobar</button>
+                </form>
+            </article>
+        {{/solicitudes}}
+
+        {{#hayRevisadas}}
+            <div class="tarjeta">
+                <h2>Ya resueltas</h2>
+                <ul class="editor-reportes editor-historial">
+                    {{#revisadas}}
+                        <li>
+                            <strong>{{usuario}}</strong>
+                            {{#aprobada}}<span class="admin-estado admin-estado-ok">Aprobada</span>{{/aprobada}}
+                            {{^aprobada}}<span class="admin-estado">Rechazada</span>{{/aprobada}}
+                            <span>{{fecha}}{{#admin}} · {{admin}}{{/admin}}</span>
+                        </li>
+                    {{/revisadas}}
+                </ul>
+            </div>
+        {{/hayRevisadas}}
+
+        {{#servidor}}
+            <details class="tarjeta admin-servidor"{{^todoDisponible}} open{{/todoDisponible}}>
+                <summary>
+                    Estado del servidor
+                    {{#todoDisponible}}<span class="admin-estado admin-estado-ok">Listo para el PDF</span>{{/todoDisponible}}
+                    {{^todoDisponible}}<span class="admin-estado admin-estado-error">Falta algo</span>{{/todoDisponible}}
+                </summary>
+                <p class="editor-dato">PHP {{php}}</p>
+                <ul class="editor-reportes">
+                    {{#extensiones}}
+                        <li>
+                            {{nombre}}
+                            {{#disponible}}<span class="admin-estado admin-estado-ok">Disponible</span>{{/disponible}}
+                            {{^disponible}}<span class="admin-estado admin-estado-error">No está</span>{{/disponible}}
+                        </li>
+                    {{/extensiones}}
+                </ul>
+            </details>
+        {{/servidor}}
+    {{/enSolicitudes}}
+</section>

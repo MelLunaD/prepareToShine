@@ -3,6 +3,7 @@
 namespace app\controller;
 
 use app\model\PartidaModel;
+use Redirect;
 use Request;
 use Sesion;
 
@@ -28,6 +29,11 @@ class HomeController
 
     public function show()
     {
+        // El administrador no juega: su "home" es el panel.
+        if (Sesion::usuario()["rol"] === "admin") {
+            Redirect::to("/admin");
+        }
+
         $aviso = $this->revisarSolicitud();
         $usuario = Sesion::usuario();
 

@@ -28,13 +28,16 @@ class Sesion
     }
 
     // Datos del jugador logueado, o null si no hay sesión.
-    // "esEditor" lo usa el header para mostrar "Moderar preguntas" en el menú.
+    // "esEditor" y "esAdmin" los usa el header para mostrar "Moderar" o "Administrar" en el menú.
     public static function usuario()
     {
         if (!isset($_SESSION["usuario"])) {
             return null;
         }
-        return $_SESSION["usuario"] + ["esEditor" => $_SESSION["usuario"]["rol"] === "editor"];
+        return $_SESSION["usuario"] + [
+            "esEditor" => $_SESSION["usuario"]["rol"] === "editor",
+            "esAdmin" => $_SESSION["usuario"]["rol"] === "admin",
+        ];
     }
 
     public static function cerrar()

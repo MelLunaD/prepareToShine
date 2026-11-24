@@ -9,6 +9,7 @@ use app\controller\PerfilController;
 use app\controller\PartidaController;
 use app\controller\RankingController;
 use app\controller\EditorController;
+use app\controller\AdminController;
 use app\controller\PreguntaController;
 use app\model\CementerioModel;
 use app\model\FotoPerfilModel;
@@ -22,6 +23,7 @@ use app\model\RankingModel;
 use app\model\PreguntaModel;
 use app\model\ReporteModel;
 use app\model\SolicitudEditorModel;
+use app\model\EstadisticaModel;
 use Mailer;
 use MustacheRender;
 use MyDatabase;
@@ -39,6 +41,10 @@ class Configuration
     // Controllers que pide un rol (el Router los controla). Los demás los usa cualquier logueado.
     const ROLES_POR_CONTROLLER = [
         "editor" => ["editor"],
+        "admin" => ["admin"],
+        // El administrador no juega: no arma partidas ni reporta o sugiere preguntas.
+        "partida" => ["jugador", "editor"],
+        "pregunta" => ["jugador", "editor"],
     ];
 
     private $config;
@@ -91,6 +97,15 @@ class Configuration
         return new EditorController(
             new PreguntaModel($this->getDatabase()),
             $this->getReporteModel(),
+            $this->getRender()
+        );
+    }
+
+    public function getAdminController()
+    {
+        return new AdminController(
+            new EstadisticaModel($this->getDatabase()),
+            new SolicitudEditorModel($this->getDatabase()),
             $this->getRender()
         );
     }

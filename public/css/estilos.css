@@ -3004,4 +3004,326 @@ a {
     .lobby-acciones > .accion-principal .btn {
         min-height: 0;
     }
+
+    /* El editor no tiene "Sugerir pregunta": Ranking y Jugar quedan del mismo ancho. */
+    .lobby-acciones-dos > .accion-principal {
+        flex-basis: 13.5rem;
+    }
+}
+
+/* ---------- Panel del administrador (usa la estética del editor) ---------- */
+
+.admin .tarjeta {
+    margin-bottom: 1rem;
+}
+
+.admin .editor-reportes {
+    margin-bottom: 0;
+}
+
+.admin-solicitud-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+.admin-solicitud-cabecera h2 {
+    margin: 0 0 0.25rem;
+}
+
+.admin-solicitud-cabecera h2 a {
+    color: var(--moneda);
+}
+
+.admin-solicitud-cabecera .editor-dato {
+    margin: 0;
+}
+
+.admin-solicitud-foto {
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: var(--borde);
+    object-fit: cover;
+}
+
+.admin-solicitud-datos {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-solicitud-datos li {
+    padding: 0.55rem 0.75rem;
+    border-radius: 7px;
+    background: var(--cielo-bajo);
+    color: var(--texto-suave);
+}
+
+.admin-solicitud-datos strong {
+    color: var(--texto);
+}
+
+.admin-estado {
+    display: inline-block;
+    margin-left: 0.35rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: #3a4152;
+    color: var(--texto);
+    font-size: 0.75rem;
+}
+
+.editor-reportes .admin-estado {
+    display: inline-block;
+    color: var(--texto);
+}
+
+.admin-estado-ok {
+    background: var(--verde);
+    color: var(--tinta);
+}
+
+.editor-reportes .admin-estado-ok {
+    color: var(--tinta);
+}
+
+.admin-estado-error {
+    background: var(--rojo);
+}
+
+.admin-servidor summary {
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.admin-servidor[open] summary {
+    margin-bottom: 0.5rem;
+}
+
+@media (min-width: 600px) {
+    .admin-acciones {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-solicitud-datos {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .admin-solicitud-datos li {
+        text-align: center;
+    }
+
+    .admin-solicitud-datos strong {
+        display: block;
+        font-size: 1.2rem;
+    }
+}
+
+/* ---------- Panel del administrador: Estadísticas ---------- */
+
+.admin-ancho {
+    max-width: 1080px;
+}
+
+/* En pantallas grandes las tarjetas del juego miden hasta 720px: acá usan todo el ancho. */
+.admin-ancho .tarjeta {
+    max-width: none;
+}
+
+.admin-periodos {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    margin-bottom: 0.75rem;
+    border: var(--borde);
+    border-radius: 10px;
+    background: var(--papel);
+    overflow-x: auto;
+}
+
+.admin-periodo {
+    flex: 1;
+    padding: 0.55rem 0.6rem;
+    border-radius: 7px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--texto-suave);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.admin-periodo:hover {
+    color: var(--texto);
+}
+
+.admin-periodo.activo {
+    background: #3a4152;
+    color: var(--texto);
+}
+
+.admin-descargar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.75rem;
+}
+
+.admin-descargar .btn {
+    padding: 0.7rem 1rem;
+    font-size: 0.6rem;
+}
+
+.admin-periodo-texto {
+    margin: 0 0 0.75rem;
+    text-align: center;
+    color: var(--texto-suave);
+}
+
+.admin-estadisticas,
+.admin-graficos,
+#admin-aciertos {
+    transition: opacity 0.2s;
+}
+
+.admin-cargando .admin-estadisticas,
+.admin-cargando .admin-graficos,
+.admin-cargando #admin-aciertos {
+    opacity: 0.5;
+}
+
+.admin-tarjetas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.admin .admin-numero {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0.85rem;
+}
+
+/* La quinta tarjeta ocupa toda la fila en celular, así no queda un hueco. */
+.admin-numero:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+}
+
+.admin-numero strong {
+    font-family: var(--fuente-titulo);
+    font-size: 1.3rem;
+    color: var(--moneda);
+}
+
+.admin-numero-nombre {
+    font-weight: 700;
+    color: var(--texto);
+}
+
+.admin-numero-detalle {
+    font-size: 0.8rem;
+    color: var(--texto-suave);
+}
+
+.admin-graficos {
+    display: grid;
+    gap: 0;
+}
+
+.admin-grafico {
+    min-width: 0; /* sin esto, el canvas de Chart.js estira la columna de la grilla */
+    margin: 0;
+}
+
+.admin-grafico figcaption {
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+/* Chart.js necesita una caja con alto fijo para no crecer sin fin. */
+.admin-lienzo {
+    position: relative;
+    height: 220px;
+}
+
+.admin-tabla-scroll {
+    overflow-x: auto;
+}
+
+.admin-tabla {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-tabla th,
+.admin-tabla td {
+    padding: 0.5rem 0.4rem;
+    border-bottom: var(--borde);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.admin-tabla th:first-child,
+.admin-tabla td:first-child {
+    text-align: left;
+}
+
+.admin-tabla th {
+    font-size: 0.8rem;
+    color: var(--texto-suave);
+}
+
+.admin-tabla tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+/* El porcentaje con una barrita de fondo que se llena hasta ese valor. */
+.admin-barra {
+    display: inline-block;
+    min-width: 4.5rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    background: linear-gradient(to right, rgba(63, 185, 80, 0.35) var(--porcentaje), transparent var(--porcentaje));
+    font-weight: 700;
+}
+
+@media (min-width: 600px) {
+    .admin-tarjetas {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .admin-numero:last-child:nth-child(odd) {
+        grid-column: auto;
+    }
+
+    .admin-graficos {
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: 1rem;
+    }
+
+    .admin-grafico-ancho {
+        grid-column: 1 / -1;
+    }
+
+    .admin-lienzo {
+        height: 260px;
+    }
+}
+
+@media (min-width: 900px) {
+    .admin-tarjetas {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .admin-graficos {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }

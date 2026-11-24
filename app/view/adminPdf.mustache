@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Estadísticas · Prepare to Shine</title>
+<!-- Vista para Dompdf: solo CSS 2.1 (sin Flexbox ni Grid), así que todo se acomoda con tablas. -->
+<style>
+    @page { margin: 1.6cm 1.4cm; }
+    body { font-family: "DejaVu Sans", sans-serif; font-size: 10pt; color: #24272e; }
+    h1 { margin: 0; font-size: 18pt; }
+    h2 { margin: 0 0 8pt; padding-bottom: 4pt; border-bottom: 2pt solid #d69e1e; font-size: 12pt; }
+    .encabezado { width: 100%; margin-bottom: 14pt; }
+    .encabezado td { vertical-align: bottom; }
+    .periodo { font-size: 12pt; color: #d69e1e; font-weight: bold; }
+    .generado { text-align: right; font-size: 8.5pt; color: #6b7080; }
+    .seccion { margin-bottom: 16pt; page-break-inside: avoid; }
+    .datos { width: 100%; border-collapse: collapse; }
+    .datos th, .datos td { padding: 4pt 6pt; border-bottom: 0.5pt solid #d5d8de; text-align: right; }
+    .datos th { background: #f0f1f4; font-size: 8.5pt; color: #4a4f5c; }
+    .datos th:first-child, .datos td:first-child { text-align: left; }
+    .datos tfoot td { font-weight: bold; border-bottom: 0; border-top: 1pt solid #9aa0ab; }
+    .totales td.valor { font-size: 13pt; font-weight: bold; color: #24272e; width: 22%; }
+    .detalle { color: #6b7080; font-size: 8.5pt; }
+    .lado { width: 100%; }
+    .lado td { vertical-align: top; }
+    .lado .grafico { width: 58%; padding-right: 10pt; }
+    img { display: block; }
+    .con-aire { margin-top: 8pt; }
+    .seccion-larga { page-break-inside: auto; page-break-before: always; }
+    .tramos th, .tramos td { text-align: center; }
+    .tramos .tramo-titulo { text-align: left; font-weight: bold; color: #4a4f5c; background: #f0f1f4; width: 14%; }
+    .vacio { color: #6b7080; font-style: italic; }
+    .pie { position: fixed; bottom: -1cm; left: 0; right: 0; text-align: center; font-size: 8pt; color: #9aa0ab; }
+</style>
+</head>
+<body>
+
+<div class="pie">Prepare to Shine · TP Final Programación Web 2</div>
+
+<table class="encabezado">
+    <tr>
+        <td>
+            <h1>Estadísticas del juego</h1>
+            <span class="periodo">{{descripcionPeriodo}}</span>
+        </td>
+        <td class="generado">Generado el {{generado}}<br>por {{admin}}</td>
+    </tr>
+</table>
+
+<div class="seccion">
+    <h2>Resumen</h2>
+    <table class="datos totales">
+        <tbody>
+            {{#tarjetas}}
+                <tr>
+                    <td>{{nombre}}<br><span class="detalle">{{detalle}}</span></td>
+                    <td class="valor">{{valor}}</td>
+                </tr>
+            {{/tarjetas}}
+        </tbody>
+    </table>
+</div>
+
+<div class="seccion">
+    <h2>{{tituloTiempo}}</h2>
+    <img src="{{graficoTiempo}}" width="660" alt="Partidas jugadas en el período">
+    {{#hayTramos}}
+        <!-- Los tramos en filas de a varios (etiqueta arriba, cantidad abajo), para que la tabla sea corta. -->
+        <table class="datos tramos con-aire">
+            {{#filasTramos}}
+                <tr><th class="tramo-titulo">{{nombreTramo}}</th>{{#tramos}}<th>{{etiqueta}}</th>{{/tramos}}</tr>
+                <tr><td class="tramo-titulo">Partidas</td>{{#tramos}}<td>{{valor}}</td>{{/tramos}}</tr>
+            {{/filasTramos}}
+        </table>
+        <p class="detalle">Total: {{totalPartidas}} partidas. Solo figuran los tramos con partidas.</p>
+    {{/hayTramos}}
+    {{^hayTramos}}<p class="vacio">No se jugaron partidas en este período.</p>{{/hayTramos}}
+</div>
+
+{{#demografia}}
+    <div class="seccion">
+        <h2>{{titulo}}</h2>
+        <table class="lado">
+            <tr>
+                <td class="grafico"><img src="{{imagen}}" width="{{anchoImagen}}" alt="{{titulo}}"></td>
+                <td>
+                    <table class="datos">
+                        <thead><tr><th>{{columna}}</th><th>Jugadores</th><th>%</th></tr></thead>
+                        <tbody>
+                            {{#filas}}<tr><td>{{etiqueta}}</td><td>{{valor}}</td><td>{{porcentaje}}%</td></tr>{{/filas}}
+                        </tbody>
+                        <tfoot><tr><td>Total</td><td>{{total}}</td><td></td></tr></tfoot>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+{{/demografia}}
+
+<div class="seccion seccion-larga">
+    <h2>Respuestas correctas por jugador</h2>
+    {{#hayAciertos}}
+        <table class="datos">
+            <thead><tr><th>Jugador</th><th>Respondidas</th><th>Correctas</th><th>%</th></tr></thead>
+            <tbody>
+                {{#aciertos}}<tr><td>{{usuario}}</td><td>{{respondidas}}</td><td>{{acertadas}}</td><td>{{porcentaje}}%</td></tr>{{/aciertos}}
+            </tbody>
+        </table>
+        {{#muchosUsuarios}}<p class="detalle">Se muestran los primeros {{maxUsuarios}}.</p>{{/muchosUsuarios}}
+    {{/hayAciertos}}
+    {{^hayAciertos}}<p class="vacio">Nadie respondió preguntas en este período.</p>{{/hayAciertos}}
+</div>
+
+</body>
+</html>
