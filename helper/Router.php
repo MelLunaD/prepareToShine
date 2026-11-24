@@ -27,6 +27,7 @@ class Router
         $method         = is_string($method) ? $method : $this->defaultMethod;
 
         if (!Sesion::estaLogueada() && !in_array($controllerName, $this->controllersPublicos, true)) {
+            $this->recordarPaginaPedida();
             Redirect::to('/login');
         }
 
@@ -38,6 +39,19 @@ class Router
         $controller = $this->getController($controllerName);
         $method     = $this->getMethod($controller, $method);
         $controller->{$method}();
+    }
+
+    // Si abrió una página con el navegador (por ejemplo, un perfil desde el QR), se guarda para
+    // volver a ella después del login. No se guardan los envíos de formularios (POST) ni los
+    // pedidos de AJAX (fetch no pide "text/html"), porque no son páginas para mostrar.
+    private function recordarPaginaPedida()
+    {
+        $esPaginaPedida = ($_SERVER["REQUEST_METHOD"] ?? "GET") === "GET"
+            && strpos($_SERVER["HTTP_ACCEPT"] ?? "", "text/html") !== false;
+
+        if ($esPaginaPedida && ($_SERVER["REQUEST_URI"] ?? "/") !== "/") {
+            Sesion::guardarDestino($_SERVER["REQUEST_URI"]);
+        }
     }
 
     private function rolPuedeUsar($controllerName)

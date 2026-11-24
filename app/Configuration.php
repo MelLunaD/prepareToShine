@@ -204,6 +204,7 @@ class Configuration
             new FotoPerfilModel(),
             $this->getUbicacionModel(),
             new RankingModel($this->getDatabase()),
+            $this->getPartidaModel(),
             new SolicitudEditorModel($this->getDatabase()),
             $this->getRender()
         );

@@ -123,7 +123,7 @@ class RegistroController
 
         if ($resultado === "ok") {
             Sesion::iniciar($usuario);
-            Redirect::toIndex();
+            Redirect::to(Sesion::tomarDestino());
         }
 
         if ($resultado === "incorrecto") {

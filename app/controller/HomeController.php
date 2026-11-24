@@ -87,7 +87,7 @@ class HomeController
         $datos = $this->rankingModel->resumen($usuarioId, $modo) + [
             "enCurso" => $enCurso !== null,
             "enCursoEsDeEsteModo" => $enCurso !== null && $enCurso["modo"] === $modo,
-            "partidas" => array_map([$this, "formatearPartida"], $this->partidaModel->historial($usuarioId, $modo)),
+            "partidas" => array_map([self::class, "formatearPartida"], $this->partidaModel->historial($usuarioId, $modo)),
             "almasEsperando" => null,
         ];
 
@@ -102,7 +102,8 @@ class HomeController
         return $datos;
     }
 
-    private function formatearPartida(array $partida)
+    // Una fila del historial de partidas, lista para la tabla. La usan el lobby y el perfil público.
+    public static function formatearPartida(array $partida)
     {
         $respondidas = (int)$partida["respondidas"];
         $murio = (int)$partida["errores"] > 0;

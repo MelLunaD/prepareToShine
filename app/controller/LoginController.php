@@ -53,7 +53,7 @@ class LoginController
         }
 
         Sesion::iniciar($usuario);
-        Redirect::toIndex();
+        Redirect::to(Sesion::tomarDestino());
     }
 
     public function logout()

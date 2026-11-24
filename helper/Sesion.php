@@ -7,6 +7,8 @@
 //  - "intentos_fallidos": códigos mal ingresados desde el último código enviado.
 //  - "flash": mensajes que se muestran una sola vez (después de un redirect).
 //  - "revisar_solicitud": si el lobby tiene que mirar en la base si aprobaron su "Quiero moderar".
+//  - "destino": la página que alguien quiso abrir sin sesión (por ejemplo, un perfil desde el QR),
+//    para llevarlo ahí después del login.
 class Sesion
 {
     public static function iniciar(array $usuario)
@@ -67,6 +69,24 @@ class Sesion
     public static function reiniciarIntentosFallidos()
     {
         $_SESSION["intentos_fallidos"] = 0;
+    }
+
+    // Solo se guardan direcciones de este sitio ("/perfil/ver?usuario=x"). "//otro.com" o
+    // "/\otro.com" el navegador los toma como otro sitio: así nadie puede usar el login para
+    // mandar a la gente a una página falsa.
+    public static function guardarDestino($url)
+    {
+        if (is_string($url) && preg_match('#^/(?![/\\\\])#', $url)) {
+            $_SESSION["destino"] = $url;
+        }
+    }
+
+    // Devuelve la página guardada (o el inicio) y la borra, para usarla una sola vez.
+    public static function tomarDestino()
+    {
+        $destino = $_SESSION["destino"] ?? "/";
+        unset($_SESSION["destino"]);
+        return $destino;
     }
 
     public static function flash($clave, $mensaje)

@@ -111,6 +111,18 @@ class RankingModel
         return (int)$fila["cantidad"];
     }
 
+    // Puntos y partidas de toda la historia en un modo (sin enfriamiento), con el mismo criterio
+    // del ranking histórico: suma el puntaje de todas sus partidas.
+    public function totales($usuarioId, $modo)
+    {
+        $fila = $this->database->queryOne(
+            "SELECT COALESCE(SUM(puntaje), 0) AS puntos, COUNT(*) AS partidas
+             FROM partida WHERE usuario_id = ? AND modo = ?",
+            [$usuarioId, $modo]
+        );
+        return ["puntosTotales" => (int)$fila["puntos"], "partidasTotales" => (int)$fila["partidas"]];
+    }
+
     // Todo lo que se muestra del jugador en un modo: puntos y partidas de la semana, y su rango
     // con color, brillo e ícono. Lo usan el lobby y el perfil (propio y público).
     public function resumen($usuarioId, $modo)
@@ -122,7 +134,7 @@ class RankingModel
 
         $racha = $this->racha($usuarioId, $modo);
 
-        return [
+        return $this->totales($usuarioId, $modo) + [
             "modo" => $modo,
             "esDie" => $modo === "die",
             "puntosSemana" => $puntos,

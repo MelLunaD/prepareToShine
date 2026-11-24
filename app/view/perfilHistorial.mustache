@@ -1,0 +1,22 @@
+<div class="perfil-historial">
+    <h3 class="perfil-historial-titulo">{{#esDie}}Sus muertes{{/esDie}}{{^esDie}}Sus partidas{{/esDie}}</h3>
+    {{#hayPartidas}}
+        <table class="tabla-partidas">
+            <thead>
+                <tr><th>Fecha</th><th>Resultado</th><th>Puntos</th></tr>
+            </thead>
+            <tbody>
+                {{#partidas}}
+                    <tr>
+                        <td>{{fecha}}</td>
+                        <td>{{resultado}}</td>
+                        <td>{{puntaje}}{{#almas}} <small>(dejó {{almas}} almas)</small>{{/almas}}</td>
+                    </tr>
+                {{/partidas}}
+            </tbody>
+        </table>
+    {{/hayPartidas}}
+    {{^hayPartidas}}
+        <p>{{#esDie}}Todavía no murió. Ya le va a pasar.{{/esDie}}{{^esDie}}Todavía no jugó ninguna partida.{{/esDie}}</p>
+    {{/hayPartidas}}
+</div>

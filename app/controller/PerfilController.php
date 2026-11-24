@@ -14,6 +14,7 @@ class PerfilController
     private $fotoModel;
     private $ubicacionModel;
     private $rankingModel;
+    private $partidaModel;
     private $solicitudModel;
     private $render;
 
@@ -27,13 +28,29 @@ class PerfilController
         ];
     }
 
+    // Perfil de otro: además de los números, sus últimas partidas de cada modo (la misma tabla del lobby).
+    private function resumenConHistorial($usuarioId)
+    {
+        $resumen = $this->resumenPorModo($usuarioId);
+        foreach ($resumen as $modo => $datos) {
+            $partidas = array_map(
+                [HomeController::class, "formatearPartida"],
+                $this->partidaModel->historial($usuarioId, $modo)
+            );
+            $resumen[$modo]["partidas"] = $partidas;
+            $resumen[$modo]["hayPartidas"] = count($partidas) > 0;
+        }
+        return $resumen;
+    }
+
     private function temaPedido()
     {
         return Request::get("modo") === "die" ? "souls" : "shine";
     }
 
-    public function __construct($perfilModel, $fotoModel, $ubicacionModel, $rankingModel, $solicitudModel, $render)
+    public function __construct($perfilModel, $fotoModel, $ubicacionModel, $rankingModel, $partidaModel, $solicitudModel, $render)
     {
+        $this->partidaModel = $partidaModel;
         $this->solicitudModel = $solicitudModel;
         $this->perfilModel = $perfilModel;
         $this->fotoModel = $fotoModel;
@@ -170,7 +187,9 @@ class PerfilController
 
         $data["perfil"] = $datosPerfil;
         $data["es_propio"] = false; // En el perfil de otro no se muestran sus datos privados ni la edición
-        $data["resumen"] = $this->resumenPorModo($datosPerfil["id"]);
+        $data["resumen"] = $this->resumenConHistorial($datosPerfil["id"]);
+        // El QR lleva a este mismo perfil, para compartirlo o abrirlo en el celular.
+        $data["qr_imagen"] = $this->generarUrlQr($datosPerfil["usuario"])["qr_imagen"];
         $data["usaMapa"] = true;
 
         $this->render->renderiza("perfil", $data);
