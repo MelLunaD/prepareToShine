@@ -10,6 +10,11 @@
     // (Sin JS el botón queda y el formulario recarga la página, como siempre).
     document.body.classList.add("ranking-con-js");
 
+    // Sonido al cambiar de pestaña o de filtro (public/js/sonidos.js). Sin él, todo sigue igual.
+    if (typeof window.Sonido !== "undefined") {
+        window.Sonido.precargar(["ranking"]);
+    }
+
     // Para cancelar un pedido viejo si se cambia de filtro antes de que llegue la respuesta.
     var pedidoEnCurso = null;
 
@@ -23,6 +28,11 @@
         }
         pedidoEnCurso = new AbortController();
         contenido.classList.add("cargando");
+
+        // Suena cuando lo pide el jugador, no con los botones atrás/adelante del navegador.
+        if (guardarEnHistorial && typeof window.Sonido !== "undefined") {
+            window.Sonido.reproducir("ranking");
+        }
 
         // fetch() pide /ranking/lista sin salir de la página. El navegador manda la cookie
         // de sesión como en cualquier pedido, así que el Router sabe quién está logueado.

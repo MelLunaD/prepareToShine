@@ -16,7 +16,7 @@
         <p class="lobby-almas">Tus almas te esperan en la pregunta {{numero}} ({{almas}} almas).</p>
     {{/almasEsperando}}
 
-    <!-- Jugar va en el medio y un poco más ancho; a los costados, Ranking y Sugerir pregunta. -->
+    <!-- En la compu Jugar va en el medio y un poco más ancho; en el celular va primero (lo reordena el CSS). -->
     <div class="acciones lobby-acciones{{#sesion.esEditor}} lobby-acciones-dos{{/sesion.esEditor}}">
         <a href="/ranking?modo={{modo}}" class="btn btn-secundario">Ranking</a>
         {{#enCurso}}

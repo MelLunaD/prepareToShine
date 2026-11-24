@@ -44,6 +44,8 @@ class HomeController
         $data["palabraFase"] = $data["tema"] === "souls" ? "Die" : "Shine";
         $data["sesion"] = $usuario;
         $data["aviso"] = $aviso;
+        // Música de fondo del modo (la elige sonidos.js según el tema).
+        $data["musica"] = true;
 
         // Si se le terminó el tiempo con la página cerrada, la partida se cierra acá:
         // el botón no puede ofrecer "Continuar" una partida que ya perdió.

@@ -79,6 +79,7 @@ class Configuration
         return new PartidaController(
             $this->getPartidaModel(),
             $this->getReporteModel(),
+            new RankingModel($this->getDatabase()),
             $this->getRender()
         );
     }

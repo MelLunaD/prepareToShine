@@ -2992,7 +2992,12 @@ a {
     margin: 0 auto 1.5rem;
 }
 
-/* Lobby en celular: uno abajo del otro, todos del mismo ancho, y Jugar (en el medio) un poco más alto. */
+/* Lobby en celular: uno abajo del otro, todos del mismo ancho. Jugar va primero
+   y un poco más alto; después Ranking y Sugerir pregunta. */
+.lobby-acciones > .accion-principal {
+    order: -1;
+}
+
 .lobby-acciones > .accion-principal,
 .lobby-acciones > .accion-principal .btn {
     min-height: 4.75rem;
@@ -3003,6 +3008,11 @@ a {
     .lobby-acciones > .accion-principal,
     .lobby-acciones > .accion-principal .btn {
         min-height: 0;
+    }
+
+    /* En la compu, Jugar vuelve al medio: Ranking | Jugar | Sugerir pregunta. */
+    .lobby-acciones > .accion-principal {
+        order: 0;
     }
 
     /* El editor no tiene "Sugerir pregunta": Ranking y Jugar quedan del mismo ancho. */
@@ -3325,5 +3335,124 @@ a {
 
     .admin-graficos {
         grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ---------- Botones de sonido (música y efectos) ----------
+   Celular: dos renglones arriba de todo en el menú hamburguesa.
+   Compu: dos íconos fijos abajo a la izquierda (.sonido-esquina).
+   Prendido = ícono entero; apagado = clase .apagado (sonidos.js) y se ve la raya. */
+
+.sonido-tacha {
+    display: none;
+}
+
+.apagado .sonido-tacha {
+    display: inline;
+}
+
+.hud-menu-sonido button {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 0;
+    background: none;
+    color: var(--texto-sobre-color);
+    font: inherit;
+    line-height: 1.6;
+    text-align: left;
+    cursor: pointer;
+}
+
+.hud-menu-sonido .sonido-icono {
+    flex: none;
+    width: 16px;
+    height: 16px;
+}
+
+.hud-menu-sonido button:hover,
+.hud-menu-sonido button:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--moneda);
+}
+
+.hud-menu-sonido button.apagado {
+    opacity: 0.6;
+}
+
+.hud-menu-estado {
+    margin-left: auto;
+    opacity: 0.7;
+}
+
+/* Línea que separa el sonido del resto del menú */
+.hud-menu-sonido + .hud-menu-sonido {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sonido-esquina {
+    display: none;
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 30;
+    gap: 0.25rem;
+}
+
+/* Sin sesión no hay menú: en el celular también se muestran abajo a la izquierda. */
+.sonido-esquina-sin-menu {
+    display: flex;
+}
+
+.sonido-btn {
+    display: flex;
+    padding: 0.35rem;
+    border: 0;
+    background: none;
+    color: var(--texto);
+    cursor: pointer;
+    transition: opacity 0.15s, color 0.15s;
+}
+
+.sonido-btn.apagado {
+    opacity: 0.25;
+}
+
+/* Die: prendido en el color claro del texto, apagado al 25% (aprobado por el equipo). */
+.tema-souls .sonido-btn {
+    color: var(--texto-sobre-color);
+}
+
+/* Shine: prendido en amarillo con borde oscuro pixelado (se lee sobre el cielo y los ladrillos);
+   apagado en gris claro, entero, con la raya roja. */
+.tema-shine .sonido-btn {
+    color: var(--moneda);
+    filter: drop-shadow(2px 0 0 var(--tinta)) drop-shadow(-2px 0 0 var(--tinta))
+            drop-shadow(0 2px 0 var(--tinta)) drop-shadow(0 -2px 0 var(--tinta));
+}
+
+.tema-shine .sonido-btn.apagado {
+    color: #cfc9bd;
+    opacity: 1;
+}
+
+.tema-shine .sonido-btn.apagado .sonido-tacha {
+    fill: #d43b2f;
+}
+
+.sonido-btn:hover,
+.sonido-btn:focus-visible {
+    opacity: 1;
+}
+
+@media (min-width: 600px) {
+    .hud-menu-sonido {
+        display: none;
+    }
+
+    .sonido-esquina {
+        display: flex;
     }
 }

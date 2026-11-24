@@ -11,6 +11,10 @@
     }
 
     var clicks = 0;
+    if (typeof window.Sonido !== "undefined") {
+        window.Sonido.precargar(["golpe", "cambio"]);
+        window.Sonido.precargarMusica("die");
+    }
     var sinAnimaciones = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var hayGsap = typeof window.gsap !== "undefined";
 
@@ -140,12 +144,29 @@
             .to(".tarjeta h2, .pasos li", { opacity: 1, y: 0, duration: 0.8, stagger: 0.35, ease: "power2.out" }, "-=0.8");
     }
 
+    // Golpe a la roca en cada click, cada vez un poco más grave; en el 5º, además, el sonido
+    // de "la luz se apaga" mientras la palabra se cae (public/js/sonidos.js).
+    function sonarGolpe() {
+        if (typeof window.Sonido === "undefined") {
+            return;
+        }
+        window.Sonido.reproducir("golpe", { velocidad: 1 - (clicks - 1) * 0.07 });
+        if (clicks === CLICKS_PARA_CAER) {
+            // Se apaga la música de Shine, suena el cambio y al terminar entra la de Die.
+            window.Sonido.pararMusica();
+            // El cambio suena 20% más bajo que el resto de los efectos (0.72 en vez de 0.9).
+            setTimeout(function () { window.Sonido.reproducir("cambio", { volumen: 0.72 }); }, 250);
+            setTimeout(window.Sonido.cambiarMusica, 3900);
+        }
+    }
+
     function alClickear() {
         if (clicks >= CLICKS_PARA_CAER) {
             return;
         }
         clicks++;
         agrietar();
+        sonarGolpe();
 
         // Sin GSAP (no cargó) o con animaciones desactivadas en el sistema: cambio directo.
         if (!hayGsap || sinAnimaciones) {

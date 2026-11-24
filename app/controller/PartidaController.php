@@ -19,12 +19,14 @@ class PartidaController
 {
     private $partidaModel;
     private $reporteModel;
+    private $rankingModel;
     private $render;
 
-    public function __construct($partidaModel, $reporteModel, $render)
+    public function __construct($partidaModel, $reporteModel, $rankingModel, $render)
     {
         $this->partidaModel = $partidaModel;
         $this->reporteModel = $reporteModel;
+        $this->rankingModel = $rankingModel;
         $this->render = $render;
     }
 
@@ -124,6 +126,7 @@ class PartidaController
         $data["sin_responder"] = $partida["error"] !== null && $partida["error"]["respuesta_id"] === null;
         $data["almas"] = $esDie && (int)$partida["almas"] > 0 ? (int)$partida["almas"] : null;
         $data["urlLobby"] = $esDie ? "/?modo=die" : "/";
+        $data["sonidos"] = $this->sonidosDelResultado($partida, $completa, $data["retiro"]);
         $data += $this->datosDelReporte($partida["id"]);
 
         $this->render->renderiza("resultado", $data);
@@ -136,6 +139,11 @@ class PartidaController
         $data = $this->datosDeLaPartida($partida);
         $data["cartas"] = range(1, $this->partidaModel->cantidadDeCartas($partida["modo"]));
         $data["acierto"] = Sesion::tomarFlash("partida_acierto");
+        // Sonido del acierto (y de las almas recuperadas). Si viene de "Seguir" en una hoguera
+        // no suena otra vez: ya sonó en la pantalla de la hoguera.
+        if ($data["acierto"] && Request::get("seguir") === null) {
+            $data["sonidos"] = !empty($data["acierto"]["almas_recuperadas"]) ? "correcta almas" : "correcta";
+        }
         $data += $this->datosDelReporte($partida["id"]);
 
         $this->render->renderiza("cartas", $data);
@@ -160,11 +168,30 @@ class PartidaController
     private function mostrarCheckpoint(array $partida)
     {
         $data = $this->datosDeLaPartida($partida);
+        $data["sonidos"] = "correcta hoguera";
         $data += $this->datosDelReporte($partida["id"]);
         $this->render->renderiza("checkpoint", $data);
     }
 
     // ---------- Datos ----------
+
+    // Sonidos del final, en orden (sonidos.js elige la versión Shine o Die de cada uno):
+    // ganar / retirarse con las almas / errar y perder; y si subió de rango, el de rango al final.
+    private function sonidosDelResultado(array $partida, $completa, $retiro)
+    {
+        if ($completa) {
+            $sonidos = "ganar";
+        } elseif ($retiro) {
+            $sonidos = "almas";
+        } else {
+            $sonidos = "incorrecta perder";
+        }
+
+        if ($this->rankingModel->subioDeRango($this->usuarioId(), $partida["modo"], $partida["id"]) !== null) {
+            $sonidos .= " subir-rango";
+        }
+        return $sonidos;
+    }
 
     // Botón "Reportar pregunta": solo con la pregunta que el jugador ACABA de responder,
     // en las pantallas de después de responder (cartas, hoguera y resultado). Nunca en la
@@ -213,6 +240,9 @@ class PartidaController
         $respondidas = $this->partidaModel->preguntasRespondidas($partida);
 
         $data = $this->datosComunes($partida["modo"]);
+        // Música de fondo en cartas, pregunta y hoguera; en el resultado no, así se escucha
+        // bien el final (victoria, YOU DIED...).
+        $data["musica"] = true;
         $data["numero"] = $respondidas + 1;
         $data["totalPreguntas"] = PartidaModel::PREGUNTAS_POR_PARTIDA;
         $data["puntos"] = $puntos["total"];

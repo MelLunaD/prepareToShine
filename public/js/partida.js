@@ -5,6 +5,17 @@
     var sinAnimaciones = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var hayGsap = typeof window.gsap !== "undefined" && !sinAnimaciones;
 
+    // Sonidos (public/js/sonidos.js). Si no cargó, la partida sigue igual, en silencio.
+    if (typeof window.Sonido !== "undefined") {
+        window.Sonido.precargar(["carta", "tic", "ultimos", "mezclar", "hover", "respuesta"]);
+    }
+
+    function sonar(nombre, volumen) {
+        if (typeof window.Sonido !== "undefined") {
+            window.Sonido.reproducir(nombre, volumen ? { volumen: volumen } : undefined);
+        }
+    }
+
     // ---------- Cartas: se juntan, se mezclan y se reparten; después se puede elegir ----------
 
     var mazo = document.querySelector("[data-cartas]");
@@ -62,13 +73,27 @@
                 });
             }
 
-            // 3. Se reparten de vuelta a su lugar.
+            // 3. Se reparten de vuelta a su lugar, con el sonido de repartir cartas.
+            tl.call(function () { sonar("mezclar"); });
             tl.to(cartas, { x: 0, y: 0, rotation: 0, duration: 0.6, ease: "back.out(1.4)", stagger: 0.06 });
         }
+
+        // Hover: un "pop" muy suave al pasar el mouse por una carta que ya se puede elegir.
+        // Solo con mouse: en el celular no hay hover y sonaría junto con el toque.
+        cartas.forEach(function (carta) {
+            carta.addEventListener("pointerenter", function (e) {
+                if (e.pointerType === "mouse" && !carta.disabled && !elegida) {
+                    sonar("hover", 0.3);
+                }
+            });
+        });
 
         // Al tocar una: se levanta y las demás se apagan; se da vuelta en la pantalla de la pregunta.
         cartas.forEach(function (carta) {
             carta.addEventListener("click", function (e) {
+                if (!elegida) {
+                    sonar("carta");
+                }
                 if (!hayGsap) {
                     return;
                 }
@@ -129,6 +154,21 @@
         var numero = reloj.querySelector(".reloj-numero");
         var relleno = reloj.querySelector(".reloj-relleno");
         var enviada = false;
+        var ultimoSegundo = null;
+
+        // Sonido al elegir una respuesta. Suena al apoyar el dedo o el mouse (pointerdown), un
+        // instante antes del envío, así la página nueva no lo corta. Con teclado, en el click.
+        function sonarRespuesta(e) {
+            if (!enviada && e.target.closest(".opcion-respuesta")) {
+                sonar("respuesta");
+            }
+        }
+        opciones.addEventListener("pointerdown", sonarRespuesta);
+        opciones.addEventListener("click", function (e) {
+            if (e.detail === 0) {
+                sonarRespuesta(e);
+            }
+        });
 
         // Al elegir una opción: se bloquean las demás (después del envío, así viaja el valor elegido).
         opciones.addEventListener("submit", function () {
@@ -143,6 +183,14 @@
             numero.textContent = segundos;
             relleno.style.width = (segundos / total * 100) + "%";
             reloj.classList.toggle("reloj-urgente", segundos <= 10);
+
+            // Tic en cada segundo de los últimos 15, y doble tic en los últimos 5.
+            if (segundos !== ultimoSegundo && !enviada) {
+                if (ultimoSegundo !== null && segundos > 0 && segundos <= 15) {
+                    sonar(segundos <= 5 ? "ultimos" : "tic");
+                }
+                ultimoSegundo = segundos;
+            }
 
             if (segundos === 0) {
                 // Se acabó el tiempo: se manda sin respuesta y el servidor la cuenta como error.

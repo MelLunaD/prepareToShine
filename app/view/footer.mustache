@@ -5,7 +5,13 @@
     <p>Prepare to <span class="palabra-fase">{{palabraFase}}</span> &middot; TP Final Programación Web 2</p>
 </footer>
 
+<!-- Sonidos que tocan al abrir la página (los elige el controller: "correcta hoguera", "ganar"...).
+     sonidos.js los toca en orden, en la versión Shine o Die según el tema. -->
+{{#sonidos}}<div hidden data-sonidos="{{sonidos}}"></div>{{/sonidos}}
+{{#musica}}<div hidden data-musica></div>{{/musica}}
+
 <script src="/public/js/vendor/gsap.min.js"></script>
+<script src="/public/js/sonidos.js?v={{version}}"></script>
 <script src="/public/js/secreto.js?v={{version}}"></script>
 {{#sesion}}<script src="/public/js/menu.js?v={{version}}"></script>{{/sesion}}
 {{#usaPartida}}

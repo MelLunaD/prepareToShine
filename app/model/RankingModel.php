@@ -153,6 +153,31 @@ class RankingModel
         return ["actual" => $actual, "siguiente" => $siguiente];
     }
 
+    // ¿Esa partida le hizo subir de rango en la semana? Compara los puntos de la semana con y sin
+    // esa partida. Solo vale para la última partida del modo (si después jugó otra, ya no es
+    // "recién"). Devuelve el nombre del rango nuevo, o null. Lo usa el resultado para el sonido.
+    public function subioDeRango($usuarioId, $modo, $partidaId)
+    {
+        $partidas = $this->database->queryAll(
+            "SELECT id, DATE(fecha_inicio) AS dia, puntaje FROM partida
+             WHERE usuario_id = ? AND modo = ? AND fecha_inicio >= " . PartidaModel::INICIO_SEMANA_SQL . "
+             ORDER BY fecha_inicio, id",
+            [$usuarioId, $modo]
+        );
+        if (count($partidas) === 0 || (int)end($partidas)["id"] !== (int)$partidaId) {
+            return null;
+        }
+
+        $hoy = $this->database->queryOne("SELECT CURDATE() AS hoy")["hoy"];
+        $antes = $this->rango($modo, self::conEnfriamiento(array_slice($partidas, 0, -1), $hoy))["actual"];
+        $ahora = $this->rango($modo, self::conEnfriamiento($partidas, $hoy))["actual"];
+
+        if ($ahora === null || ($antes !== null && (int)$ahora["puntos_minimos"] <= (int)$antes["puntos_minimos"])) {
+            return null;
+        }
+        return $ahora["nombre"];
+    }
+
     // ---------- Racha ----------
 
     // Racha de un jugador en un modo: respuestas correctas seguidas a lo largo de todas sus

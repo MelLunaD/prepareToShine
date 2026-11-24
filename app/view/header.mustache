@@ -33,6 +33,20 @@
                     </svg>
                 </summary>
                 <ul class="hud-menu-lista">
+                    <!-- Sonido en el celular: en pantallas grandes estos dos se esconden y se usan
+                         los botones fijos de abajo a la izquierda. sonidos.js cambia Sí/No. -->
+                    <li class="hud-menu-sonido">
+                        <button type="button" data-sonido-toggle="musica" aria-pressed="true">
+                            {{> iconoMusica}}
+                            Música <span class="hud-menu-estado" data-sonido-estado>Sí</span>
+                        </button>
+                    </li>
+                    <li class="hud-menu-sonido">
+                        <button type="button" data-sonido-toggle="efectos" aria-pressed="true">
+                            {{> iconoEfectos}}
+                            Efectos <span class="hud-menu-estado" data-sonido-estado>Sí</span>
+                        </button>
+                    </li>
                     <!-- Home: el lobby del modo que se está viendo (en Die vuelve al lobby de Die). -->
                     <!-- El administrador no tiene lobby: su "home" es Administrar. -->
                     {{^esAdmin}}
@@ -58,6 +72,18 @@
         </nav>
     {{/sesion}}
 </header>
+
+<!-- Botones de sonido fijos abajo a la izquierda: en compu siempre; en celular solo cuando no hay
+     sesión (sin sesión no hay menú hamburguesa donde ponerlos). Música = los loops de fondo;
+     Efectos = todo lo demás. sonidos.js los prende/apaga y recuerda la elección. -->
+<div class="sonido-esquina{{^sesion}} sonido-esquina-sin-menu{{/sesion}}">
+    <button type="button" class="sonido-btn" data-sonido-toggle="musica" aria-pressed="true" title="Música" aria-label="Música">
+        {{> iconoMusica}}
+    </button>
+    <button type="button" class="sonido-btn" data-sonido-toggle="efectos" aria-pressed="true" title="Efectos de sonido" aria-label="Efectos de sonido">
+        {{> iconoEfectos}}
+    </button>
+</div>
 
 <main class="escenario">
     <img class="nube nube-1" src="/public/img/nube.svg" alt="" aria-hidden="true">
